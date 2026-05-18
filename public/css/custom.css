@@ -1,0 +1,363 @@
+/* ===========================
+   COSECSA Training Platform Theme
+   Sidebar:  #252525 charcoal (matches COSECSA-MIS)
+   Accent:   #a02626 burgundy  (highlights only)
+   Gold:     #C9A84C (secondary accent)
+   =========================== */
+
+body,
+.nav-sidebar .nav-link p,
+.brand-text,
+.content-wrapper,
+.main-header,
+.main-footer,
+.card,
+.btn {
+    font-family: 'Nunito', sans-serif !important;
+}
+
+:root {
+    --cosecsa-burgundy: #a02626;
+    --cosecsa-burgundy-dark: #7a1919;
+    --cosecsa-burgundy-hover: #8c2020;
+    --cosecsa-gold: #C9A84C;
+    --cosecsa-gold-dark: #b8960a;
+    --cosecsa-gold-light: #f5e9c8;
+
+    /* Sidebar – dark charcoal matching COSECSA-MIS */
+    --cosecsa-sidebar-bg: #252525;
+    --cosecsa-sidebar-brand: #1a1a1a;
+    --cosecsa-sidebar-text: #b0b0b0;
+
+    /* Content area – clean neutral */
+    --cosecsa-content-bg: #f4f4f4;
+    --cosecsa-card-border: #e0e0e0;
+}
+
+/* ===================== TOP NAVBAR ===================== */
+.main-header.navbar {
+    background-color: #1a1a1a !important;
+    border-bottom: 2px solid var(--cosecsa-burgundy) !important;
+}
+
+.main-header .navbar-nav .nav-link,
+.main-header .brand-text,
+.main-header .nav-link {
+    color: #ddd !important;
+}
+
+.main-header .navbar-nav .nav-link:hover {
+    color: var(--cosecsa-gold) !important;
+}
+
+/* ===================== SIDEBAR ===================== */
+.main-sidebar {
+    background-color: var(--cosecsa-sidebar-bg) !important;
+}
+
+.brand-link {
+    background-color: var(--cosecsa-sidebar-brand) !important;
+    border-bottom: 1px solid #3a3a3a !important;
+    padding: 10px 16px !important;
+}
+
+.brand-text {
+    color: #fff !important;
+}
+
+/* Default sidebar links */
+.sidebar .nav-sidebar .nav-link {
+    color: var(--cosecsa-sidebar-text) !important;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+/* Hover */
+.sidebar .nav-sidebar .nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(255,255,255,0.06) !important;
+    border-left-color: var(--cosecsa-gold) !important;
+}
+
+/* Active – burgundy left bar, subtle highlight */
+.sidebar .nav-sidebar .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(160,38,38,0.25) !important;
+    border-left-color: var(--cosecsa-burgundy) !important;
+}
+
+.sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active {
+    background-color: rgba(160,38,38,0.2) !important;
+    color: #fff !important;
+    border-left-color: var(--cosecsa-burgundy) !important;
+}
+
+.nav-sidebar .menu-open > .nav-link {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: #fff !important;
+}
+
+/* Section labels */
+.sidebar .nav-header {
+    color: #666 !important;
+}
+
+/* ===================== BRAND LOGO ===================== */
+.brand-link .brand-logo-img {
+    max-height: 38px;
+}
+
+/* ===================== CARD HEADERS ===================== */
+/* cosecsa-card-header: burgundy only for primary section cards */
+.cosecsa-card-header {
+    background: var(--cosecsa-burgundy) !important;
+    color: #fff !important;
+    border-bottom: 2px solid var(--cosecsa-gold);
+    padding: 12px 18px;
+}
+
+.cosecsa-card-header .badge {
+    font-size: 11px;
+}
+
+/* Neutral card header for secondary/inner cards */
+.cosecsa-card-header-light {
+    background: #f7f7f7 !important;
+    color: #333 !important;
+    border-bottom: 2px solid var(--cosecsa-burgundy);
+    padding: 12px 18px;
+}
+
+/* ===================== BUTTONS ===================== */
+.btn-cosecsa {
+    background-color: var(--cosecsa-burgundy);
+    border-color: var(--cosecsa-burgundy-dark);
+    color: #fff;
+}
+
+.btn-cosecsa:hover,
+.btn-cosecsa:focus {
+    background-color: var(--cosecsa-burgundy-hover);
+    border-color: var(--cosecsa-burgundy-dark);
+    color: #fff;
+}
+
+.btn-cosecsa-gold {
+    background-color: var(--cosecsa-gold);
+    border-color: var(--cosecsa-gold-dark);
+    color: #fff;
+}
+
+.btn-cosecsa-gold:hover,
+.btn-cosecsa-gold:focus {
+    background-color: var(--cosecsa-gold-dark);
+    border-color: #9a7a08;
+    color: #fff;
+}
+
+/* ===================== FOOTER ===================== */
+.main-footer {
+    background-color: #1a1a1a !important;
+    color: rgba(255,255,255,0.45) !important;
+    border-top: 2px solid var(--cosecsa-burgundy) !important;
+    font-size: 12px;
+}
+
+/* ===================== CONTENT AREA ===================== */
+.content-wrapper {
+    background-color: var(--cosecsa-content-bg) !important;
+}
+
+/* ===================== STAT CARDS (dashboard) ===================== */
+.stat-card {
+    display: flex;
+    align-items: stretch;
+    height: 96px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid var(--cosecsa-card-border);
+    border-left: 4px solid #ccc;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 86px;
+    min-width: 86px;
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.stat-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
+    flex: 1;
+    min-width: 0;
+    height: 96px;
+    box-sizing: border-box;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    margin-bottom: 3px;
+}
+
+.stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    line-height: 1.1;
+    margin-bottom: 3px;
+}
+
+.stat-sub {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 400;
+}
+
+.stat-hint {
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-progress {
+    height: 3px;
+    background: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.stat-progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* ===================== TABLES ===================== */
+table.dataTable thead th {
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #ddd !important;
+    color: #333;
+    font-weight: 600;
+}
+
+/* ===================== ALERTS ===================== */
+.alert-success {
+    background-color: #f0f7ee;
+    border-color: #c3e6cb;
+    color: #2d6a4f;
+}
+
+/* ===================== MISC ===================== */
+.ck-editor__editable,
+textarea {
+    min-height: 150px;
+}
+
+.datatable {
+    width: 100% !important;
+}
+
+.dataTables_length,
+.dataTables_filter,
+.dt-buttons {
+    margin-bottom: 0.333em;
+}
+
+.dt-buttons .btn {
+    margin-left: 0.333em;
+    border-radius: 0;
+}
+
+.table.datatable {
+    box-sizing: border-box;
+    border-collapse: collapse;
+}
+
+table.dataTable thead th {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.select2 {
+    max-width: 100%;
+    width: 100%;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+    background-image: none;
+}
+
+.btn-group-xs > .btn,
+.btn-xs {
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+.searchable-title { font-weight: bold; }
+.select2-container--open { z-index: 9999; }
+.searchable-fields { padding-left: 5px; }
+.searchable-link { padding: 0 5px; }
+.searchable-link:hover { cursor: pointer; background: #eaeaea; }
+.select2-results__option { padding-left: 0; padding-right: 0; }
+
+/* ── Action Menu (custom dropdown for DataTables rows) ── */
+.actions-cell { text-align: center; width: 50px; white-space: nowrap; }
+.action-menu-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 26px; padding: 0; cursor: pointer; border-radius: 4px;
+}
+.action-menu {
+    position: fixed;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 5px;
+    padding: 4px 0;
+    min-width: 145px;
+    z-index: 9999;
+    box-shadow: 0 4px 14px rgba(0,0,0,.13);
+    font-size: 13px;
+}
+.action-menu a,
+.action-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
+    color: #333;
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.action-menu a:hover,
+.action-menu button:hover { background: #f5f5f5; color: #333; text-decoration: none; }
+.action-menu .menu-divider { border-top: 1px solid #e9ecef; margin: 4px 0; }
+.action-menu .text-danger { color: #dc3545 !important; }
+.action-menu .text-danger:hover { background: #fff5f5; }
