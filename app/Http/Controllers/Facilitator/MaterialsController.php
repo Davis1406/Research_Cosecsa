@@ -19,8 +19,9 @@ class MaterialsController extends Controller
             ->orderBy('category')
             ->orderBy('title')
             ->get();
+        $mySpeakerId = $user->speaker?->id;
 
-        return view('facilitator.materials', compact('materials', 'isLead'));
+        return view('facilitator.materials', compact('materials', 'isLead', 'mySpeakerId'));
     }
 
     public function trainees()

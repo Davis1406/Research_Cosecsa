@@ -19,6 +19,7 @@ class TimetableController extends Controller
             ->orderBy('start_time')
             ->get()
             ->groupBy('day_number');
-        return view('facilitator.timetable', compact('days', 'isLead'));
+        $mySpeakerId = $user->speaker?->id;
+        return view('facilitator.timetable', compact('days', 'isLead', 'mySpeakerId'));
     }
 }
