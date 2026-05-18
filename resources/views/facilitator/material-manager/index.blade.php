@@ -72,6 +72,7 @@
                            class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:12px; margin-right:4px;">
                             <i class="fas fa-edit"></i>
                         </a>
+                        @if(auth()->user()->roles->pluck('title')->contains('Lead Facilitator'))
                         <form action="{{ route('facilitator.material-manager.destroy', $mat->id) }}" method="POST" style="display:inline;"
                               onsubmit="return confirm('Delete \'{{ addslashes($mat->title) }}\'?')">
                             @csrf @method('DELETE')
@@ -79,6 +80,7 @@
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

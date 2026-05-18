@@ -105,12 +105,12 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/materials', 'MaterialsController@index')->name('materials');
     Route::get('/profile', 'ProfileController@edit')->name('profile.edit');
     Route::put('/profile', 'ProfileController@update')->name('profile.update');
-    // Lead facilitator only — materials management
-    Route::get('/manage/materials', 'MaterialManagerController@index')->name('material-manager.index')->middleware('role:lead-facilitator');
-    Route::get('/manage/materials/create', 'MaterialManagerController@create')->name('material-manager.create')->middleware('role:lead-facilitator');
-    Route::post('/manage/materials', 'MaterialManagerController@store')->name('material-manager.store')->middleware('role:lead-facilitator');
-    Route::get('/manage/materials/{material}/edit', 'MaterialManagerController@edit')->name('material-manager.edit')->middleware('role:lead-facilitator');
-    Route::put('/manage/materials/{material}', 'MaterialManagerController@update')->name('material-manager.update')->middleware('role:lead-facilitator');
+    // All facilitators — materials management (delete is lead-only)
+    Route::get('/manage/materials', 'MaterialManagerController@index')->name('material-manager.index');
+    Route::get('/manage/materials/create', 'MaterialManagerController@create')->name('material-manager.create');
+    Route::post('/manage/materials', 'MaterialManagerController@store')->name('material-manager.store');
+    Route::get('/manage/materials/{material}/edit', 'MaterialManagerController@edit')->name('material-manager.edit');
+    Route::put('/manage/materials/{material}', 'MaterialManagerController@update')->name('material-manager.update');
     Route::delete('/manage/materials/{material}', 'MaterialManagerController@destroy')->name('material-manager.destroy')->middleware('role:lead-facilitator');
 
     // Lead facilitator only — timetable/schedule management

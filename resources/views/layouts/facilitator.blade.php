@@ -198,11 +198,11 @@
         <a href="{{ route('facilitator.presentations.index') }}" class="{{ request()->routeIs('facilitator.presentations*') ? 'active' : '' }}">
             <i class="fas fa-file-powerpoint"></i> Presentations
         </a>
-        @if($isLead)
         <div style="padding:8px 20px 2px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#bbb;">Manage</div>
         <a href="{{ route('facilitator.material-manager.index') }}" class="{{ request()->routeIs('facilitator.material-manager*') ? 'active' : '' }}">
             <i class="fas fa-book-open"></i> Materials
         </a>
+        @if($isLead)
         <a href="{{ route('facilitator.schedule-manager.index') }}" class="{{ request()->routeIs('facilitator.schedule-manager*') ? 'active' : '' }}">
             <i class="fas fa-calendar-edit"></i> Timetable
         </a>
