@@ -10,7 +10,7 @@ class CreateTraineeDocumentCommentsTable extends Migration
         Schema::create('trainee_document_comments', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('trainee_document_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('user_id');
             $table->text('comment');
             $table->timestamps();
             $table->foreign('trainee_document_id')->references('id')->on('trainee_documents')->onDelete('cascade');
