@@ -13,10 +13,9 @@ class FacilitatorsController extends Controller
 {
     public function index()
     {
-        $facilitators = User::with('roles', 'speaker')
-            ->whereHas('roles', fn($q) => $q->whereIn('title', ['Facilitator', 'Lead Facilitator']))
-            ->latest()
-            ->get();
+        // Show ALL speakers (the actual course facilitators), each tagged with
+        // their portal role when they also have a user account.
+        $facilitators = Speaker::with('user.roles')->latest()->get();
         return view('facilitator.facilitators.index', compact('facilitators'));
     }
 
