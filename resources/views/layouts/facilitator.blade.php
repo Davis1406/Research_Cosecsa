@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Facilitator Portal &mdash; Research Training System</title>
@@ -12,9 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     <style>
-        * { font-family: 'Nunito', sans-serif; }
+        * { font-family: 'Nunito', sans-serif; box-sizing: border-box; }
         body { background: #f4f6f9; margin: 0; }
 
+        /* ── Sidebar ── */
         .portal-sidebar {
             position: fixed;
             top: 0; left: 0;
@@ -23,9 +24,10 @@
             background: #ffffff;
             display: flex;
             flex-direction: column;
-            z-index: 100;
+            z-index: 200;
             overflow-y: auto;
             box-shadow: 2px 0 8px rgba(0,0,0,0.07);
+            transition: transform 0.28s ease;
         }
         .portal-sidebar .sidebar-brand {
             padding: 20px 18px 16px;
@@ -33,78 +35,47 @@
             border-bottom: 1px solid rgba(201,168,76,0.3);
         }
         .portal-sidebar .sidebar-brand .brand-title {
-            color: #2d3748;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            line-height: 1.3;
-            display: block;
-            margin-top: 6px;
+            color: #2d3748; font-weight: 700; font-size: 13px;
+            letter-spacing: 0.5px; line-height: 1.3; display: block; margin-top: 6px;
         }
         .portal-sidebar .sidebar-brand .brand-sub {
-            color: #888;
-            font-size: 11px;
-            display: block;
-            margin-top: 2px;
-        }
-        .portal-sidebar .sidebar-role-badge {
-            margin: 12px 18px;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            text-align: center;
-        }
-        .portal-sidebar .sidebar-role-badge.lead {
-            background: rgba(201,168,76,0.2);
-            border: 1px solid rgba(201,168,76,0.5);
-            color: #C9A84C;
-        }
-        .portal-sidebar .sidebar-role-badge.regular {
-            background: rgba(44,122,75,0.12);
-            border: 1px solid rgba(44,122,75,0.35);
-            color: #2c7a4b;
+            color: #888; font-size: 11px; display: block; margin-top: 2px;
         }
         .portal-sidebar nav { padding: 8px 0; flex: 1; }
         .portal-sidebar nav a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            color: #2d3748;
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 20px; color: #2d3748; text-decoration: none;
+            font-size: 13.5px; font-weight: 600;
             transition: background 0.15s, color 0.15s;
             border-left: 3px solid transparent;
         }
-        .portal-sidebar nav a:hover {
-            background: rgba(201,168,76,0.08);
-            color: #C9A84C;
-            border-left-color: #C9A84C;
-        }
-        .portal-sidebar nav a.active {
-            background: rgba(201,168,76,0.08);
-            color: #C9A84C;
-            border-left-color: #C9A84C;
-        }
+        .portal-sidebar nav a:hover  { background: rgba(201,168,76,0.08); color: #C9A84C; border-left-color: #C9A84C; }
+        .portal-sidebar nav a.active { background: rgba(201,168,76,0.08); color: #C9A84C; border-left-color: #C9A84C; }
         .portal-sidebar nav a i { width: 18px; text-align: center; font-size: 14px; }
+        .sidebar-section-label {
+            padding: 8px 20px 2px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px; color: #bbb;
+        }
         .portal-sidebar .sidebar-logout {
-            padding: 16px 18px;
-            border-top: 1px solid #e9ecef;
+            padding: 16px 18px; border-top: 1px solid #e9ecef;
         }
         .portal-sidebar .sidebar-logout a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #888;
-            font-size: 13px;
-            text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+            color: #888; font-size: 13px; text-decoration: none;
         }
         .portal-sidebar .sidebar-logout a:hover { color: #e53e3e; }
 
+        /* ── Overlay (mobile) ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 199;
+            transition: opacity 0.28s ease;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ── Main content ── */
         .portal-main {
             margin-left: 240px;
             min-height: 100vh;
@@ -113,40 +84,58 @@
         }
         .portal-topbar {
             background: #ffffff;
-            padding: 0 24px;
+            padding: 0 20px;
             height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            position: sticky; top: 0; z-index: 50;
             border-bottom: 2px solid #C9A84C;
+            gap: 10px;
         }
         .portal-topbar .page-title {
-            color: #2d3748;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
+            color: #2d3748; font-size: 15px; font-weight: 700; letter-spacing: 0.3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .portal-topbar .user-info {
-            color: #2d3748;
-            font-size: 13px;
+        .topbar-hamburger {
+            display: none;
+            background: none; border: none; padding: 6px 8px;
+            color: #2d3748; font-size: 18px; cursor: pointer; flex-shrink: 0;
         }
-        .portal-content {
-            padding: 24px;
-            flex: 1;
-        }
+        .portal-content { padding: 24px; flex: 1; }
         .portal-footer {
-            background: #f8f9fa;
-            color: #999;
-            font-size: 11.5px;
-            text-align: center;
-            padding: 10px;
+            background: #f8f9fa; color: #999; font-size: 11.5px;
+            text-align: center; padding: 10px;
         }
         .alert { border-radius: 6px; }
         .alert-success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
         .alert-danger  { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+
+        /* ── Mobile breakpoint ── */
+        @media (max-width: 768px) {
+            .portal-sidebar {
+                transform: translateX(-240px);
+                box-shadow: none;
+            }
+            .portal-sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.18);
+            }
+            .portal-main { margin-left: 0; }
+            .topbar-hamburger { display: flex; align-items: center; justify-content: center; }
+            .portal-content { padding: 16px 12px; }
+            .portal-topbar { padding: 0 12px; }
+            .portal-topbar .page-title { font-size: 14px; }
+            /* Hide username text on very small screens */
+            .topbar-username { display: none; }
+        }
+
+        /* ── Table responsive helpers ── */
+        .table td, .table th { vertical-align: middle; }
+        @media (max-width: 576px) {
+            .card-body { padding: 14px !important; }
+            h5 { font-size: 1rem !important; }
+        }
     </style>
     @yield('styles')
 </head>
@@ -158,7 +147,10 @@
     $facInit  = strtoupper(substr(auth()->user()->name ?? 'F', 0, 1));
 @endphp
 
-<div class="portal-sidebar">
+{{-- Mobile sidebar overlay --}}
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="portal-sidebar" id="portalSidebar">
     <div class="sidebar-brand">
         <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA" style="width:36px;height:36px;border-radius:50%;border:2px solid #C9A84C;">
         <span class="brand-title">Research Training System</span>
@@ -183,33 +175,33 @@
     </div>
 
     <nav>
-        <a href="{{ route('facilitator.dashboard') }}" class="{{ request()->routeIs('facilitator.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.dashboard') }}" class="{{ request()->routeIs('facilitator.dashboard') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a href="{{ route('facilitator.timetable') }}" class="{{ request()->routeIs('facilitator.timetable') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.timetable') }}" class="{{ request()->routeIs('facilitator.timetable') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-calendar-alt"></i> Timetable
         </a>
-        <a href="{{ route('facilitator.materials') }}" class="{{ request()->routeIs('facilitator.materials') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.materials') }}" class="{{ request()->routeIs('facilitator.materials') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-book"></i> Materials
         </a>
-        <a href="{{ route('facilitator.profile.edit') }}" class="{{ request()->routeIs('facilitator.profile*') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.profile.edit') }}" class="{{ request()->routeIs('facilitator.profile*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-user-circle"></i> My Profile
         </a>
-        <a href="{{ route('facilitator.presentations.index') }}" class="{{ request()->routeIs('facilitator.presentations*') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.presentations.index') }}" class="{{ request()->routeIs('facilitator.presentations*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-file-powerpoint"></i> Presentations
         </a>
-        <div style="padding:8px 20px 2px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#bbb;">Manage</div>
-        <a href="{{ route('facilitator.material-manager.index') }}" class="{{ request()->routeIs('facilitator.material-manager*') ? 'active' : '' }}">
+        <div class="sidebar-section-label">Manage</div>
+        <a href="{{ route('facilitator.material-manager.index') }}" class="{{ request()->routeIs('facilitator.material-manager*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-book-open"></i> Materials
         </a>
         @if($isLead)
-        <a href="{{ route('facilitator.schedule-manager.index') }}" class="{{ request()->routeIs('facilitator.schedule-manager*') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.schedule-manager.index') }}" class="{{ request()->routeIs('facilitator.schedule-manager*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-calendar-edit"></i> Timetable
         </a>
-        <a href="{{ route('facilitator.trainees') }}" class="{{ request()->routeIs('facilitator.trainees*') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.trainees') }}" class="{{ request()->routeIs('facilitator.trainees*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-user-graduate"></i> Trainees
         </a>
-        <a href="{{ route('facilitator.facilitators.index') }}" class="{{ request()->routeIs('facilitator.facilitators*') ? 'active' : '' }}">
+        <a href="{{ route('facilitator.facilitators.index') }}" class="{{ request()->routeIs('facilitator.facilitators*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-chalkboard-teacher"></i> Facilitators
         </a>
         @endif
@@ -223,10 +215,15 @@
 
 <div class="portal-main">
     <div class="portal-topbar">
-        <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
-        <span class="user-info" style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <button class="topbar-hamburger" onclick="toggleSidebar()" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
+        </div>
+        <span style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
             <div style="width:28px;height:28px;border-radius:50%;border:2px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $facInit }}</div>
-            <span>{{ auth()->user()->name ?? '' }}</span>
+            <span class="topbar-username" style="color:#2d3748;font-size:13px;">{{ auth()->user()->name ?? '' }}</span>
         </span>
     </div>
 
@@ -260,6 +257,20 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar() {
+    document.getElementById('portalSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+    document.getElementById('portalSidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+}
+// Close sidebar on resize to desktop
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) closeSidebar();
+});
+</script>
 @yield('scripts')
 </body>
 </html>

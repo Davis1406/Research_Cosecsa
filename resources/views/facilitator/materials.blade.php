@@ -8,8 +8,7 @@
         <i class="fas fa-book mr-2" style="color:#C9A84C;"></i> Training Materials
     </h5>
     <div class="d-flex align-items-center" style="gap:10px;">
-        @if($mySpeakerId)
-        <div class="d-flex align-items-center" style="gap:6px;">
+        <div class="d-flex align-items-center" style="gap:6px; flex-shrink:0;">
             <span style="font-size:0.8rem; color:#888; margin-right:2px;">View:</span>
             <button id="btn-all" onclick="filterMaterials('all')"
                 class="btn btn-sm"
@@ -22,7 +21,6 @@
                 Mine
             </button>
         </div>
-        @endif
         <span id="mat-count" class="badge" style="background:#252525; color:#C9A84C; font-size:0.8rem; padding:6px 12px;">
             {{ $materials->count() }} materials
         </span>

@@ -7,21 +7,19 @@
     <h5 class="mb-0" style="font-weight:700; color:#2d3748; font-size:1.1rem;">
         <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> Workshop Timetable
     </h5>
-    @if($mySpeakerId)
-    <div class="d-flex align-items-center" style="gap:6px;">
-        <span style="font-size:0.8rem; color:#888; margin-right:4px;">View:</span>
+    <div class="d-flex align-items-center" style="gap:6px; flex-shrink:0;">
+        <span style="font-size:0.8rem; color:#888; margin-right:2px;">View:</span>
         <button id="btn-all" onclick="filterSessions('all')"
-            class="btn btn-sm active-filter"
+            class="btn btn-sm"
             style="font-size:0.8rem; font-weight:700; border-radius:20px; padding:4px 14px; background:#2d3748; color:#fff; border:1px solid #2d3748;">
-            All Sessions
+            All
         </button>
         <button id="btn-mine" onclick="filterSessions('mine')"
             class="btn btn-sm"
             style="font-size:0.8rem; font-weight:700; border-radius:20px; padding:4px 14px; background:#fff; color:#C9A84C; border:1px solid #C9A84C;">
-            My Sessions
+            Mine
         </button>
     </div>
-    @endif
 </div>
 
 @if($days->isEmpty())

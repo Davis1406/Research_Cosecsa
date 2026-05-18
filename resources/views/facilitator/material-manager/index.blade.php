@@ -34,9 +34,9 @@
             <thead style="background:#fafafa;">
                 <tr>
                     <th class="th-sm">Title</th>
-                    <th class="th-sm">Category</th>
-                    <th class="th-sm">Facilitator</th>
-                    <th class="th-sm">File</th>
+                    <th class="th-sm th-sm-hide">Category</th>
+                    <th class="th-sm th-sm-hide">Facilitator</th>
+                    <th class="th-sm th-sm-hide">File</th>
                     <th class="th-sm" style="text-align:right; padding-right:16px;">Actions</th>
                 </tr>
             </thead>
@@ -49,15 +49,15 @@
                             <div style="font-size:11.5px; color:#888; margin-top:1px;">{{ Str::limit($mat->description, 60) }}</div>
                         @endif
                     </td>
-                    <td style="vertical-align:middle; font-size:13px; color:#555;">
+                    <td class="td-hide" style="vertical-align:middle; font-size:13px; color:#555;">
                         @if($mat->category)
                             <span style="background:#fef3cd; color:#856404; border-radius:4px; padding:2px 8px; font-size:11px; font-weight:600;">{{ $mat->category }}</span>
                         @else
                             <span style="color:#ccc;">—</span>
                         @endif
                     </td>
-                    <td style="vertical-align:middle; font-size:13px; color:#555;">{{ $mat->facilitator?->name ?? '—' }}</td>
-                    <td style="vertical-align:middle;">
+                    <td class="td-hide" style="vertical-align:middle; font-size:13px; color:#555;">{{ $mat->facilitator?->name ?? '—' }}</td>
+                    <td class="td-hide" style="vertical-align:middle;">
                         @if($mat->external_url)
                             <a href="{{ route('material.view', $mat->id) }}" target="_blank"
                                style="font-size:12px; color:#C9A84C; text-decoration:none;">
@@ -93,5 +93,11 @@
 @endsection
 
 @section('styles')
-<style>.th-sm { font-size:11px; font-weight:700; color:#555; border-top:none; text-transform:uppercase; letter-spacing:0.4px; padding:9px 16px; }</style>
+<style>
+.th-sm { font-size:11px; font-weight:700; color:#555; border-top:none; text-transform:uppercase; letter-spacing:0.4px; padding:9px 16px; }
+@media (max-width: 576px) {
+    .th-sm-hide, .td-hide { display: none; }
+    .table td, .table th { padding: 8px 10px; }
+}
+</style>
 @endsection
