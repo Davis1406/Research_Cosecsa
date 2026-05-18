@@ -18,10 +18,12 @@ class MaterialManagerController extends Controller
 
     public function create()
     {
-        $speakers = Speaker::orderBy('name')->get();
+        $speakers   = Speaker::orderBy('name')->get();
+        $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
         return view('facilitator.material-manager.form', [
-            'material' => null,
-            'speakers' => $speakers,
+            'material'   => null,
+            'speakers'   => $speakers,
+            'categories' => $categories,
         ]);
     }
 
@@ -67,8 +69,9 @@ class MaterialManagerController extends Controller
 
     public function edit(TrainingMaterial $material)
     {
-        $speakers = Speaker::orderBy('name')->get();
-        return view('facilitator.material-manager.form', compact('material', 'speakers'));
+        $speakers   = Speaker::orderBy('name')->get();
+        $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
+        return view('facilitator.material-manager.form', compact('material', 'speakers', 'categories'));
     }
 
     public function update(Request $request, TrainingMaterial $material)

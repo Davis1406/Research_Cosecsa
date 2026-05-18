@@ -45,9 +45,33 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label class="form-label-sm">Category</label>
-                            <input type="text" name="category" class="form-control"
-                                   value="{{ old('category', $material->category ?? '') }}"
-                                   placeholder="e.g. Statistics, Study Design…">
+                            @php $currentCat = old('category', $material->category ?? ''); @endphp
+
+                            {{-- Dropdown for existing categories --}}
+                            <select id="category-select" class="form-control mb-1"
+                                    onchange="handleCategoryChange(this)">
+                                <option value="">— Select a category —</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat }}" {{ $currentCat === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                @endforeach
+                                <option value="__new__" {{ $currentCat && !$categories->contains($currentCat) ? 'selected' : '' }}>
+                                    ＋ Add new category…
+                                </option>
+                            </select>
+
+                            {{-- Shown only when "Add new" is chosen --}}
+                            <div id="new-category-wrap" style="display:{{ ($currentCat && !$categories->contains($currentCat)) ? 'flex' : 'none' }}; gap:6px; align-items:center;">
+                                <input type="text" id="new-category-input" class="form-control"
+                                       placeholder="Type new category name"
+                                       value="{{ ($currentCat && !$categories->contains($currentCat)) ? $currentCat : '' }}">
+                                <button type="button" onclick="cancelNewCategory()"
+                                        class="btn btn-sm" style="background:#f8f9fa; color:#888; border:1px solid #dee2e6; white-space:nowrap; flex-shrink:0;">
+                                    ✕
+                                </button>
+                            </div>
+
+                            {{-- Hidden field that gets submitted --}}
+                            <input type="hidden" name="category" id="category-value" value="{{ $currentCat }}">
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="form-label-sm">Facilitator / Author</label>
@@ -124,20 +148,53 @@
 
 @section('scripts')
 <script>
+// ── Type icon ──
 var typeIcons = { presentation:'fa-file-powerpoint', document:'fa-file-pdf', video:'fa-video' };
 document.getElementById('type-select').addEventListener('change', function() {
     var icon = typeIcons[this.value] || 'fa-file';
     document.getElementById('type-icon').innerHTML = '<i class="fas ' + icon + '"></i>';
 });
-// Trigger on load for edit mode
 document.getElementById('type-select').dispatchEvent(new Event('change'));
 
+// ── File picker feedback ──
 document.getElementById('file-input').addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
     var sel = document.getElementById('file-selected');
     sel.style.display = 'block';
     sel.querySelector('span').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)';
+});
+
+// ── Category dropdown ──
+function handleCategoryChange(sel) {
+    var wrap  = document.getElementById('new-category-wrap');
+    var input = document.getElementById('new-category-input');
+    var hidden = document.getElementById('category-value');
+    if (sel.value === '__new__') {
+        wrap.style.display = 'flex';
+        input.focus();
+        hidden.value = '';
+    } else {
+        wrap.style.display = 'none';
+        input.value = '';
+        hidden.value = sel.value;
+    }
+}
+
+function cancelNewCategory() {
+    document.getElementById('category-select').value = '';
+    document.getElementById('new-category-wrap').style.display = 'none';
+    document.getElementById('new-category-input').value = '';
+    document.getElementById('category-value').value = '';
+}
+
+// Sync the typed value into the hidden field before form submits
+document.querySelector('form').addEventListener('submit', function() {
+    var wrap = document.getElementById('new-category-wrap');
+    if (wrap.style.display !== 'none') {
+        document.getElementById('category-value').value =
+            document.getElementById('new-category-input').value.trim();
+    }
 });
 </script>
 @endsection
