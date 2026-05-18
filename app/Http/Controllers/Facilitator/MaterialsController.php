@@ -14,16 +14,11 @@ class MaterialsController extends Controller
         $isLead  = $user->roles->pluck('title')->contains('Lead Facilitator');
         $speaker = $user->speaker;
 
-        if ($isLead) {
-            $materials = TrainingMaterial::with('facilitator')
-                ->orderBy('category')
-                ->orderBy('title')
-                ->get();
-        } else {
-            $materials = $speaker
-                ? TrainingMaterial::where('speaker_id', $speaker->id)->orderBy('title')->get()
-                : collect();
-        }
+        // All facilitators see all materials; isLead used by the view for any lead-only UI
+        $materials = TrainingMaterial::with('facilitator')
+            ->orderBy('category')
+            ->orderBy('title')
+            ->get();
 
         return view('facilitator.materials', compact('materials', 'isLead'));
     }
