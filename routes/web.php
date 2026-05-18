@@ -105,6 +105,23 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/materials', 'MaterialsController@index')->name('materials');
     Route::get('/profile', 'ProfileController@edit')->name('profile.edit');
     Route::put('/profile', 'ProfileController@update')->name('profile.update');
+    // Lead facilitator only — materials management
+    Route::get('/manage/materials', 'MaterialManagerController@index')->name('material-manager.index')->middleware('role:lead-facilitator');
+    Route::get('/manage/materials/create', 'MaterialManagerController@create')->name('material-manager.create')->middleware('role:lead-facilitator');
+    Route::post('/manage/materials', 'MaterialManagerController@store')->name('material-manager.store')->middleware('role:lead-facilitator');
+    Route::get('/manage/materials/{material}/edit', 'MaterialManagerController@edit')->name('material-manager.edit')->middleware('role:lead-facilitator');
+    Route::put('/manage/materials/{material}', 'MaterialManagerController@update')->name('material-manager.update')->middleware('role:lead-facilitator');
+    Route::delete('/manage/materials/{material}', 'MaterialManagerController@destroy')->name('material-manager.destroy')->middleware('role:lead-facilitator');
+
+    // Lead facilitator only — timetable/schedule management
+    Route::get('/manage/timetable', 'ScheduleManagerController@index')->name('schedule-manager.index')->middleware('role:lead-facilitator');
+    Route::get('/manage/timetable/create', 'ScheduleManagerController@create')->name('schedule-manager.create')->middleware('role:lead-facilitator');
+    Route::post('/manage/timetable', 'ScheduleManagerController@store')->name('schedule-manager.store')->middleware('role:lead-facilitator');
+    Route::get('/manage/timetable/{session}/edit', 'ScheduleManagerController@edit')->name('schedule-manager.edit')->middleware('role:lead-facilitator');
+    Route::put('/manage/timetable/{session}', 'ScheduleManagerController@update')->name('schedule-manager.update')->middleware('role:lead-facilitator');
+    Route::delete('/manage/timetable/{session}', 'ScheduleManagerController@destroy')->name('schedule-manager.destroy')->middleware('role:lead-facilitator');
+    Route::post('/manage/timetable/{session}/toggle', 'ScheduleManagerController@toggleComplete')->name('schedule-manager.toggle')->middleware('role:lead-facilitator');
+
     // Lead facilitator only — trainees management
     Route::get('/trainees', 'TraineesController@index')->name('trainees')->middleware('role:lead-facilitator');
     Route::get('/trainees/create', 'TraineesController@create')->name('trainees.create')->middleware('role:lead-facilitator');

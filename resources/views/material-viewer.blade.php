@@ -389,12 +389,16 @@ $(function () {
     }
 
     function showError(msg) {
+        var isProtected = msg.indexOf('Package not found') !== -1 || msg.indexOf('magic number') !== -1 || msg.indexOf('decompressing') !== -1 || msg.indexOf('protected') !== -1;
+        var friendly = isProtected
+            ? 'This presentation appears to be <strong>password-protected or in an incompatible format</strong>. Please open it in PowerPoint/LibreOffice directly.'
+            : msg;
         $('#pptx-loading').remove();
         $('#pptx-container').html(
             '<div class="pptx-error">' +
-            '<i class="fas fa-exclamation-triangle" style="font-size:36px; color:#e67e22;"></i>' +
-            '<p style="color:#ccc; font-size:14px; margin-top:10px;">' + msg + '</p>' +
-            (fileUrl ? '<a href="' + fileUrl + '" download class="btn btn-gold btn-sm mt-2">Download to view</a>' : '') +
+            '<i class="fas fa-lock" style="font-size:36px; color:#e67e22;"></i>' +
+            '<p style="color:#ccc; font-size:14px; margin-top:10px; max-width:380px; text-align:center; line-height:1.6;">' + friendly + '</p>' +
+            (fileUrl ? '<a href="' + fileUrl + '" download class="btn btn-gold btn-sm mt-2"><i class="fas fa-download mr-1"></i>Download File</a>' : '') +
             '</div>'
         );
     }
