@@ -25,7 +25,7 @@
             {{-- Account --}}
             <div class="card shadow-sm mb-3" style="border-radius:10px; overflow:hidden;">
                 <div class="card-header" style="background:#fff; border-left:4px solid #C9A84C; padding:14px 20px;">
-                    <strong style="color:#2d3748; font-size:14px;"><i class="fas fa-user mr-2" style="color:#C9A84C;"></i>Account Details</strong>
+                    <strong style="color:#2d3748; font-size:1rem;"><i class="fas fa-user mr-2" style="color:#C9A84C;"></i>Account Details</strong>
                 </div>
                 <div class="card-body" style="padding:24px;">
                     <div class="row">
@@ -67,7 +67,7 @@
             {{-- Profile / Speaker info --}}
             <div class="card shadow-sm mb-3" style="border-radius:10px; overflow:hidden;">
                 <div class="card-header" style="background:#fff; border-left:4px solid #C9A84C; padding:14px 20px;">
-                    <strong style="color:#2d3748; font-size:14px;"><i class="fas fa-id-card mr-2" style="color:#C9A84C;"></i>Profile Information</strong>
+                    <strong style="color:#2d3748; font-size:1rem;"><i class="fas fa-id-card mr-2" style="color:#C9A84C;"></i>Profile Information</strong>
                 </div>
                 <div class="card-body" style="padding:24px;">
                     <div class="form-group">
@@ -106,15 +106,15 @@
                             <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;">{{ $previewInit }}</div>
                         @endif
                     </div>
-                    <div style="font-size:13px;color:#888;margin-bottom:18px;">{{ $isEdit ? 'Editing facilitator account' : 'New facilitator account' }}</div>
-                    <button type="submit" class="btn btn-block" style="background:#C9A84C; color:#fff; font-weight:700; padding:10px; border-radius:6px; font-size:14px;">
+                    <div style="font-size:0.875rem;color:#888;margin-bottom:18px;">{{ $isEdit ? 'Editing facilitator account' : 'New facilitator account' }}</div>
+                    <button type="submit" class="btn btn-block" style="background:#C9A84C; color:#fff; font-weight:700; padding:10px; border-radius:6px; font-size:1rem;">
                         <i class="fas fa-save mr-2"></i>{{ $isEdit ? 'Save Changes' : 'Create Account' }}
                     </button>
-                    <a href="{{ route('facilitator.facilitators.index') }}" class="btn btn-block mt-2" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:13px;">
+                    <a href="{{ route('facilitator.facilitators.index') }}" class="btn btn-block mt-2" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:0.9rem;">
                         Cancel
                     </a>
                     @if($isEdit && $facilitator->speaker)
-                        <div style="margin-top:14px; padding-top:14px; border-top:1px solid #f0f0f0; font-size:11px; color:#aaa;">
+                        <div style="margin-top:14px; padding-top:14px; border-top:1px solid #f0f0f0; font-size:0.8rem; color:#aaa;">
                             Profile photo can be updated from the facilitator's own Profile page.
                         </div>
                     @endif
@@ -126,7 +126,7 @@
 
 @section('styles')
 <style>
-.form-label-sm { font-size:11px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block; }
+.form-label-sm { font-size:0.8rem; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block; }
 </style>
 @endsection
 @endsection
