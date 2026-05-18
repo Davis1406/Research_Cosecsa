@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class TraineeDocument extends Model
 {
@@ -25,6 +26,6 @@ class TraineeDocument extends Model
 
     public function getDownloadUrlAttribute()
     {
-        return '/research/storage/' . $this->file_path;
+        return Storage::disk('public')->url($this->file_path);
     }
 }

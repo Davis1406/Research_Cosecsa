@@ -65,7 +65,8 @@ class MaterialViewerController extends Controller
     private function resolveFilePath(?string $url): ?string
     {
         if (!$url) return null;
-        // Strip /research/ prefix, keep the rest as a relative path under public/
+        // Strip any leading /research/ subfolder prefix (local XAMPP dev) or
+        // leading slash (production), leaving a relative path under public/
         $relative = ltrim(preg_replace('#^/research/#', '/', $url), '/');
         return public_path($relative);
     }
