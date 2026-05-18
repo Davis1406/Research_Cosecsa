@@ -8,8 +8,11 @@ use App\Http\Requests\MassDestroySpeakerRequest;
 use App\Http\Requests\StoreSpeakerRequest;
 use App\Http\Requests\UpdateSpeakerRequest;
 use App\Speaker;
+use App\User;
+use App\Role;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 class SpeakersController extends Controller
@@ -29,7 +32,8 @@ class SpeakersController extends Controller
     {
         abort_if(Gate::denies('speaker_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.speakers.create');
+        $roles = Role::orderBy('title')->get();
+        return view('admin.speakers.create', compact('roles'));
     }
 
     public function store(StoreSpeakerRequest $request)
@@ -40,14 +44,27 @@ class SpeakersController extends Controller
             $speaker->addMedia(storage_path('tmp/uploads/' . $request->input('photo')))->toMediaCollection('photo');
         }
 
-        return redirect()->route('admin.speakers.index');
+        // Optionally create a portal user account
+        if ($request->filled('portal_email') && $request->filled('portal_password') && $request->filled('portal_role_id')) {
+            $user = User::create([
+                'name'     => $speaker->name,
+                'email'    => $request->portal_email,
+                'password' => Hash::make($request->portal_password),
+            ]);
+            $user->roles()->attach($request->portal_role_id);
+            $speaker->update(['user_id' => $user->id]);
+        }
+
+        return redirect()->route('admin.speakers.index')->with('message', 'Facilitator created successfully.');
     }
 
     public function edit(Speaker $speaker)
     {
         abort_if(Gate::denies('speaker_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.speakers.edit', compact('speaker'));
+        $roles = Role::orderBy('title')->get();
+        $speaker->load('user.roles');
+        return view('admin.speakers.edit', compact('speaker', 'roles'));
     }
 
     public function update(UpdateSpeakerRequest $request, Speaker $speaker)
@@ -62,7 +79,30 @@ class SpeakersController extends Controller
             $speaker->photo->delete();
         }
 
-        return redirect()->route('admin.speakers.index');
+        // Update or create portal user account
+        if ($request->filled('portal_email') && $request->filled('portal_role_id')) {
+            $user = $speaker->user;
+            if ($user) {
+                // Update existing account
+                $userUpdate = ['name' => $speaker->name, 'email' => $request->portal_email];
+                if ($request->filled('portal_password')) {
+                    $userUpdate['password'] = Hash::make($request->portal_password);
+                }
+                $user->update($userUpdate);
+                $user->roles()->sync([$request->portal_role_id]);
+            } elseif ($request->filled('portal_password')) {
+                // Create new account
+                $user = User::create([
+                    'name'     => $speaker->name,
+                    'email'    => $request->portal_email,
+                    'password' => Hash::make($request->portal_password),
+                ]);
+                $user->roles()->attach($request->portal_role_id);
+                $speaker->update(['user_id' => $user->id]);
+            }
+        }
+
+        return redirect()->route('admin.speakers.index')->with('message', 'Facilitator updated successfully.');
     }
 
     public function show(Speaker $speaker)

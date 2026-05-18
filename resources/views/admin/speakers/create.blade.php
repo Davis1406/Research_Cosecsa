@@ -43,6 +43,40 @@
                 <input type="text" id="linkedin" name="linkedin" class="form-control {{ $errors->has('linkedin') ? 'is-invalid' : '' }}" value="{{ old('linkedin', '') }}" placeholder="LinkedIn profile URL">
                 @if($errors->has('linkedin'))<div class="invalid-feedback">{{ $errors->first('linkedin') }}</div>@endif
             </div>
+            {{-- Portal Access --}}
+            <hr>
+            <h6 style="font-weight:700; color:#2d3748; margin-bottom:16px;">
+                <i class="fas fa-key mr-2" style="color:#C9A84C;"></i> Portal Access <small class="text-muted font-weight-normal">(optional — creates a login account)</small>
+            </h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_email">Email Address</label>
+                        <input type="email" id="portal_email" name="portal_email" class="form-control" value="{{ old('portal_email') }}" placeholder="facilitator@cosecsa.org">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_role_id">Role</label>
+                        <select id="portal_role_id" name="portal_role_id" class="form-control">
+                            <option value="">— Select role —</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ old('portal_role_id') == $role->id ? 'selected' : '' }}>{{ $role->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_password">Password</label>
+                        <input type="password" id="portal_password" name="portal_password" class="form-control" placeholder="Min. 8 characters">
+                        <small class="text-muted">Required to create a new portal account.</small>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}

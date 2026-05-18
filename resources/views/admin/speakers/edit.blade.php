@@ -96,8 +96,55 @@
                     {{ trans('cruds.speaker.fields.linkedin_helper') }}
                 </p>
             </div>
+            {{-- Portal Access --}}
+            <hr>
+            <h6 style="font-weight:700; color:#2d3748; margin-bottom:4px;">
+                <i class="fas fa-key mr-2" style="color:#C9A84C;"></i> Portal Access
+            </h6>
+            @if($speaker->user)
+                <p class="text-muted mb-3" style="font-size:13px;">
+                    <i class="fas fa-check-circle text-success mr-1"></i>
+                    Portal account exists: <strong>{{ $speaker->user->email }}</strong>
+                    &mdash; current role: <strong>{{ $speaker->user->roles->first()?->title ?? '—' }}</strong>
+                </p>
+            @else
+                <p class="text-muted mb-3" style="font-size:13px;">No portal account yet. Fill in email + password + role below to create one.</p>
+            @endif
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_email">Email Address</label>
+                        <input type="email" id="portal_email" name="portal_email" class="form-control"
+                               value="{{ old('portal_email', $speaker->user?->email) }}"
+                               placeholder="facilitator@cosecsa.org">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_role_id">Role</label>
+                        <select id="portal_role_id" name="portal_role_id" class="form-control">
+                            <option value="">— Select role —</option>
+                            @foreach($roles as $role)
+                                @php $currentRoleId = $speaker->user?->roles->first()?->id; @endphp
+                                <option value="{{ $role->id }}" {{ (old('portal_role_id', $currentRoleId) == $role->id) ? 'selected' : '' }}>{{ $role->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="portal_password">{{ $speaker->user ? 'New Password' : 'Password' }}</label>
+                        <input type="password" id="portal_password" name="portal_password" class="form-control"
+                               placeholder="{{ $speaker->user ? 'Leave blank to keep current' : 'Required to create account' }}">
+                    </div>
+                </div>
+            </div>
+
             <div>
-                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+                <input class="btn btn-cosecsa" type="submit" value="{{ trans('global.save') }}">
+                <a class="btn btn-secondary ml-2" href="{{ route('admin.speakers.index') }}">{{ trans('global.cancel') }}</a>
             </div>
         </form>
 
