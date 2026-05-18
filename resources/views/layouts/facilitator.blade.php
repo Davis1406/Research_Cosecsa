@@ -225,13 +225,7 @@
     <div class="portal-topbar">
         <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
         <span class="user-info" style="display:flex;align-items:center;gap:8px;">
-            <div style="width:28px;height:28px;border-radius:50%;border:2px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#f0f0f0;">
-                @if($facPhoto)
-                    <img src="{{ $facPhoto }}" style="width:100%;height:100%;object-fit:cover;" alt="">
-                @else
-                    <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $facInit }}</div>
-                @endif
-            </div>
+            <div style="width:28px;height:28px;border-radius:50%;border:2px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $facInit }}</div>
             <span>{{ auth()->user()->name ?? '' }}</span>
         </span>
     </div>
