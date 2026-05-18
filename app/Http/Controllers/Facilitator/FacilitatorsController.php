@@ -15,7 +15,7 @@ class FacilitatorsController extends Controller
     {
         $facilitators = User::with('roles', 'speaker')
             ->whereHas('roles', fn($q) => $q->whereIn('title', ['Facilitator', 'Lead Facilitator']))
-            ->orderBy('name')
+            ->latest()
             ->get();
         return view('facilitator.facilitators.index', compact('facilitators'));
     }

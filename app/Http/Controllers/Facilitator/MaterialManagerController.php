@@ -12,7 +12,7 @@ class MaterialManagerController extends Controller
     public function index()
     {
         $materials = TrainingMaterial::with('facilitator')
-            ->orderBy('category')->orderBy('title')->get();
+            ->latest()->get();
         return view('facilitator.material-manager.index', compact('materials'));
     }
 

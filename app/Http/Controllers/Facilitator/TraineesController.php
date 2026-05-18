@@ -13,7 +13,7 @@ class TraineesController extends Controller
 {
     public function index()
     {
-        $traineeList = Trainee::with('documents', 'user')->orderBy('name')->get();
+        $traineeList = Trainee::with('documents', 'user')->latest()->get();
         return view('facilitator.trainees', compact('traineeList'));
     }
 
