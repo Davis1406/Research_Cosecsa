@@ -42,15 +42,21 @@
         <div class="card-body" style="padding:16px 20px;">
             <div class="row">
                 @foreach($trainee->documents as $doc)
-                @php $commentCount = $doc->comments->count(); @endphp
+                @php
+                    $commentCount = $doc->comments->count();
+                    $ext = strtolower(pathinfo($doc->original_name, PATHINFO_EXTENSION));
+                    $docIcon = $ext === 'pdf' ? 'fa-file-pdf' : (in_array($ext,['pptx','ppt']) ? 'fa-file-powerpoint' : 'fa-file');
+                    $docColor = $ext === 'pdf' ? '#e53e3e' : '#C9A84C';
+                @endphp
                 <div class="col-md-6 mb-3">
                     <div class="card h-100" style="border-radius:8px; border:1px solid #e9ecef; overflow:hidden;">
                         <div class="card-body" style="padding:14px;">
                             <div style="font-weight:700; font-size:13px; color:#2d3748; margin-bottom:4px;">
-                                <i class="fas fa-file-powerpoint mr-1" style="color:#C9A84C;"></i>
+                                <i class="fas {{ $docIcon }} mr-1" style="color:{{ $docColor }};"></i>
                                 {{ $doc->title ?: $doc->original_name }}
                             </div>
                             <div style="font-size:11px; color:#aaa; margin-bottom:10px;">
+                                <span class="badge" style="background:{{ $docColor }}18; color:{{ $docColor }}; border:1px solid {{ $docColor }}44; font-size:9px; padding:1px 6px; text-transform:uppercase; margin-right:4px;">{{ strtoupper($ext) }}</span>
                                 {{ $doc->original_name }} &bull; {{ $doc->created_at->format('M j, Y') }}
                             </div>
 

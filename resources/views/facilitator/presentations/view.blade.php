@@ -3,15 +3,27 @@
 @section('page-title', 'Review Presentation')
 
 @section('content')
+@php
+    $ext    = strtolower(pathinfo($document->original_name, PATHINFO_EXTENSION));
+    $isPdf  = $ext === 'pdf';
+    $isPptx = in_array($ext, ['pptx', 'ppt']);
+    $isDock = in_array($ext, ['doc', 'docx']);
+    $fileUrl = $document->download_url;
+
+    $typeIcon  = $isPdf ? 'fa-file-pdf' : ($isPptx ? 'fa-file-powerpoint' : 'fa-file');
+    $typeLabel = $isPdf ? 'PDF Document' : ($isPptx ? 'PowerPoint Presentation' : strtoupper($ext) . ' File');
+@endphp
+
 <div class="d-flex align-items-center mb-3" style="gap:12px;">
     <a href="{{ route('facilitator.presentations.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">
         <i class="fas fa-arrow-left mr-1"></i> Back
     </a>
     <div>
         <h5 class="mb-0" style="font-weight:700; color:#2d3748; font-size:15px;">
-            <i class="fas fa-file-powerpoint mr-2" style="color:#C9A84C;"></i>{{ $document->title ?: $document->original_name }}
+            <i class="fas {{ $typeIcon }} mr-2" style="color:#C9A84C;"></i>{{ $document->title ?: $document->original_name }}
         </h5>
         <div style="font-size:12px; color:#888; margin-top:2px;">
+            <span class="badge" style="background:#f0e6c8; color:#7a5c00; border:1px solid #C9A84C55; font-size:10px; margin-right:4px;">{{ $typeLabel }}</span>
             by <strong>{{ $document->trainee->name }}</strong>
             @if($document->trainee->institution) &bull; {{ $document->trainee->institution }} @endif
             &bull; uploaded {{ $document->created_at->format('M j, Y') }}
@@ -20,37 +32,54 @@
 </div>
 
 <div class="row">
-    {{-- Slide Viewer --}}
+    {{-- Viewer Column --}}
     <div class="col-lg-8 mb-4">
         <div class="card shadow-sm" style="border-radius:10px; overflow:hidden;">
             <div class="card-header d-flex align-items-center justify-content-between" style="background:#2d3748; padding:12px 16px;">
                 <span style="color:#C9A84C; font-weight:700; font-size:13px;">
-                    <i class="fas fa-desktop mr-2"></i>Presentation Viewer
+                    <i class="fas fa-desktop mr-2"></i>{{ $isPdf ? 'Document Viewer' : 'Slide Viewer' }}
                 </span>
-                <a href="{{ $document->download_url }}" download
+                <a href="{{ $fileUrl }}" download
                    class="btn btn-sm" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); font-size:11px;">
-                    <i class="fas fa-download mr-1"></i> Download PPTX
+                    <i class="fas fa-download mr-1"></i> Download
                 </a>
             </div>
 
-            {{-- Slide nav --}}
-            <div id="slide-nav" style="background:#374151; padding:8px 16px; display:none; align-items:center; justify-content:center; gap:12px;">
-                <button id="btn-prev" disabled style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
-                    &#8592; Prev
-                </button>
-                <span id="slide-counter" style="font-size:13px; color:#ccc;">Loading…</span>
-                <button id="btn-next" style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
-                    Next &#8594;
-                </button>
-            </div>
+            @if($isPdf)
+                {{-- PDF: embed directly in iframe --}}
+                <iframe src="{{ $fileUrl }}#toolbar=1&view=FitH"
+                        style="width:100%; height:600px; border:none; display:block;"
+                        title="{{ $document->original_name }}"></iframe>
 
-            {{-- Slide container --}}
-            <div id="pptx-container" style="background:#555; min-height:420px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; overflow:auto;">
-                <div id="pptx-loading" style="display:flex; flex-direction:column; align-items:center; gap:14px; color:#ccc;">
-                    <div style="width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite;"></div>
-                    <span style="font-size:14px;">Loading slides…</span>
+            @elseif($isPptx)
+                {{-- PPTX: Python slide renderer --}}
+                <div id="slide-nav" style="background:#374151; padding:8px 16px; display:none; align-items:center; justify-content:center; gap:12px;">
+                    <button id="btn-prev" disabled style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
+                        &#8592; Prev
+                    </button>
+                    <span id="slide-counter" style="font-size:13px; color:#ccc;">Loading…</span>
+                    <button id="btn-next" style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
+                        Next &#8594;
+                    </button>
                 </div>
-            </div>
+                <div id="pptx-container" style="background:#555; min-height:420px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; overflow:auto;">
+                    <div id="pptx-loading" style="display:flex; flex-direction:column; align-items:center; gap:14px; color:#ccc;">
+                        <div style="width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite;"></div>
+                        <span style="font-size:14px;">Loading slides…</span>
+                    </div>
+                </div>
+
+            @else
+                {{-- Other file types: download prompt --}}
+                <div style="padding:60px 40px; text-align:center; background:#f8f9fa;">
+                    <i class="fas fa-file fa-3x mb-3" style="color:#C9A84C; display:block;"></i>
+                    <h6 style="font-weight:700; color:#2d3748; margin-bottom:8px;">{{ $document->original_name }}</h6>
+                    <p style="font-size:13px; color:#888; margin-bottom:16px;">This file type cannot be previewed in the browser.</p>
+                    <a href="{{ $fileUrl }}" download class="btn" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px;">
+                        <i class="fas fa-download mr-2"></i>Download to View
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -66,7 +95,7 @@
                     @csrf
                     <div class="form-group mb-2">
                         <textarea name="comment" class="form-control" rows="4"
-                                  placeholder="Write your feedback or comments on this presentation…"
+                                  placeholder="Write your feedback or comments on this submission…"
                                   required style="font-size:13px; resize:vertical;"></textarea>
                     </div>
                     <button type="submit" class="btn btn-block btn-sm" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px;">
@@ -119,6 +148,7 @@
 </style>
 @endsection
 
+@if($isPptx)
 @section('scripts')
 <script>
 $(function() {
@@ -140,8 +170,8 @@ $(function() {
         $('#pptx-container').css({'justify-content':'center','align-items':'center'}).html(
             '<div style="text-align:center; color:#ccc; padding:30px;">' +
             '<i class="fas fa-exclamation-triangle" style="font-size:32px; color:#e67e22; display:block; margin-bottom:12px;"></i>' +
-            '<p style="font-size:13px;">' + msg + '</p>' +
-            '<a href="{{ $document->download_url }}" download class="btn btn-sm" style="background:#C9A84C;color:#fff;font-size:12px;margin-top:6px;">Download to view</a>' +
+            '<p style="font-size:13px; margin-bottom:14px;">' + msg + '</p>' +
+            '<a href="{{ $fileUrl }}" download class="btn btn-sm" style="background:#C9A84C;color:#fff;font-size:12px;">Download to view</a>' +
             '</div>'
         );
     }
@@ -177,3 +207,4 @@ $(function() {
 });
 </script>
 @endsection
+@endif
