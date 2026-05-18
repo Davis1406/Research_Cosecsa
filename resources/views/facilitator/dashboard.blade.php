@@ -43,36 +43,61 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-4 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #252525;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#252525; font-weight:700;">{{ $mySessions }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
-                    My Sessions
+    {{-- My Sessions --}}
+    <div class="{{ $isLead ? 'col-6 col-md-3' : 'col-6 col-sm-4' }} mb-3">
+        <a href="{{ route('facilitator.timetable') }}" style="text-decoration:none;">
+            <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top:3px solid #252525; transition:box-shadow 0.15s;">
+                <div class="card-body py-4">
+                    <div style="font-size:2rem; color:#252525; font-weight:700; line-height:1;">{{ $mySessions }}</div>
+                    <div style="font-size:11px; color:#666; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:6px;">
+                        <i class="fas fa-calendar-check mr-1" style="color:#252525;"></i> My Sessions
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
-    <div class="col-sm-4 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #C9A84C;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#C9A84C; font-weight:700;">{{ $totalMaterials }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
-                    Total Materials
+
+    {{-- My Materials --}}
+    <div class="{{ $isLead ? 'col-6 col-md-3' : 'col-6 col-sm-4' }} mb-3">
+        <a href="{{ route('facilitator.materials') }}" style="text-decoration:none;">
+            <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top:3px solid #2c7a4b; transition:box-shadow 0.15s;">
+                <div class="card-body py-4">
+                    <div style="font-size:2rem; color:#2c7a4b; font-weight:700; line-height:1;">{{ $myMaterials }}</div>
+                    <div style="font-size:11px; color:#666; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:6px;">
+                        <i class="fas fa-book mr-1" style="color:#2c7a4b;"></i> My Materials
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
+
+    {{-- Total Materials --}}
+    <div class="{{ $isLead ? 'col-6 col-md-3' : 'col-6 col-sm-4' }} mb-3">
+        <a href="{{ route('facilitator.material-manager.index') }}" style="text-decoration:none;">
+            <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top:3px solid #C9A84C; transition:box-shadow 0.15s;">
+                <div class="card-body py-4">
+                    <div style="font-size:2rem; color:#C9A84C; font-weight:700; line-height:1;">{{ $totalMaterials }}</div>
+                    <div style="font-size:11px; color:#666; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:6px;">
+                        <i class="fas fa-layer-group mr-1" style="color:#C9A84C;"></i> All Materials
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    {{-- Enrolled Trainees (Lead only) --}}
     @if($isLead)
-    <div class="col-sm-4 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #a02626;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#a02626; font-weight:700;">{{ $totalTrainees }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
-                    Enrolled Trainees
+    <div class="col-6 col-md-3 mb-3">
+        <a href="{{ route('facilitator.trainees') }}" style="text-decoration:none;">
+            <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top:3px solid #a02626; transition:box-shadow 0.15s;">
+                <div class="card-body py-4">
+                    <div style="font-size:2rem; color:#a02626; font-weight:700; line-height:1;">{{ $totalTrainees }}</div>
+                    <div style="font-size:11px; color:#666; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:6px;">
+                        <i class="fas fa-user-graduate mr-1" style="color:#a02626;"></i> Trainees
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     @endif
 </div>

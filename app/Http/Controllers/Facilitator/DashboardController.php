@@ -15,8 +15,9 @@ class DashboardController extends Controller
         $speaker = $user->speaker;
         $isLead  = $user->roles->pluck('title')->contains('Lead Facilitator');
         $mySessions     = $speaker ? Schedule::where('speaker_id', $speaker->id)->count() : 0;
+        $myMaterials    = $speaker ? TrainingMaterial::where('speaker_id', $speaker->id)->count() : 0;
         $totalMaterials = TrainingMaterial::count();
         $totalTrainees  = Trainee::count();
-        return view('facilitator.dashboard', compact('speaker', 'isLead', 'mySessions', 'totalMaterials', 'totalTrainees'));
+        return view('facilitator.dashboard', compact('speaker', 'isLead', 'mySessions', 'myMaterials', 'totalMaterials', 'totalTrainees'));
     }
 }
