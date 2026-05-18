@@ -143,13 +143,28 @@
 </head>
 <body>
 
+@php $traineeInit = strtoupper(substr(auth()->user()->name ?? 'T', 0, 1)); @endphp
+
 <div class="portal-sidebar">
     <div class="sidebar-brand">
         <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA" style="width:36px;height:36px;border-radius:50%;border:2px solid #C9A84C;">
         <span class="brand-title">COSECSA Research Training</span>
         <span class="brand-sub">Trainee Portal</span>
     </div>
-    <div class="sidebar-role-badge">Trainee</div>
+
+    {{-- Sidebar user card --}}
+    <div style="padding:14px 18px 10px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px;">
+        <div style="flex-shrink:0; width:42px; height:42px; border-radius:50%; border:2px solid #C9A84C; overflow:hidden; background:#333;">
+            <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;">{{ $traineeInit }}</div>
+        </div>
+        <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</div>
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;padding:1px 8px;border-radius:10px;background:rgba(160,38,38,0.35);color:#f5c6c6;">
+                Trainee
+            </span>
+        </div>
+    </div>
+
     <nav>
         <a href="{{ route('trainee.dashboard') }}" class="{{ request()->routeIs('trainee.dashboard') ? 'active' : '' }}">
             <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -177,9 +192,11 @@
 <div class="portal-main">
     <div class="portal-topbar">
         <span class="page-title">@yield('page-title', 'Trainee Portal')</span>
-        <span class="user-info">
-            <i class="fas fa-user-circle mr-1"></i>
-            {{ auth()->user()->name ?? '' }}
+        <span class="user-info" style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(201,168,76,0.7);overflow:hidden;flex-shrink:0;background:#a02626;">
+                <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $traineeInit }}</div>
+            </div>
+            <span>{{ auth()->user()->name ?? '' }}</span>
         </span>
     </div>
 

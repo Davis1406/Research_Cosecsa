@@ -8,19 +8,31 @@
         <div class="card shadow-sm" style="border-left: 4px solid #C9A84C; border-radius: 8px;">
             <div class="card-body py-3">
                 <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h5 class="mb-1" style="color: #252525; font-weight: 700;">
-                            Welcome, {{ $speaker ? $speaker->name : auth()->user()->name }}!
-                        </h5>
-                        <p class="mb-0 text-muted" style="font-size:13px;">
-                            @if($speaker && $speaker->description)
-                                {{ Str::limit($speaker->description, 100) }}
+                    <div class="d-flex align-items-center" style="gap:16px;">
+                        {{-- Avatar --}}
+                        <div style="width:56px;height:56px;border-radius:50%;border:3px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#f8f9fa;">
+                            @if($speaker && $speaker->photo)
+                                <img src="{{ $speaker->photo->url }}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar">
                             @else
-                                COSECSA Research Training Workshop
+                                <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
                             @endif
-                        </p>
+                        </div>
+                        <div>
+                            <h5 class="mb-1" style="color: #252525; font-weight: 700;">
+                                Welcome, {{ $speaker ? $speaker->name : auth()->user()->name }}!
+                            </h5>
+                            <p class="mb-0 text-muted" style="font-size:13px;">
+                                @if($speaker && $speaker->description)
+                                    {{ Str::limit($speaker->description, 100) }}
+                                @else
+                                    COSECSA Research Training Workshop
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    <span class="badge" style="font-size:12px; padding:6px 14px; {{ $isLead ? 'background:#C9A84C; color:#252525;' : 'background:#a02626; color:#fff;' }}">
+                    <span class="badge d-none d-sm-inline-block" style="font-size:12px; padding:6px 14px; {{ $isLead ? 'background:#C9A84C; color:#252525;' : 'background:#2c7a4b; color:#fff;' }}">
                         <i class="fas fa-{{ $isLead ? 'star' : 'chalkboard-teacher' }} mr-1"></i>
                         {{ $isLead ? 'Lead Facilitator' : 'Facilitator' }}
                     </span>

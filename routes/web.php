@@ -99,6 +99,19 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/materials', 'MaterialsController@index')->name('materials');
     Route::get('/profile', 'ProfileController@edit')->name('profile.edit');
     Route::put('/profile', 'ProfileController@update')->name('profile.update');
-    // Lead facilitator only
-    Route::get('/trainees', 'MaterialsController@trainees')->name('trainees')->middleware('role:lead-facilitator');
+    // Lead facilitator only — trainees management
+    Route::get('/trainees', 'TraineesController@index')->name('trainees')->middleware('role:lead-facilitator');
+    Route::get('/trainees/create', 'TraineesController@create')->name('trainees.create')->middleware('role:lead-facilitator');
+    Route::post('/trainees', 'TraineesController@store')->name('trainees.store')->middleware('role:lead-facilitator');
+    Route::get('/trainees/{id}/edit', 'TraineesController@edit')->name('trainees.edit')->middleware('role:lead-facilitator');
+    Route::put('/trainees/{id}', 'TraineesController@update')->name('trainees.update')->middleware('role:lead-facilitator');
+    Route::delete('/trainees/{id}', 'TraineesController@destroy')->name('trainees.destroy')->middleware('role:lead-facilitator');
+
+    // Lead facilitator only — facilitators management
+    Route::get('/facilitators', 'FacilitatorsController@index')->name('facilitators.index')->middleware('role:lead-facilitator');
+    Route::get('/facilitators/create', 'FacilitatorsController@create')->name('facilitators.create')->middleware('role:lead-facilitator');
+    Route::post('/facilitators', 'FacilitatorsController@store')->name('facilitators.store')->middleware('role:lead-facilitator');
+    Route::get('/facilitators/{id}/edit', 'FacilitatorsController@edit')->name('facilitators.edit')->middleware('role:lead-facilitator');
+    Route::put('/facilitators/{id}', 'FacilitatorsController@update')->name('facilitators.update')->middleware('role:lead-facilitator');
+    Route::delete('/facilitators/{id}', 'FacilitatorsController@destroy')->name('facilitators.destroy')->middleware('role:lead-facilitator');
 });

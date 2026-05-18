@@ -153,7 +153,9 @@
 <body>
 
 @php
-    $isLead = auth()->user()->roles->pluck('title')->contains('Lead Facilitator');
+    $isLead   = auth()->user()->roles->pluck('title')->contains('Lead Facilitator');
+    $facPhoto = auth()->user()->speaker?->photo?->url ?? null;
+    $facInit  = strtoupper(substr(auth()->user()->name ?? 'F', 0, 1));
 @endphp
 
 <div class="portal-sidebar">
@@ -162,9 +164,24 @@
         <span class="brand-title">Research Training System</span>
         <span class="brand-sub">Facilitator Portal</span>
     </div>
-    <div class="sidebar-role-badge {{ $isLead ? 'lead' : 'regular' }}">
-        {{ $isLead ? 'Lead Facilitator' : 'Facilitator' }}
+
+    {{-- Sidebar user card --}}
+    <div style="padding:14px 18px 10px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:10px;">
+        <div style="flex-shrink:0; width:42px; height:42px; border-radius:50%; border:2px solid #C9A84C; overflow:hidden; background:#f8f9fa;">
+            @if($facPhoto)
+                <img src="{{ $facPhoto }}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar">
+            @else
+                <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;">{{ $facInit }}</div>
+            @endif
+        </div>
+        <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</div>
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;padding:1px 8px;border-radius:10px;{{ $isLead ? 'background:rgba(201,168,76,0.2);color:#9a7d2c;' : 'background:rgba(44,122,75,0.12);color:#2c7a4b;' }}">
+                {{ $isLead ? 'Lead Facilitator' : 'Facilitator' }}
+            </span>
+        </div>
     </div>
+
     <nav>
         <a href="{{ route('facilitator.dashboard') }}" class="{{ request()->routeIs('facilitator.dashboard') ? 'active' : '' }}">
             <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -179,8 +196,11 @@
             <i class="fas fa-user-circle"></i> My Profile
         </a>
         @if($isLead)
-        <a href="{{ route('facilitator.trainees') }}" class="{{ request()->routeIs('facilitator.trainees') ? 'active' : '' }}">
-            <i class="fas fa-users"></i> Trainees
+        <a href="{{ route('facilitator.trainees') }}" class="{{ request()->routeIs('facilitator.trainees*') ? 'active' : '' }}">
+            <i class="fas fa-user-graduate"></i> Trainees
+        </a>
+        <a href="{{ route('facilitator.facilitators.index') }}" class="{{ request()->routeIs('facilitator.facilitators*') ? 'active' : '' }}">
+            <i class="fas fa-chalkboard-teacher"></i> Facilitators
         </a>
         @endif
     </nav>
@@ -194,9 +214,15 @@
 <div class="portal-main">
     <div class="portal-topbar">
         <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
-        <span class="user-info">
-            <i class="fas fa-user-circle mr-1"></i>
-            {{ auth()->user()->name ?? '' }}
+        <span class="user-info" style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;border:2px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#f0f0f0;">
+                @if($facPhoto)
+                    <img src="{{ $facPhoto }}" style="width:100%;height:100%;object-fit:cover;" alt="">
+                @else
+                    <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $facInit }}</div>
+                @endif
+            </div>
+            <span>{{ auth()->user()->name ?? '' }}</span>
         </span>
     </div>
 

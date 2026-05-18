@@ -7,21 +7,31 @@
     <div class="col-12 mb-3">
         <div class="card shadow-sm" style="border-left: 4px solid #C9A84C; border-radius: 8px;">
             <div class="card-body py-3">
-                <h5 class="mb-1" style="color: #252525; font-weight: 700;">
-                    Welcome back, {{ $trainee->name ?? auth()->user()->name }}!
-                </h5>
-                @if($trainee)
-                    <p class="mb-0 text-muted" style="font-size:13px;">
-                        @if($trainee->institution) <span><i class="fas fa-hospital-alt mr-1"></i>{{ $trainee->institution }}</span> @endif
-                        @if($trainee->specialty) &nbsp;&bull;&nbsp; <span>{{ $trainee->specialty }}</span> @endif
-                        @if($trainee->enrollment_date) &nbsp;&bull;&nbsp; <span>Enrolled: {{ \Carbon\Carbon::parse($trainee->enrollment_date)->format('M Y') }}</span> @endif
-                    </p>
-                @else
-                    <p class="mb-0 text-warning" style="font-size:13px;">
-                        <i class="fas fa-exclamation-triangle mr-1"></i>
-                        No trainee profile is linked to your account. Please contact the administrator.
-                    </p>
-                @endif
+                <div class="d-flex align-items-center" style="gap:16px;">
+                    {{-- Avatar (initials) --}}
+                    <div style="width:56px;height:56px;border-radius:50%;border:3px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#252525;">
+                        <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;">
+                            {{ strtoupper(substr(auth()->user()->name ?? 'T', 0, 1)) }}
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="mb-1" style="color: #252525; font-weight: 700;">
+                            Welcome back, {{ $trainee->name ?? auth()->user()->name }}!
+                        </h5>
+                        @if($trainee)
+                            <p class="mb-0 text-muted" style="font-size:13px;">
+                                @if($trainee->institution) <span><i class="fas fa-hospital-alt mr-1"></i>{{ $trainee->institution }}</span> @endif
+                                @if($trainee->specialty) &nbsp;&bull;&nbsp; <span>{{ $trainee->specialty }}</span> @endif
+                                @if($trainee->enrollment_date) &nbsp;&bull;&nbsp; <span>Enrolled: {{ \Carbon\Carbon::parse($trainee->enrollment_date)->format('M Y') }}</span> @endif
+                            </p>
+                        @else
+                            <p class="mb-0 text-warning" style="font-size:13px;">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                No trainee profile linked. Please contact the administrator.
+                            </p>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>
