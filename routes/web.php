@@ -79,6 +79,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 Route::get('/material/{material}/view', 'MaterialViewerController@show')
      ->name('material.view')
      ->middleware('auth');
+Route::get('/material/{material}/render-slides', 'MaterialViewerController@renderSlides')
+     ->name('material.render-slides')
+     ->middleware('auth');
+Route::get('/trainee-document/{document}/render-slides', 'MaterialViewerController@renderTraineeSlides')
+     ->name('trainee-document.render-slides')
+     ->middleware('auth');
 
 // ── Trainee Portal ────────────────────────────────────────────────
 Route::prefix('trainee')->name('trainee.')->namespace('Trainee')->middleware(['auth', 'role:trainee'])->group(function () {
@@ -106,6 +112,11 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/trainees/{id}/edit', 'TraineesController@edit')->name('trainees.edit')->middleware('role:lead-facilitator');
     Route::put('/trainees/{id}', 'TraineesController@update')->name('trainees.update')->middleware('role:lead-facilitator');
     Route::delete('/trainees/{id}', 'TraineesController@destroy')->name('trainees.destroy')->middleware('role:lead-facilitator');
+
+    // All facilitators — trainee presentations review + comments
+    Route::get('/presentations', 'PresentationsController@index')->name('presentations.index');
+    Route::get('/presentations/{document}', 'PresentationsController@view')->name('presentations.view');
+    Route::post('/presentations/{document}/comment', 'PresentationsController@comment')->name('presentations.comment');
 
     // Lead facilitator only — facilitators management
     Route::get('/facilitators', 'FacilitatorsController@index')->name('facilitators.index')->middleware('role:lead-facilitator');

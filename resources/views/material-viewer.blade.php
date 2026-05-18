@@ -374,7 +374,7 @@
 @if($material->type === 'presentation')
 <script>
 $(function () {
-    var renderUrl = "{{ route('admin.training-materials.renderSlides', $material->id) }}";
+    var renderUrl = "{{ route('material.render-slides', $material->id) }}";
     var fileUrl   = "{{ $fileUrlEncoded }}";
     var slides = [], current = 0;
 

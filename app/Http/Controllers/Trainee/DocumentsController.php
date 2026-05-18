@@ -10,16 +10,19 @@ class DocumentsController extends Controller
 {
     public function index()
     {
-        $trainee = auth()->user()->trainee;
-        $documents = $trainee ? $trainee->documents()->latest()->get() : collect();
+        $trainee   = auth()->user()->trainee;
+        $documents = $trainee
+            ? $trainee->documents()->with('comments.user')->latest()->get()
+            : collect();
         return view('trainee.documents', compact('documents', 'trainee'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'document_type' => 'required|in:CV,Certificate,ID,Other',
-            'file'          => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'document_type' => 'required|in:Presentation,CV,Certificate,ID,Other',
+            'title'         => 'nullable|string|max:255',
+            'file'          => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,ppt,pptx|max:20480',
         ]);
 
         $trainee = auth()->user()->trainee;
@@ -33,6 +36,7 @@ class DocumentsController extends Controller
         TraineeDocument::create([
             'trainee_id'    => $trainee->id,
             'document_type' => $request->document_type,
+            'title'         => $request->title ?: $file->getClientOriginalName(),
             'original_name' => $file->getClientOriginalName(),
             'file_path'     => $path,
         ]);

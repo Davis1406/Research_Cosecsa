@@ -195,6 +195,9 @@
         <a href="{{ route('facilitator.profile.edit') }}" class="{{ request()->routeIs('facilitator.profile*') ? 'active' : '' }}">
             <i class="fas fa-user-circle"></i> My Profile
         </a>
+        <a href="{{ route('facilitator.presentations.index') }}" class="{{ request()->routeIs('facilitator.presentations*') ? 'active' : '' }}">
+            <i class="fas fa-file-powerpoint"></i> Presentations
+        </a>
         @if($isLead)
         <a href="{{ route('facilitator.trainees') }}" class="{{ request()->routeIs('facilitator.trainees*') ? 'active' : '' }}">
             <i class="fas fa-user-graduate"></i> Trainees
