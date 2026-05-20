@@ -3,6 +3,24 @@
 Route::get('/', function () { return redirect('/login'); })->name('home');
 Auth::routes(['register' => false]);
 
+// /home — smart redirect to role dashboard
+Route::get('/home', function () {
+    if (!auth()->check()) {
+        return redirect('/login');
+    }
+    $roles = auth()->user()->roles->pluck('title');
+    if ($roles->contains('Super Admin') || $roles->contains('Admin')) {
+        return redirect('/admin');
+    }
+    if ($roles->contains('Lead Facilitator') || $roles->contains('Facilitator')) {
+        return redirect('/facilitator');
+    }
+    if ($roles->contains('Trainee')) {
+        return redirect('/trainee');
+    }
+    return redirect('/admin');
+})->middleware('auth')->name('dashboard');
+
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'middleware' => ['auth']], function () {
     Route::get('/', 'HomeController@index')->name('home');
     // Permissions
