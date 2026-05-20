@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Facilitator;
 
 use App\Http\Controllers\Controller;
 use App\Trainee;
+use Illuminate\Support\Facades\DB;
 use App\TraineeDocument;
 use App\TraineeDocumentComment;
 use App\User;
@@ -20,10 +21,24 @@ class PresentationsController extends Controller
         $user   = auth()->user();
         $isLead = $user->roles->pluck('title')->contains('Lead Facilitator');
 
-        $trainees = Trainee::with([
-            'documents' => fn($q) => $q->where('document_type', 'Presentation')
-                ->with('comments.user', 'reviewers')->latest(),
-        ])->orderBy('name')->get()->filter(fn($t) => $t->documents->isNotEmpty());
+        if ($isLead) {
+            // Lead facilitator sees all presentations
+            $trainees = Trainee::with([
+                'documents' => fn($q) => $q->where('document_type', 'Presentation')
+                    ->with('comments.user', 'reviewers')->latest(),
+            ])->orderBy('name')->get()->filter(fn($t) => $t->documents->isNotEmpty());
+        } else {
+            // Regular facilitator only sees presentations they are assigned to review
+            $myDocIds = \DB::table('presentation_reviewers')
+                ->where('user_id', $user->id)
+                ->pluck('trainee_document_id');
+
+            $trainees = Trainee::with([
+                'documents' => fn($q) => $q->where('document_type', 'Presentation')
+                    ->whereIn('id', $myDocIds)
+                    ->with('comments.user', 'reviewers')->latest(),
+            ])->orderBy('name')->get()->filter(fn($t) => $t->documents->isNotEmpty());
+        }
 
         // Facilitators who can be assigned as reviewers
         $facilitatorUsers = $isLead

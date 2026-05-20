@@ -41,11 +41,20 @@
 
                 <div class="form-group">
                     <label style="font-size:13px; color:#555; font-weight:600;">Password</label>
-                    <input type="password"
-                           class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
-                           name="password" required placeholder="Enter your password">
+                    <div style="position:relative;">
+                        <input type="password"
+                               class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
+                               id="passwordInput"
+                               name="password" required placeholder="Enter your password"
+                               style="padding-right:42px;">
+                        <button type="button" id="togglePwd"
+                                style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:0;line-height:1;"
+                                onclick="togglePassword()" tabindex="-1" title="Show/hide password">
+                            <i class="fas fa-eye" id="togglePwdIcon" style="font-size:15px;"></i>
+                        </button>
+                    </div>
                     @if($errors->has('password'))
-                        <div class="invalid-feedback">{{ $errors->first('password') }}</div>
+                        <div class="invalid-feedback" style="display:block;">{{ $errors->first('password') }}</div>
                     @endif
                 </div>
 
@@ -78,5 +87,23 @@
     </div>
 
 </div>
+
+@section('scripts')
+<script>
+function togglePassword() {
+    var input = document.getElementById('passwordInput');
+    var icon  = document.getElementById('togglePwdIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        document.getElementById('togglePwd').style.color = '#a02626';
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        document.getElementById('togglePwd').style.color = '#aaa';
+    }
+}
+</script>
+@endsection
 
 @endsection

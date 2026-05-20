@@ -18,6 +18,9 @@ Route::get('/home', function () {
     if ($roles->contains('Trainee')) {
         return redirect('/trainee');
     }
+    if ($roles->contains('Viewer')) {
+        return redirect('/viewer');
+    }
     return redirect('/admin');
 })->middleware('auth')->name('dashboard');
 
@@ -123,6 +126,14 @@ Route::get('/material/{material}/render-slides', 'MaterialViewerController@rende
 Route::get('/trainee-document/{document}/render-slides', 'MaterialViewerController@renderTraineeSlides')
      ->name('trainee-document.render-slides')
      ->middleware('auth');
+
+// ── Viewer Portal (Diana / read-only) ────────────────────────────
+Route::prefix('viewer')->name('viewer.')->namespace('Viewer')->middleware(['auth', 'role:viewer'])->group(function () {
+    Route::get('/', 'ViewerController@dashboard')->name('dashboard');
+    Route::get('/facilitators', 'ViewerController@facilitators')->name('facilitators');
+    Route::get('/trainees', 'ViewerController@trainees')->name('trainees');
+    Route::get('/timetable', 'ViewerController@timetable')->name('timetable');
+});
 
 // ── Trainee Portal ────────────────────────────────────────────────
 Route::prefix('trainee')->name('trainee.')->namespace('Trainee')->middleware(['auth', 'role:trainee'])->group(function () {
