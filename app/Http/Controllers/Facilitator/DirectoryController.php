@@ -9,7 +9,8 @@ class DirectoryController extends Controller
 {
     public function index()
     {
-        $speakers = Speaker::with(['user', 'photo'])
+        // 'photo' is a Spatie Media accessor, not a relation — don't use with()
+        $speakers = Speaker::with('user')
             ->withCount(['schedules', 'materials'])
             ->get();
 
@@ -18,7 +19,7 @@ class DirectoryController extends Controller
 
     public function show(Speaker $speaker)
     {
-        $speaker->load(['user', 'photo', 'schedules', 'materials']);
+        $speaker->load(['user', 'schedules.materials', 'materials']);
         return view('facilitator.directory.show', compact('speaker'));
     }
 }
