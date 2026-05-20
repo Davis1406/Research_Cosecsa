@@ -14,18 +14,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Inject notifications into the facilitator layout for every request
-        View::composer('layouts.facilitator', function ($view) {
+        // Shared notification builder
+        $buildNotifications = function () {
             if (!Auth::check()) {
-                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
-                return;
-            }
-
-            $isLead = Auth::user()->roles->pluck('title')->contains('Lead Facilitator');
-
-            if (!$isLead) {
-                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
-                return;
+                return ['notifItems' => collect(), 'notifCount' => 0];
             }
 
             $since = now()->subDays(7);
@@ -60,7 +52,29 @@ class AppServiceProvider extends ServiceProvider
 
             $notifCount = $notifItems->where('new', true)->count();
 
-            $view->with(compact('notifItems', 'notifCount'));
+            return compact('notifItems', 'notifCount');
+        };
+
+        // Inject notifications into the facilitator layout for every request
+        View::composer('layouts.facilitator', function ($view) use ($buildNotifications) {
+            if (!Auth::check()) {
+                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                return;
+            }
+
+            $isLead = Auth::user()->roles->pluck('title')->contains('Lead Facilitator');
+
+            if (!$isLead) {
+                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                return;
+            }
+
+            $view->with($buildNotifications());
+        });
+
+        // Inject notifications into the admin layout
+        View::composer('layouts.admin', function ($view) use ($buildNotifications) {
+            $view->with($buildNotifications());
         });
     }
 }

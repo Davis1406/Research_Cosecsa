@@ -141,6 +141,53 @@
             box-shadow: 0 8px 32px rgba(0,0,0,.5);
         }
 
+        /* YouTube */
+        .youtube-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111;
+            padding: 20px;
+        }
+        .youtube-wrap iframe {
+            width: 100%;
+            max-width: 960px;
+            height: 540px;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.5);
+        }
+        @media (max-width: 768px) {
+            .youtube-wrap iframe { height: 240px; }
+        }
+
+        /* Audio */
+        .audio-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #f0f2f5;
+            padding: 40px 20px;
+            gap: 20px;
+        }
+        .audio-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 36px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.10);
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+        }
+        .audio-card audio {
+            width: 100%;
+            margin-top: 16px;
+            border-radius: 6px;
+        }
+
         /* PPTX */
         #slide-nav {
             background: #2d3748;
@@ -231,6 +278,26 @@
 @php
     $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
     $backUrl = url()->previous();
+
+    // Convert YouTube URL to embed URL
+    $youtubeEmbedUrl = null;
+    if ($material->type === 'youtube' && $fileUrl) {
+        $ytUrl = $fileUrl;
+        // Handle youtu.be short links
+        if (preg_match('#youtu\.be/([A-Za-z0-9_-]+)#', $ytUrl, $m)) {
+            $youtubeEmbedUrl = 'https://www.youtube.com/embed/' . $m[1];
+        }
+        // Handle watch?v=
+        elseif (preg_match('#[?&]v=([A-Za-z0-9_-]+)#', $ytUrl, $m)) {
+            $youtubeEmbedUrl = 'https://www.youtube.com/embed/' . $m[1];
+        }
+        // Already embed URL
+        elseif (str_contains($ytUrl, '/embed/')) {
+            $youtubeEmbedUrl = $ytUrl;
+        } else {
+            $youtubeEmbedUrl = $ytUrl; // passthrough
+        }
+    }
 @endphp
 
 <div class="viewer-shell">
@@ -240,6 +307,8 @@
         <div class="v-sidebar-head">
             <div class="type-badge">
                 @if($material->type === 'video') <i class="fas fa-video mr-1"></i>Video
+                @elseif($material->type === 'youtube') <i class="fab fa-youtube mr-1"></i>YouTube
+                @elseif($material->type === 'audio') <i class="fas fa-headphones mr-1"></i>Audio
                 @elseif($material->type === 'presentation') <i class="fas fa-file-powerpoint mr-1"></i>Presentation
                 @else <i class="fas fa-file-pdf mr-1"></i>Document
                 @endif
@@ -294,7 +363,11 @@
         </div>
 
         <div class="v-sidebar-foot">
-            @if($fileUrl)
+            @if($fileUrl && $material->type === 'youtube')
+            <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-gold w-100">
+                <i class="fab fa-youtube mr-1"></i> Open on YouTube
+            </a>
+            @elseif($fileUrl && $material->type !== 'youtube')
             <a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold w-100">
                 <i class="fas fa-download mr-1"></i> Download
             </a>
@@ -313,7 +386,11 @@
         <div class="v-topbar">
             <span class="v-title"><i class="fas fa-eye mr-2" style="color:#C9A84C;"></i>{{ $material->title }}</span>
             <div style="display:flex; gap:6px; align-items:center;">
-                @if($fileUrl)
+                @if($fileUrl && $material->type === 'youtube')
+                <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                    <i class="fab fa-youtube mr-1"></i> YouTube
+                </a>
+                @elseif($fileUrl && $material->type !== 'youtube')
                 <a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-download mr-1"></i> Download
                 </a>
@@ -349,6 +426,47 @@
                             <a href="{{ $fileUrlEncoded }}" class="btn btn-gold btn-sm mt-2">Download to view</a>
                         </p>
                     </video>
+                </div>
+
+            @elseif($material->type === 'youtube')
+                <div class="youtube-wrap">
+                    @if($youtubeEmbedUrl)
+                        <iframe src="{{ $youtubeEmbedUrl }}"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                title="{{ $material->title }}">
+                        </iframe>
+                    @else
+                        <div class="nofile-card">
+                            <i class="fab fa-youtube" style="font-size:48px; color:#e53e3e; display:block; margin-bottom:16px;"></i>
+                            <h5 style="font-weight:700; color:#2d3748;">Invalid YouTube URL</h5>
+                            <p style="color:#888; font-size:13px;">The stored URL could not be converted to an embed link.</p>
+                            @if($fileUrl)
+                            <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-gold">Open on YouTube</a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+
+            @elseif($material->type === 'audio')
+                <div class="audio-wrap">
+                    <div class="audio-card">
+                        <i class="fas fa-headphones" style="font-size:52px; color:#C9A84C; display:block; margin-bottom:12px;"></i>
+                        <h6 style="font-weight:700; color:#2d3748; font-size:15px;">{{ $material->title }}</h6>
+                        @if($material->description)
+                        <p style="color:#888; font-size:13px; margin-top:6px;">{{ $material->description }}</p>
+                        @endif
+                        <audio controls preload="metadata" style="width:100%; margin-top:20px;">
+                            <source src="{{ $fileUrlEncoded }}" type="audio/mpeg">
+                            <source src="{{ $fileUrlEncoded }}" type="audio/ogg">
+                            <source src="{{ $fileUrlEncoded }}" type="audio/wav">
+                            <source src="{{ $fileUrlEncoded }}" type="audio/mp4">
+                            <p style="color:#888; font-size:13px; margin-top:12px;">
+                                Your browser doesn't support audio playback.
+                                <a href="{{ $fileUrlEncoded }}" class="btn btn-gold btn-sm mt-1">Download Audio</a>
+                            </p>
+                        </audio>
+                    </div>
                 </div>
 
             @elseif($material->type === 'presentation')

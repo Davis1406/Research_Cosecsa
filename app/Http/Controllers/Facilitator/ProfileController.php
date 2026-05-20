@@ -19,14 +19,18 @@ class ProfileController extends Controller
         $speaker = $user->speaker;
 
         $rules = [
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:users,email,' . $user->id,
-            'description' => 'nullable|string|max:1000',
-            'twitter'     => 'nullable|string|max:255',
-            'linkedin'    => 'nullable|string|max:255',
-            'facebook'    => 'nullable|string|max:255',
-            'password'    => 'nullable|string|min:8|confirmed',
-            'avatar'      => 'nullable|image|max:2048',
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email,' . $user->id,
+            'description'    => 'nullable|string|max:1000',
+            'twitter'        => 'nullable|string|max:255',
+            'linkedin'       => 'nullable|string|max:255',
+            'facebook'       => 'nullable|string|max:255',
+            'researchgate'   => 'nullable|url|max:500',
+            'orcid'          => 'nullable|url|max:500',
+            'web_of_science' => 'nullable|url|max:500',
+            'google_scholar' => 'nullable|url|max:500',
+            'password'       => 'nullable|string|min:8|confirmed',
+            'avatar'         => 'nullable|image|max:2048',
         ];
         $validated = $request->validate($rules);
 
@@ -43,11 +47,15 @@ class ProfileController extends Controller
         // Update speaker record if linked
         if ($speaker) {
             $speaker->update([
-                'name'        => $validated['name'],
-                'description' => $validated['description'] ?? $speaker->description,
-                'twitter'     => $validated['twitter'] ?? null,
-                'linkedin'    => $validated['linkedin'] ?? null,
-                'facebook'    => $validated['facebook'] ?? null,
+                'name'           => $validated['name'],
+                'description'    => $validated['description'] ?? $speaker->description,
+                'twitter'        => $validated['twitter'] ?? null,
+                'linkedin'       => $validated['linkedin'] ?? null,
+                'facebook'       => $validated['facebook'] ?? null,
+                'researchgate'   => $validated['researchgate'] ?? null,
+                'orcid'          => $validated['orcid'] ?? null,
+                'web_of_science' => $validated['web_of_science'] ?? null,
+                'google_scholar' => $validated['google_scholar'] ?? null,
             ]);
 
             if ($request->hasFile('avatar')) {

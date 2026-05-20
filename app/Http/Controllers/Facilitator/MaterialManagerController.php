@@ -30,17 +30,20 @@ class MaterialManagerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'type'        => 'required|in:document,presentation,video',
-            'category'    => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'speaker_id'  => 'nullable|exists:speakers,id',
-            'file'        => 'nullable|file|max:51200', // 50MB
+            'title'        => 'required|string|max:255',
+            'type'         => 'required|in:document,presentation,video,youtube,audio',
+            'category'     => 'nullable|string|max:255',
+            'description'  => 'nullable|string|max:1000',
+            'speaker_id'   => 'nullable|exists:speakers,id',
+            'file'         => 'nullable|file|max:102400', // 100MB
+            'youtube_url'  => 'nullable|url|max:500',
         ]);
 
         $externalUrl = null;
 
-        if ($request->hasFile('file')) {
+        if ($validated['type'] === 'youtube') {
+            $externalUrl = $request->input('youtube_url');
+        } elseif ($request->hasFile('file')) {
             $file     = $request->file('file');
             $origName = $file->getClientOriginalName();
             $subDir   = $this->subDirForType($validated['type']);
@@ -77,17 +80,20 @@ class MaterialManagerController extends Controller
     public function update(Request $request, TrainingMaterial $material)
     {
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'type'        => 'required|in:document,presentation,video',
-            'category'    => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'speaker_id'  => 'nullable|exists:speakers,id',
-            'file'        => 'nullable|file|max:51200',
+            'title'        => 'required|string|max:255',
+            'type'         => 'required|in:document,presentation,video,youtube,audio',
+            'category'     => 'nullable|string|max:255',
+            'description'  => 'nullable|string|max:1000',
+            'speaker_id'   => 'nullable|exists:speakers,id',
+            'file'         => 'nullable|file|max:102400',
+            'youtube_url'  => 'nullable|url|max:500',
         ]);
 
         $externalUrl = $material->external_url;
 
-        if ($request->hasFile('file')) {
+        if ($validated['type'] === 'youtube') {
+            $externalUrl = $request->input('youtube_url') ?: $externalUrl;
+        } elseif ($request->hasFile('file')) {
             $file     = $request->file('file');
             $origName = $file->getClientOriginalName();
             $subDir   = $this->subDirForType($validated['type']);
@@ -125,6 +131,7 @@ class MaterialManagerController extends Controller
     {
         return match($type) {
             'video'        => 'videos',
+            'audio'        => 'audio',
             'document'     => 'documents',
             'presentation' => 'presentations',
             default        => 'documents',

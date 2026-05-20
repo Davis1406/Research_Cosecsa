@@ -83,6 +83,35 @@
       </div>
     </div>
 
+    {{-- Academic Profiles --}}
+    <div class="card shadow-sm mt-3" style="border-radius:10px; overflow:hidden;">
+      <div class="card-header" style="background:#fff; border-left:4px solid #C9A84C; padding:14px 20px;">
+        <strong style="color:#2d3748; font-size:14px;"><i class="fas fa-graduation-cap mr-2" style="color:#C9A84C;"></i>Academic Profiles</strong>
+      </div>
+      <div class="card-body" style="padding:24px;">
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label class="form-label-sm"><i class="fas fa-flask mr-1" style="color:#00d0af;"></i>ResearchGate URL</label>
+            <input type="url" name="researchgate" class="form-control" value="{{ old('researchgate', $speaker->researchgate ?? '') }}" placeholder="https://www.researchgate.net/profile/...">
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="form-label-sm"><i class="fas fa-id-badge mr-1" style="color:#a6ce39;"></i>ORCID URL</label>
+            <input type="url" name="orcid" class="form-control" value="{{ old('orcid', $speaker->orcid ?? '') }}" placeholder="https://orcid.org/0000-0000-0000-0000">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label class="form-label-sm"><i class="fas fa-atom mr-1" style="color:#1d4e89;"></i>Web of Science URL</label>
+            <input type="url" name="web_of_science" class="form-control" value="{{ old('web_of_science', $speaker->web_of_science ?? '') }}" placeholder="https://www.webofscience.com/...">
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="form-label-sm"><i class="fas fa-book-reader mr-1" style="color:#4285f4;"></i>Google Scholar URL</label>
+            <input type="url" name="google_scholar" class="form-control" value="{{ old('google_scholar', $speaker->google_scholar ?? '') }}" placeholder="https://scholar.google.com/citations?user=...">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card shadow-sm mt-3" style="border-radius:10px; overflow:hidden;">
       <div class="card-header" style="background:#fff; border-left:4px solid #e53e3e; padding:14px 20px;">
         <strong style="color:#2d3748; font-size:14px;"><i class="fas fa-lock mr-2" style="color:#e53e3e;"></i>Change Password</strong>

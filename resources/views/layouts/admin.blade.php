@@ -46,6 +46,49 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+                {{-- Notification Bell --}}
+                <li class="nav-item" style="position:relative;" id="admin-notif-wrapper">
+                    <a class="nav-link" href="#" onclick="toggleAdminNotif(event)" style="position:relative;padding-right:18px;">
+                        <i class="fas fa-bell" style="font-size:16px;"></i>
+                        @if(!empty($notifCount) && $notifCount > 0)
+                        <span style="position:absolute;top:6px;right:4px;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;line-height:1;">
+                            {{ $notifCount > 9 ? '9+' : $notifCount }}
+                        </span>
+                        @endif
+                    </a>
+                    <div id="admin-notif-panel" style="display:none;position:absolute;right:0;top:50px;width:320px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;border:1px solid #e9ecef;">
+                        <div style="padding:10px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;background:#f8f9fa;">
+                            <span style="font-weight:700;font-size:0.85rem;color:#2d3748;">Recent Activity</span>
+                            <span style="font-size:0.72rem;color:#aaa;">Last 7 days highlighted</span>
+                        </div>
+                        <div style="max-height:380px;overflow-y:auto;" id="admin-notif-scroll">
+                            @forelse($notifItems ?? [] as $i => $n)
+                            <div class="admin-notif-item {{ $i >= 5 ? 'admin-notif-extra' : '' }}"
+                                 style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ ($n['new'] ?? false) ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
+                                <div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
+                                    <i class="fas {{ $n['icon'] }}" style="font-size:11px;color:{{ $n['color'] }};"></i>
+                                </div>
+                                <div style="min-width:0;flex:1;">
+                                    <div style="font-size:0.78rem;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $n['title'] }}</div>
+                                    <div style="font-size:0.7rem;color:#888;margin-top:1px;">{{ $n['sub'] }}</div>
+                                    <div style="font-size:0.68rem;color:#bbb;margin-top:2px;">{{ $n['time']->diffForHumans() }}</div>
+                                </div>
+                                @if($n['new'] ?? false)<span style="flex-shrink:0;width:6px;height:6px;border-radius:50%;background:#e53e3e;margin-top:7px;"></span>@endif
+                            </div>
+                            @empty
+                            <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
+                            @endforelse
+                            @if(!empty($notifItems) && $notifItems->count() > 5)
+                            <div style="padding:8px 16px;text-align:center;border-top:1px solid #f0f0f0;">
+                                <button id="admin-notif-show-more" onclick="toggleAdminNotifMore()" style="background:none;border:none;color:#C9A84C;font-size:0.78rem;font-weight:700;cursor:pointer;padding:2px 8px;">
+                                    <i class="fas fa-chevron-down mr-1" id="admin-notif-chevron"></i>
+                                    Show {{ $notifItems->count() - 5 }} more
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <i class="fas fa-user-circle mr-1"></i>
@@ -218,6 +261,33 @@
 
     </script>
     <script>
+    /* ── Admin notification bell ── */
+    function toggleAdminNotif(e) {
+        e.preventDefault(); e.stopPropagation();
+        var panel = document.getElementById('admin-notif-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+    function toggleAdminNotifMore() {
+        var extras = document.querySelectorAll('.admin-notif-extra');
+        var btn = document.getElementById('admin-notif-show-more');
+        var expanded = btn.dataset.expanded === '1';
+        extras.forEach(function(el) {
+            el.style.setProperty('display', expanded ? 'none' : 'flex', 'important');
+        });
+        btn.dataset.expanded = expanded ? '0' : '1';
+        var count = extras.length;
+        btn.innerHTML = expanded
+            ? '<i class="fas fa-chevron-down mr-1" id="admin-notif-chevron"></i>Show ' + count + ' more'
+            : '<i class="fas fa-chevron-up mr-1" id="admin-notif-chevron"></i>Show less';
+    }
+    document.addEventListener('click', function(e) {
+        var wrapper = document.getElementById('admin-notif-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            var panel = document.getElementById('admin-notif-panel');
+            if (panel) panel.style.display = 'none';
+        }
+    });
+
     /* ── Custom action-menu (works inside table-responsive / DataTables) ── */
     $(function () {
         $(document).on('click', '.action-menu-btn', function (e) {

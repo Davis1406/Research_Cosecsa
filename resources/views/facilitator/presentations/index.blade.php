@@ -113,7 +113,7 @@
                                 <form action="{{ route('facilitator.presentations.assign-reviewers', $doc->id) }}" method="POST">
                                     @csrf
                                     <label style="font-size:0.72rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;display:block;">
-                                        <i class="fas fa-user-plus mr-1" style="color:#C9A84C;"></i> Assign Reviewers (max 2)
+                                        <i class="fas fa-user-plus mr-1" style="color:#C9A84C;"></i> Assign Reviewers (max 4)
                                     </label>
                                     <select name="reviewer_ids[]" multiple
                                         style="width:100%;border:1px solid #dee2e6;border-radius:5px;padding:5px 8px;font-size:0.8rem;color:#2d3748;background:#fff;min-height:60px;">

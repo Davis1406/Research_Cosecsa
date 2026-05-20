@@ -239,9 +239,10 @@
                         <span style="font-weight:700;font-size:0.875rem;color:#2d3748;">Recent Activity</span>
                         <span style="font-size:0.75rem;color:#aaa;">Last 7 days highlighted</span>
                     </div>
-                    <div style="max-height:380px;overflow-y:auto;">
-                        @forelse($notifItems as $n)
-                        <div style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ $n['new'] ? 'background:#fffdf5;' : '' }}">
+                    <div style="max-height:420px;overflow-y:auto;" id="notif-scroll">
+                        @forelse($notifItems as $i => $n)
+                        <div class="notif-item {{ $i >= 5 ? 'notif-extra' : '' }}"
+                             style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ $n['new'] ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
                             <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
                                 <i class="fas {{ $n['icon'] }}" style="font-size:12px;color:{{ $n['color'] }};"></i>
                             </div>
@@ -255,6 +256,14 @@
                         @empty
                         <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
                         @endforelse
+                        @if($notifItems->count() > 5)
+                        <div style="padding:8px 16px;text-align:center;border-top:1px solid #f0f0f0;">
+                            <button id="notif-show-more" onclick="toggleNotifMore()" style="background:none;border:none;color:#C9A84C;font-size:0.78rem;font-weight:700;cursor:pointer;padding:2px 8px;">
+                                <i class="fas fa-chevron-down mr-1" id="notif-chevron"></i>
+                                Show {{ $notifItems->count() - 5 }} more
+                            </button>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -299,6 +308,21 @@ function toggleNotif(e) {
     e.stopPropagation();
     var panel = document.getElementById('notif-panel');
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function toggleNotifMore() {
+    var extras = document.querySelectorAll('.notif-extra');
+    var btn = document.getElementById('notif-show-more');
+    var chevron = document.getElementById('notif-chevron');
+    var expanded = btn.dataset.expanded === '1';
+    extras.forEach(function(el) {
+        el.style.setProperty('display', expanded ? 'none' : 'flex', 'important');
+    });
+    btn.dataset.expanded = expanded ? '0' : '1';
+    chevron.className = expanded ? 'fas fa-chevron-down mr-1' : 'fas fa-chevron-up mr-1';
+    btn.querySelector ? null : null; // no-op
+    // update text
+    var count = extras.length;
+    btn.innerHTML = (expanded ? '<i class="fas fa-chevron-down mr-1" id="notif-chevron"></i>Show ' + count + ' more' : '<i class="fas fa-chevron-up mr-1" id="notif-chevron"></i>Show less');
 }
 document.addEventListener('click', function(e) {
     var wrapper = document.getElementById('notif-wrapper');

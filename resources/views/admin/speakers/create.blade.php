@@ -43,6 +43,39 @@
                 <input type="text" id="linkedin" name="linkedin" class="form-control {{ $errors->has('linkedin') ? 'is-invalid' : '' }}" value="{{ old('linkedin', '') }}" placeholder="LinkedIn profile URL">
                 @if($errors->has('linkedin'))<div class="invalid-feedback">{{ $errors->first('linkedin') }}</div>@endif
             </div>
+            {{-- Academic Profile Links --}}
+            <hr>
+            <h6 style="font-weight:700; color:#2d3748; margin-bottom:14px;">
+                <i class="fas fa-graduation-cap mr-2" style="color:#C9A84C;"></i> Academic Profiles <small class="text-muted font-weight-normal">(optional)</small>
+            </h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="researchgate"><i class="fas fa-flask mr-1" style="color:#00d0af;"></i> ResearchGate URL</label>
+                        <input type="url" id="researchgate" name="researchgate" class="form-control" value="{{ old('researchgate', '') }}" placeholder="https://www.researchgate.net/profile/...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="orcid"><i class="fas fa-id-badge mr-1" style="color:#a6ce39;"></i> ORCID URL</label>
+                        <input type="url" id="orcid" name="orcid" class="form-control" value="{{ old('orcid', '') }}" placeholder="https://orcid.org/0000-0000-0000-0000">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="web_of_science"><i class="fas fa-atom mr-1" style="color:#1d4e89;"></i> Web of Science URL</label>
+                        <input type="url" id="web_of_science" name="web_of_science" class="form-control" value="{{ old('web_of_science', '') }}" placeholder="https://www.webofscience.com/...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="google_scholar"><i class="fas fa-book-reader mr-1" style="color:#4285f4;"></i> Google Scholar URL</label>
+                        <input type="url" id="google_scholar" name="google_scholar" class="form-control" value="{{ old('google_scholar', '') }}" placeholder="https://scholar.google.com/citations?user=...">
+                    </div>
+                </div>
+            </div>
             {{-- Portal Access --}}
             <hr>
             <h6 style="font-weight:700; color:#2d3748; margin-bottom:16px;">

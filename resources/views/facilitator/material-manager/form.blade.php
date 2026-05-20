@@ -36,7 +36,7 @@
                             <label class="form-label-sm">Type <span class="text-danger">*</span></label>
                             <select name="type" class="form-control" required id="type-select">
                                 <option value="">-- Select --</option>
-                                @foreach(['presentation'=>'Presentation (PPT)','document'=>'Document (PDF)','video'=>'Video'] as $val => $label)
+                                @foreach(['presentation'=>'Presentation (PPT)','document'=>'Document (PDF)','video'=>'Video File','youtube'=>'YouTube Video','audio'=>'Audio Recording'] as $val => $label)
                                     <option value="{{ $val }}" {{ old('type', $material->type ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -96,25 +96,44 @@
 
             <div class="card shadow-sm mb-3" style="border-radius:10px; overflow:hidden;">
                 <div class="card-header" style="background:#fff; border-left:4px solid #C9A84C; padding:14px 20px;">
-                    <strong style="font-size:14px; color:#2d3748;"><i class="fas fa-file-upload mr-2" style="color:#C9A84C;"></i>File</strong>
+                    <strong style="font-size:14px; color:#2d3748;"><i class="fas fa-file-upload mr-2" style="color:#C9A84C;"></i>File / URL</strong>
                 </div>
                 <div class="card-body" style="padding:24px;">
                     @if($isEdit && $material->external_url)
                         <div style="background:#f0f9f0; border:1px solid #c3e6cb; border-radius:6px; padding:10px 14px; margin-bottom:14px; font-size:13px; color:#155724;">
                             <i class="fas fa-check-circle mr-1"></i>
-                            Current file: <strong>{{ basename($material->external_url) }}</strong>
+                            @if(($material->type ?? '') === 'youtube')
+                                Current YouTube URL: <strong>{{ $material->external_url }}</strong>
+                            @else
+                                Current file: <strong>{{ basename($material->external_url) }}</strong>
+                            @endif
                             <a href="{{ route('material.view', $material->id) }}" target="_blank" style="margin-left:8px; font-size:12px;">Preview</a>
                         </div>
                     @endif
-                    <div class="form-group mb-0">
-                        <label class="form-label-sm">{{ $isEdit ? 'Replace file (optional)' : 'Upload file' }}</label>
-                        <input type="file" name="file" class="form-control-file" id="file-input"
-                               accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mov,.webm">
-                        <small class="text-muted d-block mt-1" id="file-hint">
-                            Presentations: PPTX, PPT. Documents: PDF, DOC. Videos: MP4, MOV. Max 50MB.
-                        </small>
-                        <div id="file-selected" style="display:none; font-size:12px; color:#28a745; margin-top:4px;">
-                            <i class="fas fa-check-circle mr-1"></i><span></span>
+
+                    {{-- YouTube URL field --}}
+                    <div id="youtube-url-wrap" style="display:none;">
+                        <div class="form-group mb-0">
+                            <label class="form-label-sm">YouTube URL <span class="text-danger">*</span></label>
+                            <input type="url" name="youtube_url" id="youtube-url-input" class="form-control"
+                                   placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                                   value="{{ old('youtube_url', (($material->type ?? '') === 'youtube') ? $material->external_url : '') }}">
+                            <small class="text-muted d-block mt-1">Paste the full YouTube watch or share URL.</small>
+                        </div>
+                    </div>
+
+                    {{-- File upload field --}}
+                    <div id="file-upload-wrap">
+                        <div class="form-group mb-0">
+                            <label class="form-label-sm">{{ $isEdit ? 'Replace file (optional)' : 'Upload file' }}</label>
+                            <input type="file" name="file" class="form-control-file" id="file-input"
+                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mov,.webm,.mp3,.wav,.ogg,.m4a">
+                            <small class="text-muted d-block mt-1" id="file-hint">
+                                Presentations: PPTX, PPT &bull; Documents: PDF, DOC &bull; Videos: MP4, MOV &bull; Audio: MP3, WAV, OGG &bull; Max 100MB.
+                            </small>
+                            <div id="file-selected" style="display:none; font-size:12px; color:#28a745; margin-top:4px;">
+                                <i class="fas fa-check-circle mr-1"></i><span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -148,11 +167,36 @@
 
 @section('scripts')
 <script>
-// ── Type icon ──
-var typeIcons = { presentation:'fa-file-powerpoint', document:'fa-file-pdf', video:'fa-video' };
+// ── Type icon + field visibility ──
+var typeIcons = {
+    presentation: 'fa-file-powerpoint',
+    document:     'fa-file-pdf',
+    video:        'fa-video',
+    youtube:      'fa-brands fa-youtube',
+    audio:        'fa-headphones'
+};
+// fallback for fa-brands if FA5 free
+var typeIconsFa = {
+    presentation: 'fas fa-file-powerpoint',
+    document:     'fas fa-file-pdf',
+    video:        'fas fa-video',
+    youtube:      'fab fa-youtube',
+    audio:        'fas fa-headphones'
+};
 document.getElementById('type-select').addEventListener('change', function() {
-    var icon = typeIcons[this.value] || 'fa-file';
-    document.getElementById('type-icon').innerHTML = '<i class="fas ' + icon + '"></i>';
+    var val = this.value;
+    var iconClass = typeIconsFa[val] || 'fas fa-file';
+    document.getElementById('type-icon').innerHTML = '<i class="' + iconClass + '"></i>';
+    // Show/hide YouTube vs file
+    var ytWrap   = document.getElementById('youtube-url-wrap');
+    var fileWrap = document.getElementById('file-upload-wrap');
+    if (val === 'youtube') {
+        ytWrap.style.display   = 'block';
+        fileWrap.style.display = 'none';
+    } else {
+        ytWrap.style.display   = 'none';
+        fileWrap.style.display = 'block';
+    }
 });
 document.getElementById('type-select').dispatchEvent(new Event('change'));
 

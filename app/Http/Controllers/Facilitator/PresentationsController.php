@@ -53,7 +53,7 @@ class PresentationsController extends Controller
         abort_if($document->document_type !== 'Presentation', 404);
 
         $request->validate([
-            'reviewer_ids'   => 'nullable|array|max:2',
+            'reviewer_ids'   => 'nullable|array|max:4',
             'reviewer_ids.*' => 'exists:users,id',
         ]);
 
