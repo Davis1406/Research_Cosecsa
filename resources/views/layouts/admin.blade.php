@@ -63,6 +63,7 @@
                         </div>
                         <div style="max-height:380px;overflow-y:auto;" id="admin-notif-scroll">
                             @forelse($notifItems ?? [] as $i => $n)
+                            <a href="{{ $n['url'] ?? '#' }}" style="text-decoration:none;color:inherit;">
                             <div class="admin-notif-item {{ $i >= 5 ? 'admin-notif-extra' : '' }}"
                                  style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ ($n['new'] ?? false) ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
                                 <div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
@@ -75,6 +76,7 @@
                                 </div>
                                 @if($n['new'] ?? false)<span style="flex-shrink:0;width:6px;height:6px;border-radius:50%;background:#e53e3e;margin-top:7px;"></span>@endif
                             </div>
+                            </a>
                             @empty
                             <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
                             @endforelse

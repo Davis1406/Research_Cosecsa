@@ -143,4 +143,41 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/facilitators/{id}/edit', 'FacilitatorsController@edit')->name('facilitators.edit')->middleware('role:lead-facilitator');
     Route::put('/facilitators/{id}', 'FacilitatorsController@update')->name('facilitators.update')->middleware('role:lead-facilitator');
     Route::delete('/facilitators/{id}', 'FacilitatorsController@destroy')->name('facilitators.destroy')->middleware('role:lead-facilitator');
+
+    // Directory (all facilitators)
+    Route::get('/directory', 'DirectoryController@index')->name('directory.index');
+    Route::get('/directory/{speaker}', 'DirectoryController@show')->name('directory.show');
+
+    // Quizzes
+    Route::get('/quizzes', 'QuizController@index')->name('quizzes.index');
+    Route::get('/quizzes/create', 'QuizController@create')->name('quizzes.create');
+    Route::post('/quizzes', 'QuizController@store')->name('quizzes.store');
+    Route::get('/quizzes/{quiz}/edit', 'QuizController@edit')->name('quizzes.edit');
+    Route::get('/quizzes/{quiz}/results', 'QuizController@results')->name('quizzes.results');
+    Route::post('/quizzes/{quiz}/toggle-publish', 'QuizController@togglePublish')->name('quizzes.toggle-publish');
+    Route::get('/quizzes/{quiz}', 'QuizController@show')->name('quizzes.show');
+    Route::put('/quizzes/{quiz}', 'QuizController@update')->name('quizzes.update');
+    Route::delete('/quizzes/{quiz}', 'QuizController@destroy')->name('quizzes.destroy');
+
+    // Discussions
+    Route::get('/discussions', 'DiscussionController@index')->name('discussions.index');
+    Route::get('/discussions/create', 'DiscussionController@create')->name('discussions.create');
+    Route::post('/discussions', 'DiscussionController@store')->name('discussions.store');
+    Route::post('/discussions/{discussion}/reply', 'DiscussionController@reply')->name('discussions.reply');
+    Route::delete('/discussions/{discussion}', 'DiscussionController@destroy')->name('discussions.destroy');
+    Route::get('/discussions/{discussion}', 'DiscussionController@show')->name('discussions.show');
+
+    // Messages
+    Route::get('/messages', 'MessagesController@index')->name('messages.index');
+    Route::get('/messages/compose', 'MessagesController@compose')->name('messages.compose');
+    Route::post('/messages', 'MessagesController@store')->name('messages.store');
+    Route::get('/messages/{message}', 'MessagesController@show')->name('messages.show');
+    Route::delete('/messages/{message}', 'MessagesController@destroy')->name('messages.destroy');
+
+    // Certificates (lead only)
+    Route::get('/certificates', 'CertificateController@index')->name('certificates.index')->middleware('role:lead-facilitator');
+    Route::get('/certificates/create', 'CertificateController@create')->name('certificates.create')->middleware('role:lead-facilitator');
+    Route::post('/certificates', 'CertificateController@store')->name('certificates.store')->middleware('role:lead-facilitator');
+    Route::get('/certificates/{certificate}/preview', 'CertificateController@preview')->name('certificates.preview');
+    Route::delete('/certificates/{certificate}', 'CertificateController@destroy')->name('certificates.destroy')->middleware('role:lead-facilitator');
 });

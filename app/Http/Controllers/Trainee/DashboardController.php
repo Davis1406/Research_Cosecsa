@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Schedule;
 use App\TrainingMaterial;
+use App\Quiz;
+use App\QuizAttempt;
 
 class DashboardController extends Controller
 {
@@ -15,6 +17,15 @@ class DashboardController extends Controller
         $completedSessions = Schedule::where('is_completed', true)->count();
         $totalMaterials = TrainingMaterial::count();
         $myDocuments = $trainee ? $trainee->documents()->count() : 0;
-        return view('trainee.dashboard', compact('trainee', 'totalSessions', 'completedSessions', 'totalMaterials', 'myDocuments'));
+
+        $quizCount = Quiz::where('is_published', true)->count();
+        $quizPassed = auth()->id()
+            ? QuizAttempt::where('user_id', auth()->id())->where('passed', true)->count()
+            : 0;
+
+        return view('trainee.dashboard', compact(
+            'trainee', 'totalSessions', 'completedSessions',
+            'totalMaterials', 'myDocuments', 'quizCount', 'quizPassed'
+        ));
     }
 }

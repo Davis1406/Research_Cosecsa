@@ -190,6 +190,19 @@
         <a href="{{ route('facilitator.presentations.index') }}" class="{{ request()->routeIs('facilitator.presentations*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-file-powerpoint"></i> Presentations
         </a>
+        <a href="{{ route('facilitator.discussions.index') }}" class="{{ request()->routeIs('facilitator.discussions*') ? 'active' : '' }}" onclick="closeSidebar()">
+            <i class="fas fa-comments"></i> Discussions
+        </a>
+        <a href="{{ route('facilitator.messages.index') }}" class="{{ request()->routeIs('facilitator.messages*') ? 'active' : '' }}" onclick="closeSidebar()">
+            <i class="fas fa-envelope"></i> Messages
+            @if($unreadMessages > 0)<span style="background:#e53e3e;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px;">{{ $unreadMessages }}</span>@endif
+        </a>
+        <a href="{{ route('facilitator.quizzes.index') }}" class="{{ request()->routeIs('facilitator.quizzes*') ? 'active' : '' }}" onclick="closeSidebar()">
+            <i class="fas fa-question-circle"></i> Quizzes
+        </a>
+        <a href="{{ route('facilitator.directory.index') }}" class="{{ request()->routeIs('facilitator.directory*') ? 'active' : '' }}" onclick="closeSidebar()">
+            <i class="fas fa-address-book"></i> Directory
+        </a>
         <div class="sidebar-section-label">Manage</div>
         <a href="{{ route('facilitator.material-manager.index') }}" class="{{ request()->routeIs('facilitator.material-manager*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-book-open"></i> Materials
@@ -203,6 +216,9 @@
         </a>
         <a href="{{ route('facilitator.facilitators.index') }}" class="{{ request()->routeIs('facilitator.facilitators*') ? 'active' : '' }}" onclick="closeSidebar()">
             <i class="fas fa-chalkboard-teacher"></i> Facilitators
+        </a>
+        <a href="{{ route('facilitator.certificates.index') }}" class="{{ request()->routeIs('facilitator.certificates*') ? 'active' : '' }}" onclick="closeSidebar()">
+            <i class="fas fa-certificate"></i> Certificates
         </a>
         @endif
     </nav>
@@ -241,6 +257,7 @@
                     </div>
                     <div style="max-height:420px;overflow-y:auto;" id="notif-scroll">
                         @forelse($notifItems as $i => $n)
+                        <a href="{{ $n['url'] ?? '#' }}" style="text-decoration:none;color:inherit;">
                         <div class="notif-item {{ $i >= 5 ? 'notif-extra' : '' }}"
                              style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ $n['new'] ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
                             <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
@@ -253,6 +270,7 @@
                             </div>
                             @if($n['new'])<span style="flex-shrink:0;width:7px;height:7px;border-radius:50%;background:#e53e3e;margin-top:6px;"></span>@endif
                         </div>
+                        </a>
                         @empty
                         <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
                         @endforelse

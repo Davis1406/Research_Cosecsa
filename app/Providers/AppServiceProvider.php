@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\TrainingMaterial;
 use App\TraineeDocumentComment;
+use App\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
                 'icon'  => 'fa-book-open',
                 'color' => '#C9A84C',
                 'new'   => $m->created_at->gte($since),
+                'url'   => route('material.view', $m->id),
             ]);
 
             $comments = TraineeDocumentComment::with('user', 'document.trainee')
@@ -43,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
                     'icon'  => 'fa-comment-alt',
                     'color' => '#2c7a4b',
                     'new'   => $c->created_at->gte($since),
+                    'url'   => route('facilitator.presentations.view', $c->trainee_document_id),
                 ]);
 
             $notifItems = $materials->merge($comments)
@@ -58,18 +61,22 @@ class AppServiceProvider extends ServiceProvider
         // Inject notifications into the facilitator layout for every request
         View::composer('layouts.facilitator', function ($view) use ($buildNotifications) {
             if (!Auth::check()) {
-                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                $view->with(['notifItems' => collect(), 'notifCount' => 0, 'unreadMessages' => 0]);
                 return;
             }
 
             $isLead = Auth::user()->roles->pluck('title')->contains('Lead Facilitator');
 
+            $unreadMessages = Message::where('receiver_id', Auth::id())->whereNull('read_at')->count();
+
             if (!$isLead) {
-                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                $view->with(['notifItems' => collect(), 'notifCount' => 0, 'unreadMessages' => $unreadMessages]);
                 return;
             }
 
-            $view->with($buildNotifications());
+            $data = $buildNotifications();
+            $data['unreadMessages'] = $unreadMessages;
+            $view->with($data);
         });
 
         // Inject notifications into the admin layout

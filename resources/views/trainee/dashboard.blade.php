@@ -97,15 +97,27 @@
                 <i class="fas fa-info-circle mr-2"></i> Progress Overview
             </div>
             <div class="card-body">
-                @php $pct = $totalSessions > 0 ? round(($completedSessions / $totalSessions) * 100) : 0; @endphp
+                @php
+                    $pct = $totalSessions > 0 ? round(($completedSessions / $totalSessions) * 100) : 0;
+                    $qpct = $quizCount > 0 ? round(($quizPassed / $quizCount) * 100) : 0;
+                @endphp
                 <p class="mb-1" style="font-size:13px; font-weight:600;">Sessions Completed</p>
-                <div class="progress mb-2" style="height:12px; border-radius:6px;">
+                <div class="progress mb-1" style="height:8px; border-radius:4px;">
                     <div class="progress-bar" role="progressbar"
-                         style="width: {{ $pct }}%; background: linear-gradient(90deg, #C9A84C, #a02626);"
+                         style="width: {{ $pct }}%; background:#C9A84C;"
                          aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
                     </div>
                 </div>
-                <p class="text-right mb-0" style="font-size:12px; color:#666;">{{ $completedSessions }} / {{ $totalSessions }} ({{ $pct }}%)</p>
+                <p class="text-right mb-3" style="font-size:12px; color:#666;">{{ $completedSessions }} / {{ $totalSessions }} ({{ $pct }}%)</p>
+
+                <p class="mb-1" style="font-size:13px; font-weight:600;">Quizzes Passed</p>
+                <div class="progress mb-1" style="height:8px; border-radius:4px;">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ $qpct }}%; background:#2c7a4b;"
+                         aria-valuenow="{{ $qpct }}" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <p class="text-right mb-0" style="font-size:12px; color:#666;">{{ $quizPassed }} / {{ $quizCount }} ({{ $qpct }}%)</p>
             </div>
         </div>
     </div>

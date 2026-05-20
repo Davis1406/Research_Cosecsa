@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Trainee;
 use App\User;
 use App\Role;
+use App\Schedule;
+use App\Quiz;
+use App\QuizAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,7 +20,12 @@ class TraineesController extends Controller
             'documents' => fn($q) => $q->with('reviewers'),
             'user',
         ])->latest()->get();
-        return view('facilitator.trainees', compact('traineeList'));
+
+        $totalSessions = Schedule::count();
+        $completedSessions = Schedule::where('is_completed', true)->count();
+        $quizCount = Quiz::where('is_published', true)->count();
+
+        return view('facilitator.trainees', compact('traineeList', 'totalSessions', 'completedSessions', 'quizCount'));
     }
 
     public function create()

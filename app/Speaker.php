@@ -45,6 +45,11 @@ class Speaker extends Model implements HasMedia
         return $this->hasMany(Schedule::class, 'speaker_id', 'id');
     }
 
+    public function materials()
+    {
+        return $this->hasMany(\App\TrainingMaterial::class, 'speaker_id', 'id');
+    }
+
     public function user()
     {
         return $this->belongsTo(\App\User::class);

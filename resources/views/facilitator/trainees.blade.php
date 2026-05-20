@@ -99,6 +99,30 @@
                             <td colspan="8" style="padding:0; border-top:none;">
                                 <div style="padding:14px 20px 14px 76px; border-left:3px solid #C9A84C; margin-left:0;">
 
+                                    {{-- Progress bars --}}
+                                    @php
+                                        $sessionPct = $totalSessions > 0 ? round(($completedSessions / $totalSessions) * 100) : 0;
+                                        $quizPassed = $trainee->user_id ? \App\QuizAttempt::where('user_id', $trainee->user_id)->where('passed', true)->count() : 0;
+                                        $quizPct = $quizCount > 0 ? round(($quizPassed / $quizCount) * 100) : 0;
+                                    @endphp
+                                    <div style="margin-bottom:14px;">
+                                        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#aaa; margin-bottom:6px;">
+                                            <i class="fas fa-chart-line mr-1" style="color:#C9A84C;"></i> Progress
+                                        </div>
+                                        <div style="margin-bottom:8px;">
+                                            <div style="font-size:12px; color:#555; margin-bottom:3px;">Session Progress: {{ $completedSessions }} / {{ $totalSessions }} completed</div>
+                                            <div class="progress" style="height:8px; border-radius:4px;">
+                                                <div class="progress-bar" style="width:{{ $sessionPct }}%; background:#C9A84C;" role="progressbar"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:12px; color:#555; margin-bottom:3px;">Quizzes Passed: {{ $quizPassed }} / {{ $quizCount }}</div>
+                                            <div class="progress" style="height:8px; border-radius:4px;">
+                                                <div class="progress-bar" style="width:{{ $quizPct }}%; background:#2c7a4b;" role="progressbar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {{-- Trainee extra details --}}
                                     <div class="row mb-3" style="font-size:12px; color:#555;">
                                         @if($trainee->phone)
