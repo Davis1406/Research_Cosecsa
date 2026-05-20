@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,6 +18,11 @@ class TraineeDocument extends Model
     public function comments()
     {
         return $this->hasMany(TraineeDocumentComment::class)->with('user')->latest();
+    }
+
+    public function reviewers()
+    {
+        return $this->belongsToMany(User::class, 'presentation_reviewers')->withTimestamps();
     }
 
     public function getFullPathAttribute()

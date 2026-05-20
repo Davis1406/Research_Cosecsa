@@ -221,7 +221,44 @@
             </button>
             <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
         </div>
-        <span style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            {{-- Notification bell (lead facilitator only) --}}
+            @if($isLead)
+            <div style="position:relative;" id="notif-wrapper">
+                <button onclick="toggleNotif(event)" style="background:none;border:none;padding:4px 6px;cursor:pointer;position:relative;" aria-label="Notifications">
+                    <i class="fas fa-bell" style="font-size:17px;color:#2d3748;"></i>
+                    @if($notifCount > 0)
+                    <span id="notif-badge" style="position:absolute;top:-2px;right:-2px;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1;">
+                        {{ $notifCount > 9 ? '9+' : $notifCount }}
+                    </span>
+                    @endif
+                </button>
+                {{-- Dropdown panel --}}
+                <div id="notif-panel" style="display:none;position:absolute;right:0;top:38px;width:320px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.14);z-index:999;overflow:hidden;border:1px solid #e9ecef;">
+                    <div style="padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;">
+                        <span style="font-weight:700;font-size:0.875rem;color:#2d3748;">Recent Activity</span>
+                        <span style="font-size:0.75rem;color:#aaa;">Last 7 days highlighted</span>
+                    </div>
+                    <div style="max-height:380px;overflow-y:auto;">
+                        @forelse($notifItems as $n)
+                        <div style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ $n['new'] ? 'background:#fffdf5;' : '' }}">
+                            <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
+                                <i class="fas {{ $n['icon'] }}" style="font-size:12px;color:{{ $n['color'] }};"></i>
+                            </div>
+                            <div style="min-width:0;flex:1;">
+                                <div style="font-size:0.8rem;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $n['title'] }}</div>
+                                <div style="font-size:0.72rem;color:#888;margin-top:1px;">{{ $n['sub'] }}</div>
+                                <div style="font-size:0.7rem;color:#bbb;margin-top:2px;">{{ $n['time']->diffForHumans() }}</div>
+                            </div>
+                            @if($n['new'])<span style="flex-shrink:0;width:7px;height:7px;border-radius:50%;background:#e53e3e;margin-top:6px;"></span>@endif
+                        </div>
+                        @empty
+                        <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+            @endif
             <div style="width:28px;height:28px;border-radius:50%;border:2px solid #C9A84C;overflow:hidden;flex-shrink:0;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $facInit }}</div>
             <span class="topbar-username" style="color:#2d3748;font-size:13px;">{{ auth()->user()->name ?? '' }}</span>
         </span>
@@ -258,6 +295,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script>
+function toggleNotif(e) {
+    e.stopPropagation();
+    var panel = document.getElementById('notif-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+    var wrapper = document.getElementById('notif-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        var panel = document.getElementById('notif-panel');
+        if (panel) panel.style.display = 'none';
+    }
+});
 function toggleSidebar() {
     document.getElementById('portalSidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('open');

@@ -2,27 +2,65 @@
 
 namespace App\Providers;
 
+use App\TrainingMaterial;
+use App\TraineeDocumentComment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
+    public function register() {}
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
     public function boot()
     {
-        //
+        // Inject notifications into the facilitator layout for every request
+        View::composer('layouts.facilitator', function ($view) {
+            if (!Auth::check()) {
+                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                return;
+            }
+
+            $isLead = Auth::user()->roles->pluck('title')->contains('Lead Facilitator');
+
+            if (!$isLead) {
+                $view->with(['notifItems' => collect(), 'notifCount' => 0]);
+                return;
+            }
+
+            $since = now()->subDays(7);
+
+            $materials = TrainingMaterial::latest()->take(10)->get()->map(fn($m) => [
+                'type'  => 'material',
+                'title' => $m->title,
+                'sub'   => ucfirst($m->type) . ($m->category ? ' · ' . $m->category : ''),
+                'time'  => $m->created_at,
+                'icon'  => 'fa-book-open',
+                'color' => '#C9A84C',
+                'new'   => $m->created_at->gte($since),
+            ]);
+
+            $comments = TraineeDocumentComment::with('user', 'document.trainee')
+                ->latest()->take(10)->get()->map(fn($c) => [
+                    'type'  => 'comment',
+                    'title' => ($c->user?->name ?? 'Someone') . ' left feedback',
+                    'sub'   => $c->document?->trainee?->name
+                                   ? 'On ' . $c->document->trainee->name . '\'s presentation'
+                                   : 'On a presentation',
+                    'time'  => $c->created_at,
+                    'icon'  => 'fa-comment-alt',
+                    'color' => '#2c7a4b',
+                    'new'   => $c->created_at->gte($since),
+                ]);
+
+            $notifItems = $materials->merge($comments)
+                ->sortByDesc('time')
+                ->take(15)
+                ->values();
+
+            $notifCount = $notifItems->where('new', true)->count();
+
+            $view->with(compact('notifItems', 'notifCount'));
+        });
     }
 }
