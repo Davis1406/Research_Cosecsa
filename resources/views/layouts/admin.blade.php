@@ -12,7 +12,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" />
     <link href="{{ asset('css/adminltev3.css') }}" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
@@ -21,6 +21,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
+    <style>
+        body, .content-wrapper, .sidebar, .main-header, .nav-sidebar { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+        body { font-size: 14.5px !important; }
+        .nav-sidebar .nav-link p, .nav-sidebar p { font-size: 14px !important; font-weight: 600 !important; }
+        .card-title, h1, h2, h3, h4, h5, h6 { font-family: 'Inter', sans-serif !important; font-weight: 700; }
+        .table td, .table th { font-size: 14px !important; }
+        label { font-size: 13px !important; font-weight: 600 !important; }
+        .form-control { font-size: 14px !important; border: 1.5px solid #d1d5db !important; }
+        .btn { font-size: 13.5px !important; font-weight: 600 !important; }
+        .small, small { font-size: 12.5px !important; }
+    </style>
     @yield('styles')
 </head>
 

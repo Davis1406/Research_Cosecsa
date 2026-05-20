@@ -13,12 +13,15 @@ class Certificate extends Model
         'event_date',
         'issued_by',
         'course_name',
+        'org_name',
         'sig1_name',
         'sig1_title',
         'sig1_path',
         'sig2_name',
         'sig2_title',
         'sig2_path',
+        'logo_path',
+        'stamp_path',
         'generated_at',
     ];
 

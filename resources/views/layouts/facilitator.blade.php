@@ -9,11 +9,21 @@
     <link rel="icon" type="image/png" href="{{ asset('img/cosecsa-favicon.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     <style>
-        * { font-family: 'Nunito', sans-serif; box-sizing: border-box; }
-        body { background: #f4f6f9; margin: 0; }
+        * { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-sizing: border-box; }
+        body { background: #f0f2f5; margin: 0; font-size: 14.5px; color: #1a202c; }
+        h1,h2,h3,h4,h5,h6 { font-weight: 700; color: #1a202c; }
+        p, .text-muted { font-size: 14px; }
+        label { font-size: 13px !important; font-weight: 600 !important; color: #374151 !important; }
+        .form-control { font-size: 14px; border: 1.5px solid #d1d5db; border-radius: 6px; }
+        .form-control:focus { border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+        .btn { font-size: 13.5px; font-weight: 600; }
+        .card { border: 1.5px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-header { font-size: 14px; font-weight: 700; }
+        .table td, .table th { font-size: 14px; }
+        .badge { font-size: 11px; }
 
         /* ── Sidebar ── */
         .portal-sidebar {
@@ -45,7 +55,7 @@
         .portal-sidebar nav a {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 20px; color: #2d3748; text-decoration: none;
-            font-size: 13.5px; font-weight: 600;
+            font-size: 14px; font-weight: 600;
             transition: background 0.15s, color 0.15s;
             border-left: 3px solid transparent;
         }

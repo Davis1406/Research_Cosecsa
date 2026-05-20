@@ -100,6 +100,46 @@
                 </li>
                 @endcan
 
+                {{-- Quizzes --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.quizzes.index') }}" class="nav-link {{ request()->is('admin/quizzes*') ? 'active' : '' }}">
+                        <i class="fas fa-fw fa-question-circle"></i>
+                        <p>Quizzes</p>
+                    </a>
+                </li>
+
+                {{-- Discussions --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.discussions.index') }}" class="nav-link {{ request()->is('admin/discussions*') ? 'active' : '' }}">
+                        <i class="fas fa-fw fa-comments"></i>
+                        <p>Discussions</p>
+                    </a>
+                </li>
+
+                {{-- Messages --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.messages.index') }}" class="nav-link {{ request()->is('admin/messages*') ? 'active' : '' }}">
+                        <i class="fas fa-fw fa-envelope"></i>
+                        <p>Messages</p>
+                    </a>
+                </li>
+
+                {{-- Certificates --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.certificates.index') }}" class="nav-link {{ request()->is('admin/certificates*') ? 'active' : '' }}">
+                        <i class="fas fa-fw fa-certificate"></i>
+                        <p>Certificates</p>
+                    </a>
+                </li>
+
+                {{-- Facilitator Directory --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.directory.index') }}" class="nav-link {{ request()->is('admin/directory*') ? 'active' : '' }}">
+                        <i class="fas fa-fw fa-address-book"></i>
+                        <p>Directory</p>
+                    </a>
+                </li>
+
                 {{-- Settings --}}
                 @can('setting_access')
                 <li class="nav-item">

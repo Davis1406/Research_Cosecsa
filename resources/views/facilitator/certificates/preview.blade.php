@@ -207,9 +207,13 @@
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
         {{-- Logo --}}
-        <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA" class="cert-logo">
+        @if($certificate->logo_path)
+            <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo" class="cert-logo" style="object-fit:contain;">
+        @else
+            <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA" class="cert-logo">
+        @endif
 
-        <div class="cert-org">College of Surgeons of East, Central &amp; Southern Africa</div>
+        <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
         <div class="cert-divider"></div>
 
         <div class="cert-heading">Certificate of Completion</div>
@@ -260,7 +264,14 @@
             @endif
         </div>
 
-        <div class="cert-footer">COSECSA &copy; {{ date('Y') }} &mdash; Research Training System</div>
+        {{-- Stamp / Seal --}}
+        @if($certificate->stamp_path)
+        <div style="margin-top:18px;">
+            <img src="{{ asset('storage/' . $certificate->stamp_path) }}" alt="Official Stamp" style="max-height:80px; max-width:80px; opacity:0.85;">
+        </div>
+        @endif
+
+        <div class="cert-footer">{{ $certificate->org_name ?? 'COSECSA' }} &copy; {{ date('Y') }} &mdash; Research Training System</div>
     </div>
 </div>
 

@@ -1,22 +1,22 @@
-@extends('layouts.facilitator')
-
-@section('page-title', 'Issue Certificate')
+@extends('layouts.admin')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
-        <i class="fas fa-certificate mr-2" style="color:#C9A84C;"></i> Issue Certificate
-    </h5>
-    <a href="{{ route('facilitator.certificates.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:13px;">
-        <i class="fas fa-arrow-left mr-1"></i> Back
-    </a>
+<div class="row mb-2">
+    <div class="col-lg-12 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
+            <i class="fas fa-certificate mr-2" style="color:#C9A84C;"></i> Issue Certificate
+        </h5>
+        <a href="{{ route('admin.certificates.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:13px;">
+            <i class="fas fa-arrow-left mr-1"></i> Back
+        </a>
+    </div>
 </div>
 
-<form action="{{ route('facilitator.certificates.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('admin.certificates.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="card shadow-sm mb-3" style="border-radius:8px;">
-        <div class="card-header" style="background:#fff; border-bottom:2px solid #C9A84C; font-weight:700; font-size:13px; color:#2d3748;">
+        <div class="card-header cosecsa-card-header">
             Event Details
         </div>
         <div class="card-body">
@@ -42,7 +42,7 @@
     </div>
 
     <div class="card shadow-sm mb-3" style="border-radius:8px;">
-        <div class="card-header" style="background:#fff; border-bottom:2px solid #C9A84C; font-weight:700; font-size:13px; color:#2d3748;">
+        <div class="card-header cosecsa-card-header">
             Organisation &amp; Branding
         </div>
         <div class="card-body">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="card shadow-sm mb-3" style="border-radius:8px;">
-        <div class="card-header" style="background:#fff; border-bottom:2px solid #C9A84C; font-weight:700; font-size:13px; color:#2d3748;">
+        <div class="card-header cosecsa-card-header">
             Signatures
         </div>
         <div class="card-body">
@@ -115,7 +115,7 @@
     </div>
 
     <div class="card shadow-sm mb-3" style="border-radius:8px;">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:#fff; border-bottom:2px solid #C9A84C; font-weight:700; font-size:13px; color:#2d3748;">
+        <div class="card-header d-flex justify-content-between align-items-center cosecsa-card-header">
             <span>Select Trainees *</span>
             <div>
                 <button type="button" onclick="selectAll()" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:11px;">Select All</button>
@@ -147,8 +147,8 @@
     </div>
 
     <div class="d-flex justify-content-end" style="gap:8px;">
-        <a href="{{ route('facilitator.certificates.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">Cancel</a>
-        <button type="submit" class="btn btn-sm" style="background:#C9A84C; color:#fff; font-weight:700; padding:8px 20px;">
+        <a href="{{ route('admin.certificates.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">Cancel</a>
+        <button type="submit" class="btn btn-cosecsa btn-sm" style="padding:8px 20px;">
             <i class="fas fa-certificate mr-1"></i> Generate Certificate(s)
         </button>
     </div>
@@ -156,6 +156,7 @@
 @endsection
 
 @section('scripts')
+@parent
 <script>
 function selectAll() {
     document.querySelectorAll('.trainee-check').forEach(function(c) { c.checked = true; });

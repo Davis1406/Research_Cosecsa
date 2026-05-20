@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Facilitator;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Certificate;
 use App\Trainee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
-class CertificateController extends Controller
+class CertificatesController extends Controller
 {
     public function index()
     {
@@ -16,13 +15,13 @@ class CertificateController extends Controller
             ->latest()
             ->get();
 
-        return view('facilitator.certificates.index', compact('certificates'));
+        return view('admin.certificates.index', compact('certificates'));
     }
 
     public function create()
     {
         $trainees = Trainee::orderBy('name')->get();
-        return view('facilitator.certificates.create', compact('trainees'));
+        return view('admin.certificates.create', compact('trainees'));
     }
 
     public function store(Request $request)
@@ -79,10 +78,7 @@ class CertificateController extends Controller
         }
 
         $count = count($request->trainee_ids);
-        $redirectRoute = $request->has('_admin')
-            ? route('admin.certificates.index')
-            : route('facilitator.certificates.index');
-        return redirect($redirectRoute)->with('message', "{$count} certificate(s) generated successfully.");
+        return redirect()->route('admin.certificates.index')->with('message', "{$count} certificate(s) generated successfully.");
     }
 
     public function preview(Certificate $certificate)
@@ -94,6 +90,6 @@ class CertificateController extends Controller
     public function destroy(Certificate $certificate)
     {
         $certificate->delete();
-        return redirect()->route('facilitator.certificates.index')->with('message', 'Certificate deleted.');
+        return redirect()->route('admin.certificates.index')->with('message', 'Certificate deleted.');
     }
 }

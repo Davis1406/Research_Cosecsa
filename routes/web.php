@@ -73,6 +73,26 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Prices
     Route::delete('prices/destroy', 'PricesController@massDestroy')->name('prices.massDestroy');
     Route::resource('prices', 'PricesController');
+
+    // Quizzes
+    Route::post('quizzes/{quiz}/toggle-publish', 'QuizzesController@togglePublish')->name('quizzes.toggle-publish');
+    Route::get('quizzes/{quiz}/results', 'QuizzesController@show')->name('quizzes.results');
+    Route::resource('quizzes', 'QuizzesController');
+
+    // Discussions
+    Route::post('discussions/{discussion}/reply', 'DiscussionsController@reply')->name('discussions.reply');
+    Route::resource('discussions', 'DiscussionsController', ['only' => ['index', 'show', 'destroy']]);
+
+    // Messages
+    Route::resource('messages', 'MessagesController', ['only' => ['index', 'show', 'destroy']]);
+
+    // Certificates
+    Route::get('certificates/{certificate}/preview', 'CertificatesController@preview')->name('certificates.preview');
+    Route::resource('certificates', 'CertificatesController', ['only' => ['index', 'create', 'store', 'destroy']]);
+
+    // Facilitator Directory (admin view)
+    Route::get('directory', 'DirectoryController@index')->name('directory.index');
+    Route::get('directory/{speaker}', 'DirectoryController@show')->name('directory.show');
 });
 
 // Shared material viewer — accessible to any authenticated user (no admin gate)

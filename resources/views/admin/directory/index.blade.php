@@ -1,5 +1,4 @@
-@extends('layouts.facilitator')
-@section('page-title', 'Facilitator Directory')
+@extends('layouts.admin')
 
 @section('styles')
 <style>
@@ -88,10 +87,6 @@
     background: #2d3748; color: #fff; border: 1.5px solid #2d3748;
 }
 .dir-btn-primary:hover { background: #1a202c; color: #fff; }
-.dir-btn-outline {
-    background: #fff; color: #C9A84C; border: 1.5px solid #C9A84C;
-}
-.dir-btn-outline:hover { background: #C9A84C; color: #fff; }
 </style>
 @endsection
 
@@ -182,14 +177,9 @@
 
                 {{-- Actions --}}
                 <div class="dir-actions">
-                    <a href="{{ route('facilitator.directory.show', $speaker) }}" class="dir-btn dir-btn-primary">
+                    <a href="{{ route('admin.directory.show', $speaker) }}" class="dir-btn dir-btn-primary">
                         <i class="fas fa-user mr-1"></i> View Profile
                     </a>
-                    @if($speaker->user_id)
-                    <a href="{{ route('facilitator.messages.compose', ['to' => $speaker->user_id]) }}" class="dir-btn dir-btn-outline">
-                        <i class="fas fa-paper-plane mr-1"></i> Message
-                    </a>
-                    @endif
                 </div>
             </div>
         </div>
