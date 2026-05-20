@@ -12,6 +12,9 @@ class Message extends Model
         'subject',
         'body',
         'material_id',
+        'attachment_path',
+        'attachment_name',
+        'attachment_mime',
         'read_at',
     ];
 

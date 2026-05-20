@@ -68,9 +68,9 @@
                 </div>
 
                 @if($speaker->user_id)
-                <a href="{{ route('facilitator.messages.compose', ['to' => $speaker->user_id]) }}"
+                <a href="{{ route('facilitator.messages.thread', $speaker->user_id) }}"
                    class="btn btn-block" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px;">
-                    <i class="fas fa-envelope mr-2"></i> Send Message
+                    <i class="fas fa-comment mr-2"></i> Chat
                 </a>
                 @endif
             </div>

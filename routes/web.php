@@ -187,10 +187,13 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::delete('/discussions/{discussion}', 'DiscussionController@destroy')->name('discussions.destroy');
     Route::get('/discussions/{discussion}', 'DiscussionController@show')->name('discussions.show');
 
-    // Messages
+    // Messages / Chat
     Route::get('/messages', 'MessagesController@index')->name('messages.index');
     Route::get('/messages/compose', 'MessagesController@compose')->name('messages.compose');
     Route::post('/messages', 'MessagesController@store')->name('messages.store');
+    Route::get('/messages/thread/{user}', 'MessagesController@thread')->name('messages.thread');
+    Route::post('/messages/thread/{user}/send', 'MessagesController@send')->name('messages.send');
+    Route::get('/messages/thread/{user}/poll', 'MessagesController@poll')->name('messages.poll');
     Route::get('/messages/{message}', 'MessagesController@show')->name('messages.show');
     Route::delete('/messages/{message}', 'MessagesController@destroy')->name('messages.destroy');
 
