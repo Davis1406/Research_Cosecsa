@@ -18,7 +18,8 @@ class MessagesController extends Controller
     {
         $me = auth()->id();
 
-        // Get all unique user pairs and the latest message per conversation
+        // Get all unique user pairs and the latest message per conversation.
+        // Cast sender/receiver IDs to int for correct comparison (MySQL returns strings).
         $conversations = Message::with(['sender', 'receiver'])
             ->where(function ($q) use ($me) {
                 $q->where('sender_id', $me)->orWhere('receiver_id', $me);
@@ -26,13 +27,13 @@ class MessagesController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy(function ($msg) use ($me) {
-                // Key = the OTHER user's id
-                return $msg->sender_id === $me ? $msg->receiver_id : $msg->sender_id;
+                // Key = the OTHER user's id (cast both sides to int)
+                return (int)$msg->sender_id === $me ? (int)$msg->receiver_id : (int)$msg->sender_id;
             })
             ->map(function ($msgs) use ($me) {
-                $latest  = $msgs->first(); // already ordered desc
-                $other   = $latest->sender_id === $me ? $latest->receiver : $latest->sender;
-                $unread  = $msgs->filter(fn($m) => $m->receiver_id === $me && is_null($m->read_at))->count();
+                $latest = $msgs->first(); // already ordered desc
+                $other  = (int)$latest->sender_id === $me ? $latest->receiver : $latest->sender;
+                $unread = $msgs->filter(fn($m) => (int)$m->receiver_id === $me && is_null($m->read_at))->count();
                 return compact('latest', 'other', 'unread');
             });
 
@@ -62,9 +63,11 @@ class MessagesController extends Controller
 
         $messages = Message::with(['material'])
             ->where(function ($q) use ($me, $user) {
-                $q->where('sender_id', $me)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($me, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $me);
+                $q->where(function ($inner) use ($me, $user) {
+                    $inner->where('sender_id', $me)->where('receiver_id', $user->id);
+                })->orWhere(function ($inner) use ($me, $user) {
+                    $inner->where('sender_id', $user->id)->where('receiver_id', $me);
+                });
             })
             ->orderBy('created_at', 'asc')
             ->get();
@@ -131,9 +134,8 @@ class MessagesController extends Controller
         $sinceId = (int) $request->query('since', 0);
 
         $messages = Message::with('material')
-            ->where(function ($q) use ($me, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $me);
-            })
+            ->where('sender_id', $user->id)
+            ->where('receiver_id', $me)
             ->where('id', '>', $sinceId)
             ->orderBy('created_at', 'asc')
             ->get()

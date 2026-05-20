@@ -104,8 +104,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('discussions/{discussion}/reply', 'DiscussionsController@reply')->name('discussions.reply');
     Route::resource('discussions', 'DiscussionsController', ['only' => ['index', 'show', 'destroy']]);
 
-    // Messages
-    Route::resource('messages', 'MessagesController', ['only' => ['index', 'show', 'destroy']]);
+    // Messages / Chat (admin)
+    Route::get('messages', 'MessagesController@index')->name('messages.index');
+    Route::get('messages/thread/{user}', 'MessagesController@thread')->name('messages.thread');
+    Route::post('messages/thread/{user}/send', 'MessagesController@send')->name('messages.send');
+    Route::get('messages/thread/{user}/poll', 'MessagesController@poll')->name('messages.poll');
+    Route::get('messages/{message}', 'MessagesController@show')->name('messages.show');
+    Route::delete('messages/{message}', 'MessagesController@destroy')->name('messages.destroy');
 
     // Certificates
     Route::get('certificates/{certificate}/preview', 'CertificatesController@preview')->name('certificates.preview');
