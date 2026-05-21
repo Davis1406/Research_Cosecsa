@@ -47,4 +47,27 @@ class Schedule extends Model
     {
         return $this->belongsToMany(TrainingMaterial::class, 'schedule_training_material');
     }
+
+    /**
+     * Scope: only sessions suitable for discussions or quizzes.
+     * Excludes breaks, administrative ceremonies, wrap-ups and recaps.
+     */
+    public function scopeDiscussable($query)
+    {
+        $exclude = [
+            'break',        // Morning Tea Break, Lunch Break, Afternoon Tea Break
+            'registration', // Registration and Pre-Course Assessment
+            'welcome',      // Introductions and Welcome Remarks
+            'opening',      // Official Opening
+            'wrap',         // Wrap-Up of the Day
+            'recap',        // Recap of Day X / Recap of Previous Day
+            'closure',      // Course Closure and Certification
+        ];
+
+        foreach ($exclude as $kw) {
+            $query->where('title', 'not like', "%{$kw}%");
+        }
+
+        return $query;
+    }
 }

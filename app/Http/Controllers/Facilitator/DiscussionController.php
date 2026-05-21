@@ -17,14 +17,14 @@ class DiscussionController extends Controller
             ->latest()
             ->get();
 
-        $sessions = Schedule::orderBy('day_number')->orderBy('start_time')->get();
+        $sessions = Schedule::discussable()->orderBy('day_number')->orderBy('start_time')->get();
 
         return view('facilitator.discussions.index', compact('discussions', 'sessions'));
     }
 
     public function create()
     {
-        $sessions = Schedule::orderBy('day_number')->orderBy('start_time')->get();
+        $sessions = Schedule::discussable()->orderBy('day_number')->orderBy('start_time')->get();
         return view('facilitator.discussions.form', compact('sessions'));
     }
 

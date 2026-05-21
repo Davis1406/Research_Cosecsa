@@ -17,19 +17,28 @@
         <form action="{{ route('facilitator.discussions.store') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label style="font-size:12px; font-weight:700; color:#555;">Session / Title *</label>
+                <label style="font-size:12px; font-weight:700; color:#555;">Discussion Topic *</label>
                 <select name="title" class="form-control" required onchange="syncSession(this)">
-                    <option value="">— Select a session —</option>
-                    @foreach($sessions as $s)
-                    <option value="{{ $s->title }}"
-                            data-id="{{ $s->id }}"
-                            {{ old('title') === $s->title ? 'selected' : '' }}>
-                        Day {{ $s->day_number }}: {{ $s->title }}
-                    </option>
+                    <option value="">— Choose a topic —</option>
+                    @php $currentDay = null; @endphp
+                    @foreach($sessions->groupBy('day_number') as $day => $daySessions)
+                    <optgroup label="Day {{ $day }}">
+                        @foreach($daySessions as $s)
+                        <option value="{{ $s->title }}"
+                                data-id="{{ $s->id }}"
+                                {{ old('title') === $s->title ? 'selected' : '' }}>
+                            {{ $s->title }}
+                        </option>
+                        @endforeach
+                    </optgroup>
                     @endforeach
-                    <option value="General Discussion" data-id="">General Discussion</option>
+                    <option value="General Discussion" data-id=""
+                            {{ old('title') === 'General Discussion' ? 'selected' : '' }}>
+                        General Discussion
+                    </option>
                 </select>
                 <input type="hidden" name="schedule_id" id="schedule_id_hidden" value="{{ old('schedule_id') }}">
+                <small class="text-muted">Select the session this discussion relates to, or choose General Discussion.</small>
             </div>
             <div class="form-group">
                 <label style="font-size:12px; font-weight:700; color:#555;">Message *</label>

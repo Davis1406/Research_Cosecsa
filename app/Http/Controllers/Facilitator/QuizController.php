@@ -25,7 +25,7 @@ class QuizController extends Controller
 
     public function create()
     {
-        $sessions = Schedule::orderBy('day_number')->orderBy('start_time')->get();
+        $sessions = Schedule::discussable()->orderBy('day_number')->orderBy('start_time')->get();
         return view('facilitator.quizzes.form', compact('sessions'));
     }
 
@@ -63,7 +63,7 @@ class QuizController extends Controller
     public function edit(Quiz $quiz)
     {
         $quiz->load(['questions.options']);
-        $sessions = Schedule::orderBy('day_number')->orderBy('start_time')->get();
+        $sessions = Schedule::discussable()->orderBy('day_number')->orderBy('start_time')->get();
         return view('facilitator.quizzes.form', compact('quiz', 'sessions'));
     }
 

@@ -49,15 +49,19 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Session / Title *</label>
+                    <label style="font-size:12px; font-weight:700; color:#555;">Quiz Topic *</label>
                     <select name="title" class="form-control" required onchange="syncQuizSession(this)">
-                        <option value="">— Select a session —</option>
-                        @foreach($sessions as $s)
-                        <option value="{{ $s->title }}"
-                                data-id="{{ $s->id }}"
-                                {{ old('title', $quiz->title ?? '') === $s->title ? 'selected' : '' }}>
-                            Day {{ $s->day_number }}: {{ $s->title }}
-                        </option>
+                        <option value="">— Choose a session topic —</option>
+                        @foreach($sessions->groupBy('day_number') as $day => $daySessions)
+                        <optgroup label="Day {{ $day }}">
+                            @foreach($daySessions as $s)
+                            <option value="{{ $s->title }}"
+                                    data-id="{{ $s->id }}"
+                                    {{ old('title', $quiz->title ?? '') === $s->title ? 'selected' : '' }}>
+                                {{ $s->title }}
+                            </option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                         <option value="General Quiz" data-id=""
                             {{ old('title', $quiz->title ?? '') === 'General Quiz' ? 'selected' : '' }}>
@@ -65,6 +69,7 @@
                         </option>
                     </select>
                     <input type="hidden" name="schedule_id" id="quiz_schedule_id" value="{{ old('schedule_id', $quiz->schedule_id ?? '') }}">
+                    <small class="text-muted">The quiz will be linked to this session automatically.</small>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">Description</label>
