@@ -21,7 +21,13 @@ class AppServiceProvider extends ServiceProvider
                 return ['notifItems' => collect(), 'notifCount' => 0];
             }
 
-            $since = now()->subDays(7);
+            $user     = Auth::user();
+            $seenAt   = $user->notifications_seen_at;   // null = never opened bell
+            $window   = now()->subDays(7);               // only surface last 7 days
+
+            // An item is "new" (unread) when it was created AFTER the user last opened
+            // the bell AND is within the 7-day display window.
+            $isNew = fn($time) => $time->gte($window) && ($seenAt === null || $time->gt($seenAt));
 
             $materials = TrainingMaterial::latest()->take(10)->get()->map(fn($m) => [
                 'type'  => 'material',
@@ -30,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 'time'  => $m->created_at,
                 'icon'  => 'fa-book-open',
                 'color' => '#C9A84C',
-                'new'   => $m->created_at->gte($since),
+                'new'   => $isNew($m->created_at),
                 'url'   => route('material.view', $m->id),
             ]);
 
@@ -44,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
                     'time'  => $c->created_at,
                     'icon'  => 'fa-comment-alt',
                     'color' => '#2c7a4b',
-                    'new'   => $c->created_at->gte($since),
+                    'new'   => $isNew($c->created_at),
                     'url'   => route('facilitator.presentations.view', $c->trainee_document_id),
                 ]);
 

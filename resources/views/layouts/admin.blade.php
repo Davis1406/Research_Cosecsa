@@ -70,7 +70,11 @@
                     <div id="admin-notif-panel" style="display:none;position:absolute;right:0;top:50px;width:320px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;border:1px solid #e9ecef;">
                         <div style="padding:10px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;background:#f8f9fa;">
                             <span style="font-weight:700;font-size:0.85rem;color:#2d3748;">Recent Activity</span>
-                            <span style="font-size:0.72rem;color:#aaa;">Last 7 days highlighted</span>
+                            @if(!empty($notifCount) && $notifCount > 0)
+                            <span style="font-size:0.72rem;background:#e53e3e;color:#fff;border-radius:10px;padding:1px 8px;font-weight:700;">{{ $notifCount }} unread</span>
+                            @else
+                            <span style="font-size:0.72rem;color:#aaa;">All caught up</span>
+                            @endif
                         </div>
                         <div style="max-height:380px;overflow-y:auto;" id="admin-notif-scroll">
                             @forelse($notifItems ?? [] as $i => $n)
@@ -278,7 +282,29 @@
     function toggleAdminNotif(e) {
         e.preventDefault(); e.stopPropagation();
         var panel = document.getElementById('admin-notif-panel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        var opening = panel.style.display === 'none';
+        panel.style.display = opening ? 'block' : 'none';
+
+        if (opening) {
+            // Clear unread indicators immediately in the UI
+            var badge = document.querySelector('#admin-notif-wrapper .nav-link span[style*="background:#e53e3e"]');
+            if (badge) badge.remove();
+            document.querySelectorAll('#admin-notif-panel .admin-notif-item').forEach(function(el) {
+                el.style.background = '';
+            });
+            document.querySelectorAll('#admin-notif-panel span[style*="background:#e53e3e"]').forEach(function(dot) {
+                dot.remove();
+            });
+
+            // Persist to server
+            fetch("{{ route('notifications.mark-seen') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            });
+        }
     }
     function toggleAdminNotifMore() {
         var extras = document.querySelectorAll('.admin-notif-extra');

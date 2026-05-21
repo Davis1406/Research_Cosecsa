@@ -132,6 +132,12 @@ Route::get('/trainee-document/{document}/render-slides', 'MaterialViewerControll
      ->name('trainee-document.render-slides')
      ->middleware('auth');
 
+// Mark all notifications as seen (shared — admin & lead facilitator)
+Route::post('/notifications/mark-seen', function () {
+    auth()->user()->update(['notifications_seen_at' => now()]);
+    return response()->json(['ok' => true]);
+})->name('notifications.mark-seen')->middleware('auth');
+
 // ── Viewer Portal (Diana / read-only) ────────────────────────────
 Route::prefix('viewer')->name('viewer.')->namespace('Viewer')->middleware(['auth', 'role:viewer'])->group(function () {
     Route::get('/', 'ViewerController@dashboard')->name('dashboard');
