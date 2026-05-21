@@ -188,70 +188,6 @@
             border-radius: 6px;
         }
 
-        /* PPTX */
-        #slide-nav {
-            background: #2d3748;
-            padding: 8px 16px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-shrink: 0;
-            color: #ccc;
-            font-size: 13px;
-        }
-        #slide-nav button {
-            background: rgba(255,255,255,.1);
-            border: 1px solid rgba(255,255,255,.2);
-            color: #fff;
-            border-radius: 4px;
-            padding: 4px 12px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: 'Nunito', sans-serif;
-        }
-        #slide-nav button:hover { background: rgba(255,255,255,.2); }
-        #slide-nav button:disabled { opacity:.4; cursor:default; }
-        #pptx-container {
-            flex: 1;
-            overflow: auto;
-            background: #555;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .pptx-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px;
-            color: #ccc;
-            gap: 14px;
-            width: 100%;
-        }
-        .pptx-loading .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(255,255,255,.2);
-            border-top-color: #C9A84C;
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .pptx-error {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: #ccc;
-            gap: 12px;
-            width: 100%;
-            text-align: center;
-        }
-
         /* No file */
         .nofile-wrap {
             flex: 1;
@@ -278,6 +214,16 @@
 @php
     $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
     $backUrl = url()->previous();
+
+    // Office Online embed URL for PPTX (preserves full theme / background)
+    $officeViewerUrl = null;
+    if ($material->type === 'presentation' && $fileUrl) {
+        // Build a fully-qualified public URL so Office Online can fetch the file
+        $absoluteFileUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteFileUrl);
+    }
 
     // Convert YouTube URL to embed URL
     $youtubeEmbedUrl = null;
@@ -470,17 +416,26 @@
                 </div>
 
             @elseif($material->type === 'presentation')
-                <div id="slide-nav">
-                    <button id="btn-prev" disabled>&#8592; Prev</button>
-                    <span id="slide-counter">Loading…</span>
-                    <button id="btn-next">Next &#8594;</button>
-                </div>
-                <div id="pptx-container">
-                    <div class="pptx-loading" id="pptx-loading">
-                        <div class="spinner"></div>
-                        <span>Rendering slides…</span>
+                @if($officeViewerUrl)
+                    <iframe class="viewer-frame"
+                            src="{{ $officeViewerUrl }}"
+                            frameborder="0"
+                            title="{{ $material->title }}">
+                    </iframe>
+                @else
+                    <div class="nofile-wrap">
+                        <div class="nofile-card">
+                            <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; display:block; margin-bottom:16px;"></i>
+                            <h5 style="font-weight:700; color:#2d3748;">Presentation unavailable</h5>
+                            <p style="color:#888; font-size:13px;">The file URL could not be resolved for preview.</p>
+                            @if($fileUrl)
+                            <a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold mt-2">
+                                <i class="fas fa-download mr-1"></i> Download File
+                            </a>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             @endif
         </div>
     </div>
@@ -489,69 +444,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 
-@if($material->type === 'presentation')
-<script>
-$(function () {
-    var renderUrl = "{{ route('material.render-slides', $material->id) }}";
-    var fileUrl   = "{{ $fileUrlEncoded }}";
-    var slides = [], current = 0;
-
-    function showSlide(idx) {
-        $('#pptx-container .pptx-slide').hide();
-        $('#pptx-container .pptx-slide[data-slide="' + (idx+1) + '"]').show();
-        current = idx;
-        $('#slide-counter').text('Slide ' + (idx+1) + ' / ' + slides.length);
-        $('#btn-prev').prop('disabled', idx === 0);
-        $('#btn-next').prop('disabled', idx === slides.length - 1);
-        $('#pptx-container').scrollTop(0);
-    }
-
-    function showError(msg) {
-        var isProtected = msg.indexOf('Package not found') !== -1 || msg.indexOf('magic number') !== -1 || msg.indexOf('decompressing') !== -1 || msg.indexOf('protected') !== -1;
-        var friendly = isProtected
-            ? 'This presentation appears to be <strong>password-protected or in an incompatible format</strong>. Please open it in PowerPoint/LibreOffice directly.'
-            : msg;
-        $('#pptx-loading').remove();
-        $('#pptx-container').html(
-            '<div class="pptx-error">' +
-            '<i class="fas fa-lock" style="font-size:36px; color:#e67e22;"></i>' +
-            '<p style="color:#ccc; font-size:14px; margin-top:10px; max-width:380px; text-align:center; line-height:1.6;">' + friendly + '</p>' +
-            (fileUrl ? '<a href="' + fileUrl + '" download class="btn btn-gold btn-sm mt-2"><i class="fas fa-download mr-1"></i>Download File</a>' : '') +
-            '</div>'
-        );
-    }
-
-    $.ajax({
-        url: renderUrl, method: 'GET', timeout: 30000,
-        success: function(data) {
-            if (data.error) { showError(data.error); return; }
-            if (!data.slides || !data.slides.length) { showError('No slides found in this presentation.'); return; }
-            slides = data.slides;
-            $('#pptx-loading').remove();
-            var $c = $('#pptx-container').css({'align-items':'center','justify-content':'center'});
-            slides.forEach(function(html, i) {
-                var $s = $(html);
-                if (i !== 0) $s.hide();
-                $s.css({'box-shadow':'0 6px 24px rgba(0,0,0,.5)','border-radius':'4px','margin':'auto'});
-                $c.append($s);
-            });
-            if (slides.length > 1) {
-                $('#slide-nav').css('display','flex');
-                $('#btn-prev').on('click', function() { if (current > 0) showSlide(current-1); });
-                $('#btn-next').on('click', function() { if (current < slides.length-1) showSlide(current+1); });
-            }
-            $('#slide-counter').text('Slide 1 / ' + slides.length);
-            $('#btn-next').prop('disabled', slides.length <= 1);
-            $(document).on('keydown', function(e) {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { if (current < slides.length-1) showSlide(current+1); }
-                else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { if (current > 0) showSlide(current-1); }
-            });
-        },
-        error: function() { showError('Could not load slides. Please download to view.'); }
-    });
-});
-</script>
-@endif
 
 <script>
 $(function() {
