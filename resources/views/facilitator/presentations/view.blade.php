@@ -10,6 +10,15 @@
     $isDock = in_array($ext, ['doc', 'docx']);
     $fileUrl = $document->download_url;
 
+    // Office Online embed URL (files are publicly stored via storage symlink)
+    $officeViewerUrl = null;
+    if ($isPptx && $fileUrl) {
+        $absoluteUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteUrl);
+    }
+
     $typeIcon  = $isPdf ? 'fa-file-pdf' : ($isPptx ? 'fa-file-powerpoint' : 'fa-file');
     $typeLabel = $isPdf ? 'PDF Document' : ($isPptx ? 'PowerPoint Presentation' : strtoupper($ext) . ' File');
 @endphp
@@ -52,22 +61,21 @@
                         title="{{ $document->original_name }}"></iframe>
 
             @elseif($isPptx)
-                {{-- PPTX: Python slide renderer --}}
-                <div id="slide-nav" style="background:#374151; padding:8px 16px; display:none; align-items:center; justify-content:center; gap:12px;">
-                    <button id="btn-prev" disabled style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
-                        &#8592; Prev
-                    </button>
-                    <span id="slide-counter" style="font-size:13px; color:#ccc;">Loading…</span>
-                    <button id="btn-next" style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; border-radius:4px; padding:4px 12px; cursor:pointer; font-size:12px;">
-                        Next &#8594;
-                    </button>
-                </div>
-                <div id="pptx-container" style="background:#555; min-height:420px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; overflow:auto;">
-                    <div id="pptx-loading" style="display:flex; flex-direction:column; align-items:center; gap:14px; color:#ccc;">
-                        <div style="width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite;"></div>
-                        <span style="font-size:14px;">Loading slides…</span>
+                {{-- PPTX: Microsoft Office Online embed (full theme fidelity) --}}
+                @if($officeViewerUrl)
+                    <iframe src="{{ $officeViewerUrl }}"
+                            style="width:100%; height:600px; border:none; display:block;"
+                            frameborder="0"
+                            title="{{ $document->original_name }}"></iframe>
+                @else
+                    <div style="padding:60px 40px; text-align:center; background:#f8f9fa;">
+                        <i class="fas fa-file-powerpoint fa-3x mb-3" style="color:#C9A84C; display:block;"></i>
+                        <p style="font-size:13px; color:#888; margin-bottom:16px;">Preview not available.</p>
+                        <a href="{{ $fileUrl }}" download class="btn btn-sm" style="background:#C9A84C;color:#fff;font-weight:700;">
+                            <i class="fas fa-download mr-1"></i> Download to View
+                        </a>
                     </div>
-                </div>
+                @endif
 
             @else
                 {{-- Other file types: download prompt --}}
@@ -141,70 +149,3 @@
 </div>
 @endsection
 
-@section('styles')
-<style>
-@keyframes spin { to { transform:rotate(360deg); } }
-#pptx-container img { max-width:100%; border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,.4); }
-</style>
-@endsection
-
-@if($isPptx)
-@section('scripts')
-<script>
-$(function() {
-    var renderUrl = "{{ route('trainee-document.render-slides', $document->id) }}";
-    var slides = [], current = 0;
-
-    function showSlide(idx) {
-        $('#pptx-container .pptx-slide').hide();
-        $('#pptx-container .pptx-slide[data-slide="' + (idx+1) + '"]').show();
-        current = idx;
-        $('#slide-counter').text('Slide ' + (idx+1) + ' / ' + slides.length);
-        $('#btn-prev').prop('disabled', idx === 0);
-        $('#btn-next').prop('disabled', idx === slides.length - 1);
-        $('#pptx-container').scrollTop(0);
-    }
-
-    function showError(msg) {
-        $('#pptx-loading').remove();
-        $('#pptx-container').css({'justify-content':'center','align-items':'center'}).html(
-            '<div style="text-align:center; color:#ccc; padding:30px;">' +
-            '<i class="fas fa-exclamation-triangle" style="font-size:32px; color:#e67e22; display:block; margin-bottom:12px;"></i>' +
-            '<p style="font-size:13px; margin-bottom:14px;">' + msg + '</p>' +
-            '<a href="{{ $fileUrl }}" download class="btn btn-sm" style="background:#C9A84C;color:#fff;font-size:12px;">Download to view</a>' +
-            '</div>'
-        );
-    }
-
-    $.ajax({
-        url: renderUrl, method: 'GET', timeout: 60000,
-        success: function(data) {
-            if (data.error) { showError(data.error); return; }
-            if (!data.slides || !data.slides.length) { showError('No slides found in this presentation.'); return; }
-            slides = data.slides;
-            $('#pptx-loading').remove();
-            $('#pptx-container').css({'align-items':'center','justify-content':'center','padding':'20px'});
-            slides.forEach(function(html, i) {
-                var $s = $(html).attr('data-slide', i+1);
-                if (i !== 0) $s.hide();
-                $s.css({'box-shadow':'0 6px 24px rgba(0,0,0,.5)','border-radius':'4px','margin':'auto','max-width':'100%'});
-                $('#pptx-container').append($s);
-            });
-            if (slides.length > 1) {
-                $('#slide-nav').css('display','flex');
-                $('#btn-prev').on('click', function() { if (current > 0) showSlide(current-1); });
-                $('#btn-next').on('click', function() { if (current < slides.length-1) showSlide(current+1); });
-            }
-            $('#slide-counter').text('Slide 1 / ' + slides.length);
-            $('#btn-next').prop('disabled', slides.length <= 1);
-            $(document).on('keydown', function(e) {
-                if (e.key === 'ArrowRight') { if (current < slides.length-1) showSlide(current+1); }
-                else if (e.key === 'ArrowLeft') { if (current > 0) showSlide(current-1); }
-            });
-        },
-        error: function() { showError('Could not load slides. Try downloading the file to view locally.'); }
-    });
-});
-</script>
-@endsection
-@endif

@@ -116,6 +116,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('certificates/{certificate}/preview', 'CertificatesController@preview')->name('certificates.preview');
     Route::resource('certificates', 'CertificatesController', ['only' => ['index', 'create', 'store', 'destroy']]);
 
+    // Trainee presentation review (admin can view + comment)
+    Route::get('presentations/{document}', 'PresentationsController@view')->name('presentations.view');
+    Route::post('presentations/{document}/comment', 'PresentationsController@comment')->name('presentations.comment');
+
     // Facilitator Directory (admin view)
     Route::get('directory', 'DirectoryController@index')->name('directory.index');
     Route::get('directory/{speaker}', 'DirectoryController@show')->name('directory.show');
@@ -132,11 +136,17 @@ Route::get('/trainee-document/{document}/render-slides', 'MaterialViewerControll
      ->name('trainee-document.render-slides')
      ->middleware('auth');
 
-// Mark all notifications as seen (shared — admin & lead facilitator)
-Route::post('/notifications/mark-seen', function () {
-    auth()->user()->update(['notifications_seen_at' => now()]);
+// Mark a single notification item as read (shared — admin & lead facilitator)
+Route::post('/notifications/mark-item-read', function (\Illuminate\Http\Request $request) {
+    $key  = preg_replace('/[^a-z0-9_]/', '', $request->input('key', ''));
+    if (!$key) return response()->json(['ok' => false], 422);
+
+    $user    = auth()->user();
+    $readIds = json_decode($user->notifications_read_ids ?? '{}', true) ?: [];
+    $readIds[$key] = 1;
+    $user->update(['notifications_read_ids' => json_encode($readIds)]);
     return response()->json(['ok' => true]);
-})->name('notifications.mark-seen')->middleware('auth');
+})->name('notifications.mark-item-read')->middleware('auth');
 
 // ── Viewer Portal (Diana / read-only) ────────────────────────────
 Route::prefix('viewer')->name('viewer.')->namespace('Viewer')->middleware(['auth', 'role:viewer'])->group(function () {

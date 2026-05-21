@@ -21,27 +21,32 @@ class AppServiceProvider extends ServiceProvider
                 return ['notifItems' => collect(), 'notifCount' => 0];
             }
 
-            $user     = Auth::user();
-            $seenAt   = $user->notifications_seen_at;   // null = never opened bell
-            $window   = now()->subDays(7);               // only surface last 7 days
+            $user      = Auth::user();
+            $window    = now()->subDays(7);
+            $readIds   = json_decode($user->notifications_read_ids ?? '{}', true) ?: [];
+            $isAdmin   = $user->roles->pluck('title')
+                             ->map(fn($t) => strtolower(trim($t)))
+                             ->contains('admin');
 
-            // An item is "new" (unread) when it was created AFTER the user last opened
-            // the bell AND is within the 7-day display window.
-            $isNew = fn($time) => $time->gte($window) && ($seenAt === null || $time->gt($seenAt));
+            // An item is "new" when it is within the 7-day window AND its key
+            // has not been individually marked as read by this user.
+            $isNew = fn(string $key, $time) => $time->gte($window) && !isset($readIds[$key]);
 
             $materials = TrainingMaterial::latest()->take(10)->get()->map(fn($m) => [
+                'key'   => 'material_' . $m->id,
                 'type'  => 'material',
                 'title' => $m->title,
                 'sub'   => ucfirst($m->type) . ($m->category ? ' · ' . $m->category : ''),
                 'time'  => $m->created_at,
                 'icon'  => 'fa-book-open',
                 'color' => '#C9A84C',
-                'new'   => $isNew($m->created_at),
+                'new'   => $isNew('material_' . $m->id, $m->created_at),
                 'url'   => route('material.view', $m->id),
             ]);
 
             $comments = TraineeDocumentComment::with('user', 'document.trainee')
                 ->latest()->take(10)->get()->map(fn($c) => [
+                    'key'   => 'comment_' . $c->id,
                     'type'  => 'comment',
                     'title' => ($c->user?->name ?? 'Someone') . ' left feedback',
                     'sub'   => $c->document?->trainee?->name
@@ -50,8 +55,10 @@ class AppServiceProvider extends ServiceProvider
                     'time'  => $c->created_at,
                     'icon'  => 'fa-comment-alt',
                     'color' => '#2c7a4b',
-                    'new'   => $isNew($c->created_at),
-                    'url'   => route('facilitator.presentations.view', $c->trainee_document_id),
+                    'new'   => $isNew('comment_' . $c->id, $c->created_at),
+                    'url'   => $isAdmin
+                                   ? route('admin.presentations.view', $c->trainee_document_id)
+                                   : route('facilitator.presentations.view', $c->trainee_document_id),
                 ]);
 
             $notifItems = $materials->merge($comments)

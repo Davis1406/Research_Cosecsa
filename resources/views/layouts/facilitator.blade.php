@@ -264,16 +264,16 @@
                     <div style="padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;">
                         <span style="font-weight:700;font-size:0.875rem;color:#2d3748;">Recent Activity</span>
                         @if($notifCount > 0)
-                        <span style="font-size:0.72rem;background:#e53e3e;color:#fff;border-radius:10px;padding:1px 8px;font-weight:700;">{{ $notifCount }} unread</span>
+                        <span id="notif-unread-pill" data-count="{{ $notifCount }}" style="font-size:0.72rem;background:#e53e3e;color:#fff;border-radius:10px;padding:1px 8px;font-weight:700;">{{ $notifCount }} unread</span>
                         @else
                         <span style="font-size:0.72rem;color:#aaa;">All caught up</span>
                         @endif
                     </div>
                     <div style="max-height:420px;overflow-y:auto;" id="notif-scroll">
                         @forelse($notifItems as $i => $n)
-                        <a href="{{ $n['url'] ?? '#' }}" style="text-decoration:none;color:inherit;">
                         <div class="notif-item {{ $i >= 5 ? 'notif-extra' : '' }}"
-                             style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;{{ $n['new'] ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
+                             onclick="{{ $n['new'] ? 'markNotifRead(this,\'' . $n['key'] . '\',\'' . ($n['url'] ?? '#') . '\')' : 'window.location.href=\'' . ($n['url'] ?? '#') . '\'' }}"
+                             style="padding:10px 16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:10px;cursor:pointer;{{ $n['new'] ? 'background:#fffdf5;' : '' }}{{ $i >= 5 ? 'display:none!important;' : '' }}">
                             <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:{{ $n['color'] }}18;display:flex;align-items:center;justify-content:center;margin-top:2px;">
                                 <i class="fas {{ $n['icon'] }}" style="font-size:12px;color:{{ $n['color'] }};"></i>
                             </div>
@@ -282,9 +282,8 @@
                                 <div style="font-size:0.72rem;color:#888;margin-top:1px;">{{ $n['sub'] }}</div>
                                 <div style="font-size:0.7rem;color:#bbb;margin-top:2px;">{{ $n['time']->diffForHumans() }}</div>
                             </div>
-                            @if($n['new'])<span style="flex-shrink:0;width:7px;height:7px;border-radius:50%;background:#e53e3e;margin-top:6px;"></span>@endif
+                            @if($n['new'])<span class="notif-unread-dot" style="flex-shrink:0;width:7px;height:7px;border-radius:50%;background:#e53e3e;margin-top:6px;"></span>@endif
                         </div>
-                        </a>
                         @empty
                         <div style="padding:24px;text-align:center;color:#bbb;font-size:0.85rem;">No recent activity</div>
                         @endforelse
@@ -339,29 +338,39 @@
 function toggleNotif(e) {
     e.stopPropagation();
     var panel = document.getElementById('notif-panel');
-    var opening = panel.style.display === 'none';
-    panel.style.display = opening ? 'block' : 'none';
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function markNotifRead(el, key, url) {
+    // Immediately clear visual indicators on this item
+    el.style.background = '';
+    var dot = el.querySelector('.notif-unread-dot');
+    if (dot) dot.remove();
 
-    if (opening) {
-        // Mark all as seen immediately in the UI
-        var badge = document.getElementById('notif-badge');
-        if (badge) badge.remove();
-        document.querySelectorAll('#notif-panel .notif-item').forEach(function(el) {
-            el.style.background = '';
-        });
-        document.querySelectorAll('#notif-panel span[style*="background:#e53e3e"]').forEach(function(dot) {
-            dot.remove();
-        });
-
-        // Persist to server
-        fetch("{{ route('notifications.mark-seen') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            }
-        });
+    // Decrement badge
+    var badge = document.getElementById('notif-badge');
+    if (badge) {
+        var count = parseInt(badge.textContent) - 1;
+        if (count <= 0) { badge.remove(); }
+        else { badge.textContent = count > 9 ? '9+' : count; }
     }
+    // Update panel header pill
+    var pill = document.getElementById('notif-unread-pill');
+    if (pill) {
+        var c = parseInt(pill.dataset.count || '1') - 1;
+        if (c <= 0) {
+            pill.outerHTML = '<span style="font-size:0.72rem;color:#aaa;">All caught up</span>';
+        } else {
+            pill.dataset.count = c;
+            pill.textContent = c + ' unread';
+        }
+    }
+
+    // Persist to server then navigate
+    fetch("{{ route('notifications.mark-item-read') }}", {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ key: key })
+    }).finally(function() { window.location.href = url; });
 }
 function toggleNotifMore() {
     var extras = document.querySelectorAll('.notif-extra');

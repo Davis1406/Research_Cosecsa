@@ -271,6 +271,15 @@ h1, h2, h3, h4, h5, h6, small, strong {
 @php
     // URL-encode the file path for use in src/href attributes (handle spaces in filenames)
     $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
+
+    // Office Online embed URL for PPTX files
+    $officeViewerUrl = null;
+    if ($trainingMaterial->type === 'presentation' && $fileUrl) {
+        $absoluteUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteUrl);
+    }
 @endphp
 
 @section('content')
@@ -422,18 +431,27 @@ h1, h2, h3, h4, h5, h6, small, strong {
             </div>
 
         @elseif($trainingMaterial->type === 'presentation')
-            {{-- PPTX: server-rendered via python-pptx --}}
-            <div id="slide-nav" style="display:none;">
-                <button id="btn-prev" disabled>&#8592; Prev</button>
-                <span id="slide-counter">Slide 1 / …</span>
-                <button id="btn-next">Next &#8594;</button>
-            </div>
-            <div id="pptx-container">
-                <div class="pptx-loading" id="pptx-loading">
-                    <div class="spinner"></div>
-                    <span>Rendering slides…</span>
+            {{-- PPTX: Microsoft Office Online embed (full theme fidelity) --}}
+            @if($officeViewerUrl)
+                <iframe class="viewer-frame"
+                        src="{{ $officeViewerUrl }}"
+                        frameborder="0"
+                        title="{{ $trainingMaterial->title }}">
+                </iframe>
+            @else
+                <div class="nofile-wrap">
+                    <div class="nofile-card">
+                        <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; margin-bottom:16px; display:block;"></i>
+                        <h5 style="font-weight:700; color:#2d2d2d;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">The file URL could not be resolved for preview.</p>
+                        @if($fileUrlEncoded)
+                        <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">
+                            <i class="fas fa-download mr-1"></i> Download File
+                        </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
         @endif
         </div>
     </div>
@@ -443,89 +461,6 @@ h1, h2, h3, h4, h5, h6, small, strong {
 
 @section('scripts')
 @parent
-@if(isset($trainingMaterial) && $trainingMaterial->type === 'presentation')
-<script>
-$(function () {
-    var renderUrl = "{{ route('admin.training-materials.renderSlides', $trainingMaterial->id) }}";
-    var fileUrl   = "{{ $fileUrlEncoded }}";
-    var slides    = [];
-    var current   = 0;
-
-    function showSlide(idx) {
-        $('#pptx-container .pptx-slide').hide();
-        $('#pptx-container .pptx-slide[data-slide="' + (idx + 1) + '"]').show();
-        current = idx;
-        $('#slide-counter').text('Slide ' + (idx + 1) + ' / ' + slides.length);
-        $('#btn-prev').prop('disabled', idx === 0);
-        $('#btn-next').prop('disabled', idx === slides.length - 1);
-        // scroll to top of container
-        $('#pptx-container').scrollTop(0);
-    }
-
-    function showError(msg) {
-        $('#pptx-loading').remove();
-        $('#pptx-container').html(
-            '<div class="pptx-error">' +
-            '<i class="fas fa-exclamation-triangle" style="font-size:36px; color:#e67e22;"></i>' +
-            '<p style="color:#ccc; font-size:14px; margin-top:10px;">' + msg + '</p>' +
-            (fileUrl ? '<a href="' + fileUrl + '" download class="btn btn-cosecsa btn-sm mt-2">Download to view</a>' : '') +
-            '</div>'
-        );
-    }
-
-    // Fetch server-rendered slides
-    $.ajax({
-        url: renderUrl,
-        method: 'GET',
-        timeout: 30000,
-        success: function (data) {
-            if (data.error) { showError(data.error); return; }
-            if (!data.slides || data.slides.length === 0) { showError('No slides found in this presentation.'); return; }
-
-            slides = data.slides;
-            $('#pptx-loading').remove();
-
-            var $container = $('#pptx-container');
-            $container.css({ 'align-items': 'center', 'justify-content': 'center' });
-
-            // Inject slides, hide all except first
-            slides.forEach(function (html, i) {
-                var $slide = $(html);
-                if (i !== 0) $slide.hide();
-                $slide.css({
-                    'box-shadow': '0 6px 24px rgba(0,0,0,.5)',
-                    'border-radius': '4px',
-                    'margin': 'auto'
-                });
-                $container.append($slide);
-            });
-
-            if (slides.length > 1) {
-                $('#slide-nav').show();
-                $('#btn-prev').on('click', function () { if (current > 0) showSlide(current - 1); });
-                $('#btn-next').on('click', function () { if (current < slides.length - 1) showSlide(current + 1); });
-            }
-
-            // Update counter
-            $('#slide-counter').text('Slide 1 / ' + slides.length);
-            $('#btn-next').prop('disabled', slides.length <= 1);
-
-            // Keyboard navigation
-            $(document).on('keydown', function (e) {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                    if (current < slides.length - 1) showSlide(current + 1);
-                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                    if (current > 0) showSlide(current - 1);
-                }
-            });
-        },
-        error: function (xhr) {
-            showError('Could not load slides (server error). Please download to view.');
-        }
-    });
-});
-</script>
-@endif
 
 <script>
 // Fullscreen toggle — expands the viewer-main panel using the Fullscreen API

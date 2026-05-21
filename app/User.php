@@ -40,6 +40,7 @@ class User extends Authenticatable
         'remember_token',
         'email_verified_at',
         'notifications_seen_at',
+        'notifications_read_ids',
     ];
 
     public function getEmailVerifiedAtAttribute($value)
