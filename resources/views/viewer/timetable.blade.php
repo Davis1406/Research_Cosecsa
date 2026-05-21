@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="mb-4">
-    <h5 style="font-weight:800; font-size:1.1rem; margin-bottom:2px;"><i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i>Workshop Timetable</h5>
+    <h5 style="font-weight:800; font-size:1.1rem; margin-bottom:2px;"><i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i>Programme</h5>
     <p style="color:#718096; font-size:13px; margin:0;">Full schedule with sessions and corresponding materials</p>
 </div>
 
@@ -35,7 +35,7 @@
                 <div class="d-flex align-items-center px-4 py-3"
                      data-toggle="collapse" data-target="#{{ $sessId }}"
                      style="cursor:pointer; background:{{ $session->is_completed ? '#f6fff8' : '#fff' }};">
-                    <div style="min-width:90px; font-size:13.5px; font-weight:700; color:#C9A84C;">
+                    <div style="min-width:110px; padding-right:16px; flex-shrink:0; font-size:13.5px; font-weight:700; color:#C9A84C;">
                         {{ $session->start_time ? \Carbon\Carbon::parse($session->start_time)->format('H:i') : '' }}
                         @if($session->end_time)–{{ \Carbon\Carbon::parse($session->end_time)->format('H:i') }}@endif
                     </div>

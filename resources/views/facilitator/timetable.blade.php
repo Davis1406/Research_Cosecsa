@@ -1,11 +1,11 @@
 @extends('layouts.facilitator')
 
-@section('page-title', 'Timetable')
+@section('page-title', 'Programme')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap:wrap; gap:10px;">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748; font-size:1.1rem;">
-        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> Workshop Timetable
+        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> Programme
     </h5>
     <div class="d-flex align-items-center" style="gap:6px; flex-shrink:0;">
         <span style="font-size:0.8rem; color:#888; margin-right:2px;">View:</span>
@@ -53,7 +53,7 @@
                 <div class="px-4 py-3 d-flex align-items-center session-toggle"
                      data-toggle="collapse" data-target="#{{ $sessId }}"
                      style="cursor:pointer; {{ $session->is_completed ? 'background:#f6fff8;' : 'background:#fff;' }}">
-                    <div style="min-width:90px; font-size:0.875rem; font-weight:700; color:#C9A84C;">
+                    <div style="min-width:110px; padding-right:16px; font-size:0.875rem; font-weight:700; color:#C9A84C; flex-shrink:0;">
                         {{ $session->start_time ? \Carbon\Carbon::parse($session->start_time)->format('H:i') : '' }}
                         @if($session->end_time)&ndash;{{ \Carbon\Carbon::parse($session->end_time)->format('H:i') }}@endif
                     </div>

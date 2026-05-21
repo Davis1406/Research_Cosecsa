@@ -52,13 +52,25 @@
                     <input type="text" name="org_name" class="form-control" value="{{ old('org_name', 'College of Surgeons of East, Central & Southern Africa') }}" placeholder="Issuing organisation">
                     <small class="text-muted">Appears at the top of the certificate.</small>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Logo Image</label>
+                <div class="col-md-2 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">Logo 1</label>
                     <input type="file" name="logo_image" class="form-control-file" accept="image/*" onchange="previewImg(this,'logo-prev')">
-                    <small class="text-muted">PNG/JPG, shown at top centre.</small>
+                    <small class="text-muted">Main logo (centre)</small>
                     <div id="logo-prev" class="mt-2"></div>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">Logo 2</label>
+                    <input type="file" name="logo2_image" class="form-control-file" accept="image/*" onchange="previewImg(this,'logo2-prev')">
+                    <small class="text-muted">Optional partner logo</small>
+                    <div id="logo2-prev" class="mt-2"></div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">Logo 3</label>
+                    <input type="file" name="logo3_image" class="form-control-file" accept="image/*" onchange="previewImg(this,'logo3-prev')">
+                    <small class="text-muted">Optional partner logo</small>
+                    <div id="logo3-prev" class="mt-2"></div>
+                </div>
+                <div class="col-md-2 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">Official Stamp / Seal</label>
                     <input type="file" name="stamp_image" class="form-control-file" accept="image/*" onchange="previewImg(this,'stamp-prev')">
                     <small class="text-muted">PNG with transparency recommended.</small>

@@ -48,20 +48,23 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-8 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Quiz Title *</label>
-                    <input type="text" name="title" class="form-control" value="{{ old('title', $quiz->title ?? '') }}" required placeholder="e.g. Research Methodology Quiz">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Linked Session</label>
-                    <select name="schedule_id" class="form-control">
-                        <option value="">— General / Not Linked —</option>
+                <div class="col-md-12 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">Session / Title *</label>
+                    <select name="title" class="form-control" required onchange="syncQuizSession(this)">
+                        <option value="">— Select a session —</option>
                         @foreach($sessions as $s)
-                        <option value="{{ $s->id }}" {{ old('schedule_id', $quiz->schedule_id ?? '') == $s->id ? 'selected' : '' }}>
+                        <option value="{{ $s->title }}"
+                                data-id="{{ $s->id }}"
+                                {{ old('title', $quiz->title ?? '') === $s->title ? 'selected' : '' }}>
                             Day {{ $s->day_number }}: {{ $s->title }}
                         </option>
                         @endforeach
+                        <option value="General Quiz" data-id=""
+                            {{ old('title', $quiz->title ?? '') === 'General Quiz' ? 'selected' : '' }}>
+                            General Quiz
+                        </option>
                     </select>
+                    <input type="hidden" name="schedule_id" id="quiz_schedule_id" value="{{ old('schedule_id', $quiz->schedule_id ?? '') }}">
                 </div>
                 <div class="col-md-12 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">Description</label>
@@ -155,6 +158,15 @@
 
 @section('scripts')
 <script>
+function syncQuizSession(select) {
+    var opt = select.options[select.selectedIndex];
+    document.getElementById('quiz_schedule_id').value = opt.dataset.id || '';
+}
+(function(){
+    var sel = document.querySelector('select[name="title"]');
+    if (sel) syncQuizSession(sel);
+})();
+
 var qCount = {{ isset($quiz) ? $quiz->questions->count() : 0 }};
 
 function addQuestion() {

@@ -42,11 +42,13 @@ class CertificateController extends Controller
             'sig2_title'    => 'nullable|string|max:255',
             'sig2_image'    => 'nullable|image|max:4096',
             'logo_image'    => 'nullable|image|max:4096',
+            'logo2_image'   => 'nullable|image|max:4096',
+            'logo3_image'   => 'nullable|image|max:4096',
             'stamp_image'   => 'nullable|image|max:4096',
         ]);
 
         $sig1Path  = null; $sig2Path  = null;
-        $logoPath  = null; $stampPath = null;
+        $logoPath  = null; $logo2Path = null; $logo3Path = null; $stampPath = null;
 
         if ($request->hasFile('sig1_image'))
             $sig1Path  = $request->file('sig1_image')->store('certificates/signatures', 'public');
@@ -54,6 +56,10 @@ class CertificateController extends Controller
             $sig2Path  = $request->file('sig2_image')->store('certificates/signatures', 'public');
         if ($request->hasFile('logo_image'))
             $logoPath  = $request->file('logo_image')->store('certificates/logos', 'public');
+        if ($request->hasFile('logo2_image'))
+            $logo2Path = $request->file('logo2_image')->store('certificates/logos', 'public');
+        if ($request->hasFile('logo3_image'))
+            $logo3Path = $request->file('logo3_image')->store('certificates/logos', 'public');
         if ($request->hasFile('stamp_image'))
             $stampPath = $request->file('stamp_image')->store('certificates/stamps', 'public');
 
@@ -73,6 +79,8 @@ class CertificateController extends Controller
                 'sig2_title'   => $request->sig2_title,
                 'sig2_path'    => $sig2Path,
                 'logo_path'    => $logoPath,
+                'logo2_path'   => $logo2Path,
+                'logo3_path'   => $logo3Path,
                 'stamp_path'   => $stampPath,
                 'generated_at' => now(),
             ]);

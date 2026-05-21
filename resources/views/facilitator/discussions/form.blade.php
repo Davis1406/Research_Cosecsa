@@ -17,31 +17,23 @@
         <form action="{{ route('facilitator.discussions.store') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label style="font-size:12px; font-weight:700; color:#555;">Title *</label>
-                <input type="text" name="title" class="form-control" value="{{ old('title') }}" required placeholder="Discussion title...">
+                <label style="font-size:12px; font-weight:700; color:#555;">Session / Title *</label>
+                <select name="title" class="form-control" required onchange="syncSession(this)">
+                    <option value="">— Select a session —</option>
+                    @foreach($sessions as $s)
+                    <option value="{{ $s->title }}"
+                            data-id="{{ $s->id }}"
+                            {{ old('title') === $s->title ? 'selected' : '' }}>
+                        Day {{ $s->day_number }}: {{ $s->title }}
+                    </option>
+                    @endforeach
+                    <option value="General Discussion" data-id="">General Discussion</option>
+                </select>
+                <input type="hidden" name="schedule_id" id="schedule_id_hidden" value="{{ old('schedule_id') }}">
             </div>
             <div class="form-group">
                 <label style="font-size:12px; font-weight:700; color:#555;">Message *</label>
                 <textarea name="body" class="form-control" rows="5" required placeholder="Share your thoughts...">{{ old('body') }}</textarea>
-            </div>
-            <div class="form-group">
-                <label style="font-size:12px; font-weight:700; color:#555;">Linked Session (optional)</label>
-                <select name="schedule_id" class="form-control">
-                    <option value="">— Not linked to a session —</option>
-                    @foreach($sessions as $s)
-                    <option value="{{ $s->id }}" {{ old('schedule_id') == $s->id ? 'selected' : '' }}>
-                        Day {{ $s->day_number }}: {{ $s->title }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="is_general" name="is_general" {{ old('is_general') ? 'checked' : '' }}>
-                    <label class="custom-control-label" for="is_general" style="font-size:13px;">
-                        Mark as General Discussion (not session-specific)
-                    </label>
-                </div>
             </div>
             <div class="d-flex justify-content-end" style="gap:8px;">
                 <a href="{{ route('facilitator.discussions.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">Cancel</a>
@@ -52,4 +44,18 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function syncSession(select) {
+    var opt = select.options[select.selectedIndex];
+    document.getElementById('schedule_id_hidden').value = opt.dataset.id || '';
+}
+// On load, sync if old value present
+(function(){
+    var sel = document.querySelector('select[name="title"]');
+    if (sel) syncSession(sel);
+})();
+</script>
 @endsection

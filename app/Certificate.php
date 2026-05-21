@@ -21,6 +21,8 @@ class Certificate extends Model
         'sig2_title',
         'sig2_path',
         'logo_path',
+        'logo2_path',
+        'logo3_path',
         'stamp_path',
         'generated_at',
     ];

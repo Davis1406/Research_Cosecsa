@@ -57,7 +57,7 @@
                     <i class="fas fa-download" style="color:#2c7a4b;width:16px;"></i> Export Trainees CSV
                 </a>
                 <a href="{{ route('viewer.timetable') }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8f9fc;border-radius:8px;text-decoration:none;color:#1a202c;font-weight:600;font-size:13.5px;border:1.5px solid #e2e8f0;transition:border-color .13s;" onmouseover="this.style.borderColor='#C9A84C'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-calendar-alt" style="color:#2d3748;width:16px;"></i> Workshop Timetable
+                    <i class="fas fa-calendar-alt" style="color:#2d3748;width:16px;"></i> Programme
                 </a>
             </div>
         </div>

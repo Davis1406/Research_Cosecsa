@@ -19,7 +19,7 @@
         .print-btn {
             margin-bottom: 20px;
             padding: 10px 28px;
-            background: #C9A84C;
+            background: #a02626;
             color: #fff;
             border: none;
             border-radius: 6px;
@@ -28,23 +28,23 @@
             cursor: pointer;
             letter-spacing: 0.5px;
         }
-        .print-btn:hover { background: #a88838; }
+        .print-btn:hover { background: #7e1e1e; }
 
         .certificate {
             width: 900px;
             max-width: 100%;
             background: #fff;
-            border: 12px solid #C9A84C;
+            border: 12px solid #a02626;
             box-shadow: 0 8px 40px rgba(0,0,0,0.16);
             padding: 0;
             position: relative;
             overflow: hidden;
         }
 
-        /* Top gold bar */
+        /* Top burgundy bar */
         .cert-top-bar {
             height: 10px;
-            background: linear-gradient(90deg, #9a7d2c, #C9A84C, #9a7d2c);
+            background: linear-gradient(90deg, #6b1a1a, #a02626, #6b1a1a);
         }
 
         /* Inner content */
@@ -60,16 +60,24 @@
             position: absolute;
             width: 60px;
             height: 60px;
-            border: 3px solid #C9A84C;
+            border: 3px solid #a02626;
             opacity: 0.3;
         }
         .cert-inner::before { top: 16px; left: 16px; border-right: none; border-bottom: none; }
         .cert-inner::after  { bottom: 16px; right: 16px; border-left: none; border-top: none; }
 
-        .cert-logo {
-            width: 72px;
+        /* Logo row */
+        .cert-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 12px;
+        }
+        .cert-logos img {
             height: 72px;
-            margin: 0 auto 10px;
+            max-width: 120px;
+            object-fit: contain;
         }
 
         .cert-org {
@@ -84,7 +92,7 @@
         .cert-divider {
             width: 80px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+            background: linear-gradient(90deg, transparent, #a02626, transparent);
             margin: 12px auto;
         }
 
@@ -115,11 +123,11 @@
             font-family: 'Playfair Display', serif;
             font-size: 36px;
             font-weight: 700;
-            color: #C9A84C;
+            color: #a02626;
             margin: 8px 0 6px;
             letter-spacing: 1px;
             text-decoration: underline;
-            text-decoration-color: #C9A84C44;
+            text-decoration-color: #a0262644;
             text-underline-offset: 4px;
         }
 
@@ -206,12 +214,20 @@
 <div class="certificate">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        {{-- Logo --}}
-        @if($certificate->logo_path)
-            <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo" class="cert-logo" style="object-fit:contain;">
-        @else
-            <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA" class="cert-logo">
-        @endif
+        {{-- Logos (up to 3 side-by-side) --}}
+        <div class="cert-logos">
+            @if($certificate->logo_path)
+                <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo">
+            @else
+                <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA">
+            @endif
+            @if($certificate->logo2_path)
+                <img src="{{ asset('storage/' . $certificate->logo2_path) }}" alt="Logo 2">
+            @endif
+            @if($certificate->logo3_path)
+                <img src="{{ asset('storage/' . $certificate->logo3_path) }}" alt="Logo 3">
+            @endif
+        </div>
 
         <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
         <div class="cert-divider"></div>
