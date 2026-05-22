@@ -317,7 +317,16 @@
                 $isPdf     = $ext === 'pdf';
                 $isPptx    = in_array($ext, ['pptx', 'ppt']);
                 $fileUrl   = $doc->download_url;
-                $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
+                // Encode only path segments so absolute URLs (https://...) stay valid
+                if ($fileUrl && str_starts_with($fileUrl, 'http')) {
+                    $parsed = parse_url($fileUrl);
+                    $segs   = array_map('rawurlencode', explode('/', ltrim($parsed['path'] ?? '', '/')));
+                    $fileUrlEncoded = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '') . '/' . implode('/', $segs);
+                } elseif ($fileUrl) {
+                    $fileUrlEncoded = implode('/', array_map('rawurlencode', explode('/', $fileUrl)));
+                } else {
+                    $fileUrlEncoded = null;
+                }
                 $docIcon   = $isPdf ? 'fa-file-pdf' : ($isPptx ? 'fa-file-powerpoint' : 'fa-file');
                 $docColor  = $isPdf ? '#e53e3e' : '#C9A84C';
                 $typeLabel = $isPdf ? 'PDF' : ($isPptx ? 'PPTX' : strtoupper($ext));

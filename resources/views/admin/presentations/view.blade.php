@@ -18,7 +18,16 @@
     $isPdf    = $ext === 'pdf';
     $isPptx   = in_array($ext, ['pptx', 'ppt']);
     $fileUrl  = $document->download_url;
-    $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
+    // Encode only path segments (never the scheme/host) so absolute URLs stay valid
+    if ($fileUrl && str_starts_with($fileUrl, 'http')) {
+        $parsed = parse_url($fileUrl);
+        $segs   = array_map('rawurlencode', explode('/', ltrim($parsed['path'] ?? '', '/')));
+        $fileUrlEncoded = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '') . '/' . implode('/', $segs);
+    } elseif ($fileUrl) {
+        $fileUrlEncoded = implode('/', array_map('rawurlencode', explode('/', $fileUrl)));
+    } else {
+        $fileUrlEncoded = null;
+    }
 
     // Office Online embed for PPTX (files are publicly stored)
     $officeViewerUrl = null;
