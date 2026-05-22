@@ -60,36 +60,32 @@
                     {{ trans('cruds.speaker.fields.photo_helper') }}
                 </p>
             </div>
-            <div class="form-group {{ $errors->has('twitter') ? 'has-error' : '' }}">
-                <label for="twitter">{{ trans('cruds.speaker.fields.twitter') }}</label>
-                <input type="text" id="twitter" name="twitter" class="form-control" value="{{ old('twitter', isset($speaker) ? $speaker->twitter : '') }}">
-                @if($errors->has('twitter'))
-                    <p class="help-block">
-                        {{ $errors->first('twitter') }}
-                    </p>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.speaker.fields.twitter_helper') }}
-                </p>
-            </div>
-            <div class="form-group {{ $errors->has('facebook') ? 'has-error' : '' }}">
-                <label for="facebook">{{ trans('cruds.speaker.fields.facebook') }}</label>
-                <input type="text" id="facebook" name="facebook" class="form-control" value="{{ old('facebook', isset($speaker) ? $speaker->facebook : '') }}">
-                @if($errors->has('facebook'))
-                    <p class="help-block">
-                        {{ $errors->first('facebook') }}
-                    </p>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.speaker.fields.facebook_helper') }}
-                </p>
-            </div>
-            <div class="form-group {{ $errors->has('linkedin') ? 'has-error' : '' }}">
-                <label for="linkedin">{{ trans('cruds.speaker.fields.linkedin') }}</label>
-                <input type="text" id="linkedin" name="linkedin" class="form-control" value="{{ old('linkedin', isset($speaker) ? $speaker->linkedin : '') }}">
-                @if($errors->has('linkedin'))
-                    <p class="help-block">{{ $errors->first('linkedin') }}</p>
-                @endif
+            <hr>
+            <h6 style="font-weight:700; color:#2d3748; margin-bottom:14px;">
+                <i class="fas fa-share-alt mr-2" style="color:#C9A84C;"></i> Social Links <small class="text-muted font-weight-normal">(optional)</small>
+            </h6>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group {{ $errors->has('twitter') ? 'has-error' : '' }}">
+                        <label for="twitter"><i class="fab fa-twitter mr-1" style="color:#1da1f2;"></i> {{ trans('cruds.speaker.fields.twitter') }}</label>
+                        <input type="url" id="twitter" name="twitter" class="form-control" value="{{ old('twitter', isset($speaker) ? $speaker->twitter : '') }}" placeholder="https://x.com/username">
+                        @if($errors->has('twitter'))<p class="help-block">{{ $errors->first('twitter') }}</p>@endif
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group {{ $errors->has('facebook') ? 'has-error' : '' }}">
+                        <label for="facebook"><i class="fab fa-facebook mr-1" style="color:#1877f2;"></i> {{ trans('cruds.speaker.fields.facebook') }}</label>
+                        <input type="url" id="facebook" name="facebook" class="form-control" value="{{ old('facebook', isset($speaker) ? $speaker->facebook : '') }}" placeholder="https://facebook.com/username">
+                        @if($errors->has('facebook'))<p class="help-block">{{ $errors->first('facebook') }}</p>@endif
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group {{ $errors->has('linkedin') ? 'has-error' : '' }}">
+                        <label for="linkedin"><i class="fab fa-linkedin mr-1" style="color:#0077b5;"></i> {{ trans('cruds.speaker.fields.linkedin') }}</label>
+                        <input type="url" id="linkedin" name="linkedin" class="form-control" value="{{ old('linkedin', isset($speaker) ? $speaker->linkedin : '') }}" placeholder="https://linkedin.com/in/username">
+                        @if($errors->has('linkedin'))<p class="help-block">{{ $errors->first('linkedin') }}</p>@endif
+                    </div>
+                </div>
             </div>
             {{-- Academic Profile Links --}}
             <hr>

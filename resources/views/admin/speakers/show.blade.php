@@ -55,27 +55,30 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>
-                            {{ trans('cruds.speaker.fields.twitter') }}
-                        </th>
+                        <th><i class="fab fa-twitter mr-1" style="color:#1da1f2;"></i> {{ trans('cruds.speaker.fields.twitter') }}</th>
                         <td>
-                            {{ $speaker->twitter }}
+                            @if($speaker->twitter)
+                                <a href="{{ $speaker->twitter }}" target="_blank">{{ $speaker->twitter }}</a>
+                            @else —
+                            @endif
                         </td>
                     </tr>
                     <tr>
-                        <th>
-                            {{ trans('cruds.speaker.fields.facebook') }}
-                        </th>
+                        <th><i class="fab fa-facebook mr-1" style="color:#1877f2;"></i> {{ trans('cruds.speaker.fields.facebook') }}</th>
                         <td>
-                            {{ $speaker->facebook }}
+                            @if($speaker->facebook)
+                                <a href="{{ $speaker->facebook }}" target="_blank">{{ $speaker->facebook }}</a>
+                            @else —
+                            @endif
                         </td>
                     </tr>
                     <tr>
-                        <th>
-                            {{ trans('cruds.speaker.fields.linkedin') }}
-                        </th>
+                        <th><i class="fab fa-linkedin mr-1" style="color:#0077b5;"></i> {{ trans('cruds.speaker.fields.linkedin') }}</th>
                         <td>
-                            {{ $speaker->linkedin }}
+                            @if($speaker->linkedin)
+                                <a href="{{ $speaker->linkedin }}" target="_blank">{{ $speaker->linkedin }}</a>
+                            @else —
+                            @endif
                         </td>
                     </tr>
                 </tbody>

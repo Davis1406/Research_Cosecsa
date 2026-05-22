@@ -14,16 +14,6 @@
                 @if($errors->has('name'))<div class="invalid-feedback">{{ $errors->first('name') }}</div>@endif
             </div>
             <div class="form-group">
-                <label for="twitter">{{ trans('cruds.speaker.fields.twitter') }}</label>
-                <input type="text" id="twitter" name="twitter" class="form-control {{ $errors->has('twitter') ? 'is-invalid' : '' }}" value="{{ old('twitter', '') }}" placeholder="e.g. Cardiothoracic Surgery, Paediatric Surgery">
-                @if($errors->has('twitter'))<div class="invalid-feedback">{{ $errors->first('twitter') }}</div>@endif
-            </div>
-            <div class="form-group">
-                <label for="facebook">{{ trans('cruds.speaker.fields.facebook') }}</label>
-                <input type="text" id="facebook" name="facebook" class="form-control {{ $errors->has('facebook') ? 'is-invalid' : '' }}" value="{{ old('facebook', '') }}" placeholder="e.g. Muhimbili National Hospital">
-                @if($errors->has('facebook'))<div class="invalid-feedback">{{ $errors->first('facebook') }}</div>@endif
-            </div>
-            <div class="form-group">
                 <label for="description">{{ trans('cruds.speaker.fields.description') }}</label>
                 <textarea id="description" name="description" class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" rows="3">{{ old('description', '') }}</textarea>
                 @if($errors->has('description'))<div class="invalid-feedback">{{ $errors->first('description') }}</div>@endif
@@ -38,10 +28,33 @@
                 <div class="needsclick dropzone {{ $errors->has('photo') ? 'is-invalid' : '' }}" id="photo-dropzone"></div>
                 @if($errors->has('photo'))<div class="invalid-feedback">{{ $errors->first('photo') }}</div>@endif
             </div>
-            <div class="form-group">
-                <label for="linkedin">{{ trans('cruds.speaker.fields.linkedin') }}</label>
-                <input type="text" id="linkedin" name="linkedin" class="form-control {{ $errors->has('linkedin') ? 'is-invalid' : '' }}" value="{{ old('linkedin', '') }}" placeholder="LinkedIn profile URL">
-                @if($errors->has('linkedin'))<div class="invalid-feedback">{{ $errors->first('linkedin') }}</div>@endif
+            {{-- Social Links --}}
+            <hr>
+            <h6 style="font-weight:700; color:#2d3748; margin-bottom:14px;">
+                <i class="fas fa-share-alt mr-2" style="color:#C9A84C;"></i> Social Links <small class="text-muted font-weight-normal">(optional)</small>
+            </h6>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="twitter"><i class="fab fa-twitter mr-1" style="color:#1da1f2;"></i> {{ trans('cruds.speaker.fields.twitter') }}</label>
+                        <input type="url" id="twitter" name="twitter" class="form-control {{ $errors->has('twitter') ? 'is-invalid' : '' }}" value="{{ old('twitter', '') }}" placeholder="https://x.com/username">
+                        @if($errors->has('twitter'))<div class="invalid-feedback">{{ $errors->first('twitter') }}</div>@endif
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="facebook"><i class="fab fa-facebook mr-1" style="color:#1877f2;"></i> {{ trans('cruds.speaker.fields.facebook') }}</label>
+                        <input type="url" id="facebook" name="facebook" class="form-control {{ $errors->has('facebook') ? 'is-invalid' : '' }}" value="{{ old('facebook', '') }}" placeholder="https://facebook.com/username">
+                        @if($errors->has('facebook'))<div class="invalid-feedback">{{ $errors->first('facebook') }}</div>@endif
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="linkedin"><i class="fab fa-linkedin mr-1" style="color:#0077b5;"></i> {{ trans('cruds.speaker.fields.linkedin') }}</label>
+                        <input type="url" id="linkedin" name="linkedin" class="form-control {{ $errors->has('linkedin') ? 'is-invalid' : '' }}" value="{{ old('linkedin', '') }}" placeholder="https://linkedin.com/in/username">
+                        @if($errors->has('linkedin'))<div class="invalid-feedback">{{ $errors->first('linkedin') }}</div>@endif
+                    </div>
+                </div>
             </div>
             {{-- Academic Profile Links --}}
             <hr>
