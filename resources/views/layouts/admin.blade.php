@@ -14,7 +14,7 @@
     <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.bootstrap4.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
@@ -182,11 +182,39 @@
             .topbar-username { display: none; }
         }
 
-        /* ── DataTable & Select2 accent tweaks ── */
+        /* ── DataTables ── */
         .dataTables_wrapper .dataTables_paginate .paginate_button.current,
         .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-            background: #a02626 !important; color: #fff !important; border-color: #a02626 !important;
+            background: #a02626 !important; color: #fff !important;
+            border-color: #a02626 !important; border-radius: 4px !important;
         }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #f5e0e0 !important; color: #a02626 !important;
+            border-color: #e8b4b4 !important; border-radius: 4px !important;
+        }
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1.5px solid #d1d5db !important; border-radius: 6px !important;
+            padding: 4px 8px !important; font-size: 13px !important;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #a02626 !important; outline: none !important;
+            box-shadow: 0 0 0 3px rgba(160,38,38,.1) !important;
+        }
+        .dataTables_wrapper .dataTables_info { font-size: 12.5px !important; color: #888 !important; }
+        /* Export buttons row */
+        .dt-buttons { display: flex; flex-wrap: wrap; gap: 4px; }
+        .dt-buttons .btn { font-size: 12px !important; padding: 4px 10px !important; font-weight: 600 !important; }
+        .dt-button-collection { z-index: 9999 !important; }
+        /* Colvis dropdown */
+        .dt-button-collection .dt-button {
+            display: block; width: 100%; padding: 6px 14px !important;
+            text-align: left; background: none; border: none; font-size: 13px !important;
+        }
+        .dt-button-collection .dt-button.active { background: rgba(160,38,38,.08) !important; color: #a02626 !important; }
+        .dt-button-collection .dt-button:hover  { background: #f8f9fa !important; }
+
+        /* ── Select2 accent ── */
         .select2-container--default .select2-results__option--highlighted { background: #a02626 !important; }
         .select2-container--default .select2-selection--single:focus,
         .select2-container--default.select2-container--focus .select2-selection--multiple {
@@ -456,6 +484,7 @@
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js"></script>
 <script src="//cdn.datatables.net/buttons/1.2.4/js/buttons.flash.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.html5.min.js"></script>
@@ -488,15 +517,20 @@ $(function () {
             { orderable: false, searchable: false, targets: -1 }
         ],
         select: { style: 'multi+shift', selector: 'td:first-child' },
-        order: [], scrollX: true, pageLength: 100,
-        dom: 'lBfrtip<"actions">',
+        order: [[1, 'asc']], scrollX: true, pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+        dom:
+            "<'row mb-2'<'col-sm-12 col-md-6 d-flex align-items-center'l><'col-sm-12 col-md-6 d-flex justify-content-end'f>>" +
+            "<'row mb-1'<'col-12'B>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
         buttons: [
-            { extend: 'copy',   className: 'btn-default', text: copyButtonTrans,   exportOptions: { columns: ':visible' } },
-            { extend: 'csv',    className: 'btn-default', text: csvButtonTrans,    exportOptions: { columns: ':visible' } },
-            { extend: 'excel',  className: 'btn-default', text: excelButtonTrans,  exportOptions: { columns: ':visible' } },
-            { extend: 'pdf',    className: 'btn-default', text: pdfButtonTrans,    exportOptions: { columns: ':visible' } },
-            { extend: 'print',  className: 'btn-default', text: printButtonTrans,  exportOptions: { columns: ':visible' } },
-            { extend: 'colvis', className: 'btn-default', text: colvisButtonTrans, exportOptions: { columns: ':visible' } }
+            { extend: 'copy',   className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-copy mr-1"></i>' + copyButtonTrans,   exportOptions: { columns: ':visible' } },
+            { extend: 'csv',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-csv mr-1"></i>' + csvButtonTrans,    exportOptions: { columns: ':visible' } },
+            { extend: 'excel',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-excel mr-1"></i>' + excelButtonTrans,  exportOptions: { columns: ':visible' } },
+            { extend: 'pdf',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-pdf mr-1"></i>' + pdfButtonTrans,    exportOptions: { columns: ':visible' } },
+            { extend: 'print',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-print mr-1"></i>' + printButtonTrans,  exportOptions: { columns: ':visible' } },
+            { extend: 'colvis', className: 'btn btn-sm btn-outline-secondary',      text: '<i class="fas fa-columns mr-1"></i>' + colvisButtonTrans }
         ]
     });
     $.fn.dataTable.ext.classes.sPageButton = '';
