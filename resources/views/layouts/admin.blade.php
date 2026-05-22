@@ -8,7 +8,7 @@
     <title>{{ trans('panel.site_title') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('img/cosecsa-favicon.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
+    <link href="{{ asset('vendor/fontawesome/css/all.css') }}" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="{{ asset('vendor/datatables/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
@@ -515,6 +515,11 @@ window._dtBtns = [
 
 // Helper called by every admin index page: dtInit('.datatable-X', extraButtons, [[col,'dir']])
 window.dtInit = function(selector, extraBtns, order) {
+    // Reset the Buttons default button class so buttons.bootstrap4.min.js doesn't
+    // prepend "btn btn-secondary" to every button — our per-button className is used exclusively.
+    if ($.fn && $.fn.dataTable && $.fn.dataTable.Buttons) {
+        $.fn.dataTable.Buttons.defaults.dom.button.className = '';
+    }
     var btns = window._dtBtns.slice();
     if (extraBtns && extraBtns.length) { btns = btns.concat(extraBtns); }
     return $(selector).DataTable({
