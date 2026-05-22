@@ -215,10 +215,13 @@
     $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
     $backUrl = url()->previous();
 
+    // Detect by extension so PPTX stored as type='document' still gets Office Online
+    $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
+    $isPptx      = in_array($fileExt, ['pptx', 'ppt']) || $material->type === 'presentation';
+
     // Office Online embed URL for PPTX (preserves full theme / background)
     $officeViewerUrl = null;
-    if ($material->type === 'presentation' && $fileUrl) {
-        // Build a fully-qualified public URL so Office Online can fetch the file
+    if ($isPptx && $fileUrl) {
         $absoluteFileUrl = str_starts_with($fileUrl, 'http')
             ? $fileUrl
             : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
@@ -357,6 +360,19 @@
                     </div>
                 </div>
 
+            @elseif($isPptx)
+                {{-- PPTX detected by extension — use Office Online regardless of stored type --}}
+                @if($officeViewerUrl)
+                    <iframe class="viewer-frame" src="{{ $officeViewerUrl }}" frameborder="0" title="{{ $material->title }}"></iframe>
+                @else
+                    <div class="nofile-wrap"><div class="nofile-card">
+                        <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; display:block; margin-bottom:16px;"></i>
+                        <h5 style="font-weight:700; color:#2d3748;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">Could not build a preview URL.</p>
+                        @if($fileUrlEncoded)<a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold mt-2"><i class="fas fa-download mr-1"></i> Download</a>@endif
+                    </div></div>
+                @endif
+
             @elseif($material->type === 'document')
                 <iframe class="viewer-frame" src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH" title="{{ $material->title }}"></iframe>
 
@@ -415,27 +431,6 @@
                     </div>
                 </div>
 
-            @elseif($material->type === 'presentation')
-                @if($officeViewerUrl)
-                    <iframe class="viewer-frame"
-                            src="{{ $officeViewerUrl }}"
-                            frameborder="0"
-                            title="{{ $material->title }}">
-                    </iframe>
-                @else
-                    <div class="nofile-wrap">
-                        <div class="nofile-card">
-                            <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; display:block; margin-bottom:16px;"></i>
-                            <h5 style="font-weight:700; color:#2d3748;">Presentation unavailable</h5>
-                            <p style="color:#888; font-size:13px;">The file URL could not be resolved for preview.</p>
-                            @if($fileUrl)
-                            <a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold mt-2">
-                                <i class="fas fa-download mr-1"></i> Download File
-                            </a>
-                            @endif
-                        </div>
-                    </div>
-                @endif
             @endif
         </div>
     </div>

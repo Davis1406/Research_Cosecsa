@@ -11,37 +11,53 @@ use Illuminate\Http\Request;
 class MessagesController extends Controller
 {
     /**
-     * Show conversations the logged-in admin user is part of.
-     * Each admin account only sees their own chats — not everyone else's.
+     * Show ALL conversations in the system (admin sees everyone's chats).
      */
     public function index()
     {
         $me = auth()->id();
 
-        $conversations = Message::with(['sender', 'receiver'])
-            ->where(function ($q) use ($me) {
-                $q->where('sender_id', $me)->orWhere('receiver_id', $me);
-            })
+        $allMessages = Message::with(['sender', 'receiver'])
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($msg) use ($me) {
-                return (int)$msg->sender_id === $me
-                    ? (int)$msg->receiver_id
-                    : (int)$msg->sender_id;
+            ->get();
+
+        // Group by sorted pair so A↔B and B↔A merge into one conversation entry
+        $conversations = $allMessages
+            ->groupBy(function ($msg) {
+                $pair = [(int)$msg->sender_id, (int)$msg->receiver_id];
+                sort($pair);
+                return implode('_', $pair);
             })
             ->map(function ($msgs) use ($me) {
-                $latest = $msgs->first();
-                $other  = (int)$latest->sender_id === $me ? $latest->receiver : $latest->sender;
-                $unread = $msgs->filter(fn($m) => (int)$m->receiver_id === $me && is_null($m->read_at))->count();
-                return compact('latest', 'other', 'unread');
-            });
+                $latest   = $msgs->first();
+                $isOwn    = (int)$latest->sender_id === $me || (int)$latest->receiver_id === $me;
+                $other    = (int)$latest->sender_id === $me ? $latest->receiver : $latest->sender;
+                $unread   = $msgs->filter(fn($m) => (int)$m->receiver_id === $me && is_null($m->read_at))->count();
+                $ids      = [(int)$latest->sender_id, (int)$latest->receiver_id];
+                sort($ids);
+                return [
+                    'latest'      => $latest,
+                    'other'       => $other,
+                    'unread'      => $unread,
+                    'isOwn'       => $isOwn,
+                    'sender'      => $latest->sender,
+                    'receiver'    => $latest->receiver,
+                    'sender_id'   => $ids[0],
+                    'receiver_id' => $ids[1],
+                    'count'       => $msgs->count(),
+                ];
+            })
+            ->sortByDesc(fn($c) => $c['latest']->created_at);
 
-        $users = User::where('id', '!=', $me)->orderBy('name')->get();
+        $users     = User::where('id', '!=', $me)->orderBy('name')->get();
         $materials = TrainingMaterial::orderBy('title')->get();
 
         return view('admin.messages.index', compact('conversations', 'users', 'materials'));
     }
 
+    /**
+     * Admin's own thread with another user (participates in conversation).
+     */
     public function thread(User $user)
     {
         $me = auth()->id();
@@ -53,11 +69,8 @@ class MessagesController extends Controller
 
         $messages = Message::with(['material'])
             ->where(function ($q) use ($me, $user) {
-                $q->where(function ($inner) use ($me, $user) {
-                    $inner->where('sender_id', $me)->where('receiver_id', $user->id);
-                })->orWhere(function ($inner) use ($me, $user) {
-                    $inner->where('sender_id', $user->id)->where('receiver_id', $me);
-                });
+                $q->where(fn($i) => $i->where('sender_id', $me)->where('receiver_id', $user->id))
+                  ->orWhere(fn($i) => $i->where('sender_id', $user->id)->where('receiver_id', $me));
             })
             ->orderBy('created_at', 'asc')
             ->get();
@@ -65,6 +78,38 @@ class MessagesController extends Controller
         $materials = TrainingMaterial::orderBy('title')->get();
 
         return view('admin.messages.thread', compact('user', 'messages', 'materials'));
+    }
+
+    /**
+     * Admin reads a conversation between two other users (read-only view).
+     */
+    public function viewThread(User $sender, User $receiver)
+    {
+        $messages = Message::with(['sender', 'receiver', 'material'])
+            ->where(function ($q) use ($sender, $receiver) {
+                $q->where(fn($i) => $i->where('sender_id', $sender->id)->where('receiver_id', $receiver->id))
+                  ->orWhere(fn($i) => $i->where('sender_id', $receiver->id)->where('receiver_id', $sender->id));
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return view('admin.messages.view-thread', compact('sender', 'receiver', 'messages'));
+    }
+
+    /**
+     * Soft-delete all messages in a conversation between two users.
+     */
+    public function deleteThread(Request $request)
+    {
+        $sid = (int) $request->input('sender_id');
+        $rid = (int) $request->input('receiver_id');
+
+        Message::where(function ($q) use ($sid, $rid) {
+            $q->where(fn($i) => $i->where('sender_id', $sid)->where('receiver_id', $rid))
+              ->orWhere(fn($i) => $i->where('sender_id', $rid)->where('receiver_id', $sid));
+        })->delete();
+
+        return redirect()->route('admin.messages.index')->with('message', 'Conversation deleted.');
     }
 
     public function send(Request $request, User $user)
@@ -150,7 +195,7 @@ class MessagesController extends Controller
 
     public function destroy(Message $message)
     {
-        $message->delete();
-        return redirect()->route('admin.messages.index')->with('message', 'Message deleted.');
+        $message->delete(); // soft delete
+        return back()->with('message', 'Message deleted.');
     }
 }

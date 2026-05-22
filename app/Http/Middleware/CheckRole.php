@@ -16,6 +16,11 @@ class CheckRole
             ->map(fn($t) => strtolower(str_replace(' ', '-', $t)))
             ->toArray();
 
+        // Admin / Super Admin bypass ALL role checks — they can do everything
+        if (in_array('admin', $userRoles) || in_array('super-admin', $userRoles)) {
+            return $next($request);
+        }
+
         foreach ($roles as $role) {
             if (in_array(strtolower($role), $userRoles)) {
                 return $next($request);

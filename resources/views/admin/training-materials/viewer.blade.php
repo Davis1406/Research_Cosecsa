@@ -272,9 +272,14 @@ h1, h2, h3, h4, h5, h6, small, strong {
     // URL-encode the file path for use in src/href attributes (handle spaces in filenames)
     $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
 
-    // Office Online embed URL for PPTX files
+    // Detect actual file type by extension (overrides the stored 'type' column for display)
+    $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
+    $isPptx      = in_array($fileExt, ['pptx', 'ppt']) || $trainingMaterial->type === 'presentation';
+    $isPdf       = $fileExt === 'pdf' || ($trainingMaterial->type === 'document' && !$isPptx);
+
+    // Office Online embed URL for PPTX (works regardless of stored 'type' column)
     $officeViewerUrl = null;
-    if ($trainingMaterial->type === 'presentation' && $fileUrl) {
+    if ($isPptx && $fileUrl) {
         $absoluteUrl = str_starts_with($fileUrl, 'http')
             ? $fileUrl
             : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
@@ -409,28 +414,7 @@ h1, h2, h3, h4, h5, h6, small, strong {
                 </div>
             </div>
 
-        @elseif($trainingMaterial->type === 'document')
-            {{-- PDF: browser native iframe --}}
-            <iframe class="viewer-frame"
-                src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH"
-                title="{{ $trainingMaterial->title }}">
-            </iframe>
-
-        @elseif($trainingMaterial->type === 'video')
-            {{-- Video player --}}
-            <div class="video-wrap">
-                <video controls preload="metadata" style="max-height:calc(100vh - 200px); max-width:100%;">
-                    <source src="{{ $fileUrlEncoded }}" type="video/quicktime">
-                    <source src="{{ $fileUrlEncoded }}" type="video/mp4">
-                    <source src="{{ $fileUrlEncoded }}" type="video/x-m4v">
-                    <p style="color:#ccc; text-align:center;">
-                        Your browser cannot play this video.<br>
-                        <a href="{{ $fileUrlEncoded }}" class="btn btn-cosecsa btn-sm mt-2">Download Video</a>
-                    </p>
-                </video>
-            </div>
-
-        @elseif($trainingMaterial->type === 'presentation')
+        @elseif($isPptx)
             {{-- PPTX: Microsoft Office Online embed (full theme fidelity) --}}
             @if($officeViewerUrl)
                 <iframe class="viewer-frame"
@@ -452,6 +436,42 @@ h1, h2, h3, h4, h5, h6, small, strong {
                     </div>
                 </div>
             @endif
+
+        @elseif($trainingMaterial->type === 'video')
+            {{-- Video player --}}
+            <div class="video-wrap">
+                <video controls preload="metadata" style="max-height:calc(100vh - 200px); max-width:100%;">
+                    <source src="{{ $fileUrlEncoded }}" type="video/quicktime">
+                    <source src="{{ $fileUrlEncoded }}" type="video/mp4">
+                    <source src="{{ $fileUrlEncoded }}" type="video/x-m4v">
+                    <p style="color:#ccc; text-align:center;">
+                        Your browser cannot play this video.<br>
+                        <a href="{{ $fileUrlEncoded }}" class="btn btn-cosecsa btn-sm mt-2">Download Video</a>
+                    </p>
+                </video>
+            </div>
+
+        @elseif($isPdf)
+            {{-- PDF: browser native iframe --}}
+            <iframe class="viewer-frame"
+                src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH"
+                title="{{ $trainingMaterial->title }}">
+            </iframe>
+
+        @else
+            {{-- Other file type: download prompt --}}
+            <div class="nofile-wrap">
+                <div class="nofile-card">
+                    <i class="fas fa-file fa-3x mb-3" style="color:#a02626; display:block;"></i>
+                    <h6 style="font-weight:700; color:#2d3748; margin-bottom:8px;">{{ $trainingMaterial->title }}</h6>
+                    <p style="font-size:13px; color:#888; margin-bottom:16px;">This file type cannot be previewed in the browser.</p>
+                    @if($fileUrlEncoded)
+                    <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm">
+                        <i class="fas fa-download mr-2"></i>Download to View
+                    </a>
+                    @endif
+                </div>
+            </div>
         @endif
         </div>
     </div>

@@ -109,6 +109,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('messages/thread/{user}', 'MessagesController@thread')->name('messages.thread');
     Route::post('messages/thread/{user}/send', 'MessagesController@send')->name('messages.send');
     Route::get('messages/thread/{user}/poll', 'MessagesController@poll')->name('messages.poll');
+    // Admin read-only view of conversations between other users
+    Route::get('messages/view/{sender}/{receiver}', 'MessagesController@viewThread')->name('messages.view-thread');
+    // Soft-delete an entire conversation thread
+    Route::delete('messages/thread/delete', 'MessagesController@deleteThread')->name('messages.delete-thread');
     Route::get('messages/{message}', 'MessagesController@show')->name('messages.show');
     Route::delete('messages/{message}', 'MessagesController@destroy')->name('messages.destroy');
 
