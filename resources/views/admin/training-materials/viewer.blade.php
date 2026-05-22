@@ -283,7 +283,7 @@ h1, h2, h3, h4, h5, h6, small, strong {
         $absoluteUrl = str_starts_with($fileUrl, 'http')
             ? $fileUrl
             : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
-        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteUrl);
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteUrl);
     }
 @endphp
 

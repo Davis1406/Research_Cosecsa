@@ -225,7 +225,7 @@
         $absoluteFileUrl = str_starts_with($fileUrl, 'http')
             ? $fileUrl
             : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
-        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteFileUrl);
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteFileUrl);
     }
 
     // Convert YouTube URL to embed URL
