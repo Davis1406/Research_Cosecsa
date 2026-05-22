@@ -498,18 +498,24 @@
 <script src="{{ asset('js/main.js') }}"></script>
 
 <script>
-// ── DataTables global config ──────────────────────────────────────────────
-$(function () {
-    let copyButtonTrans  = '{{ trans('global.datatables.copy') }}'
-    let csvButtonTrans   = '{{ trans('global.datatables.csv') }}'
-    let excelButtonTrans = '{{ trans('global.datatables.excel') }}'
-    let pdfButtonTrans   = '{{ trans('global.datatables.pdf') }}'
-    let printButtonTrans = '{{ trans('global.datatables.print') }}'
-    let colvisButtonTrans= '{{ trans('global.datatables.colvis') }}'
-    let languages = { 'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json' };
+// ── DataTables global defaults — runs SYNCHRONOUSLY (not in doc-ready) ─────
+// This must run before any $(function(){}) so individual pages see the
+// correct defaults when they call $.fn.dataTable.defaults.buttons.
+(function ($) {
+    var copy   = '{{ trans('global.datatables.copy') }}';
+    var csv    = '{{ trans('global.datatables.csv') }}';
+    var excel  = '{{ trans('global.datatables.excel') }}';
+    var pdf    = '{{ trans('global.datatables.pdf') }}';
+    var print  = '{{ trans('global.datatables.print') }}';
+    var colvis = '{{ trans('global.datatables.colvis') }}';
+    var dtDom  =
+        "<'row mb-2'<'col-sm-12 col-md-6 d-flex align-items-center'l><'col-sm-12 col-md-6 d-flex justify-content-end'f>>" +
+        "<'row mb-1'<'col-12'B>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>";
 
     $.extend(true, $.fn.dataTable.defaults, {
-        language: { url: languages['{{ app()->getLocale() }}'] },
+        language: { url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/{{ app()->getLocale() === 'en' ? 'English' : 'English' }}.json' },
         columnDefs: [
             { orderable: false, className: 'select-checkbox', targets: 0 },
             { orderable: false, searchable: false, targets: -1 }
@@ -517,21 +523,20 @@ $(function () {
         select: { style: 'multi+shift', selector: 'td:first-child' },
         order: [[1, 'asc']], scrollX: true, pageLength: 25,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-        dom:
-            "<'row mb-2'<'col-sm-12 col-md-6 d-flex align-items-center'l><'col-sm-12 col-md-6 d-flex justify-content-end'f>>" +
-            "<'row mb-1'<'col-12'B>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
+        dom: dtDom,
         buttons: [
-            { extend: 'copy',   className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-copy mr-1"></i>' + copyButtonTrans,   exportOptions: { columns: ':visible' } },
-            { extend: 'csv',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-csv mr-1"></i>' + csvButtonTrans,    exportOptions: { columns: ':visible' } },
-            { extend: 'excel',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-excel mr-1"></i>' + excelButtonTrans,  exportOptions: { columns: ':visible' } },
-            { extend: 'pdf',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-pdf mr-1"></i>' + pdfButtonTrans,    exportOptions: { columns: ':visible' } },
-            { extend: 'print',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-print mr-1"></i>' + printButtonTrans,  exportOptions: { columns: ':visible' } },
-            { extend: 'colvis', className: 'btn btn-sm btn-outline-secondary',      text: '<i class="fas fa-columns mr-1"></i>' + colvisButtonTrans }
+            { extend: 'copy',   className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-copy mr-1"></i>' + copy,   exportOptions: { columns: ':visible' } },
+            { extend: 'csv',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-csv mr-1"></i>' + csv,    exportOptions: { columns: ':visible' } },
+            { extend: 'excel',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-excel mr-1"></i>' + excel,  exportOptions: { columns: ':visible' } },
+            { extend: 'pdf',    className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-file-pdf mr-1"></i>' + pdf,    exportOptions: { columns: ':visible' } },
+            { extend: 'print',  className: 'btn btn-sm btn-outline-secondary mr-1', text: '<i class="fas fa-print mr-1"></i>' + print,  exportOptions: { columns: ':visible' } },
+            { extend: 'colvis', className: 'btn btn-sm btn-outline-secondary',      text: '<i class="fas fa-columns mr-1"></i>' + colvis }
         ]
     });
     $.fn.dataTable.ext.classes.sPageButton = '';
+}($));
+
+$(function () {
 
     // ── Action menu (DataTables-compatible) ──────────────────────────────
     $(document).on('click', '.action-menu-btn', function (e) {
