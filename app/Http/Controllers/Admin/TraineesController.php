@@ -54,6 +54,10 @@ class TraineesController extends Controller
     {
         abort_if(Gate::denies('trainee_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        $trainee->load([
+            'documents' => fn($q) => $q->with('comments.user', 'reviewers')->latest(),
+        ]);
+
         return view('admin.trainees.show', compact('trainee'));
     }
 

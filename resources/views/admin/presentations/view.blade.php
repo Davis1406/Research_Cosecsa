@@ -26,7 +26,7 @@
         $absoluteUrl = str_starts_with($fileUrl, 'http')
             ? $fileUrl
             : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
-        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($absoluteUrl);
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteUrl);
     }
 
     $typeIcon  = $isPdf ? 'fa-file-pdf' : ($isPptx ? 'fa-file-powerpoint' : 'fa-file');
