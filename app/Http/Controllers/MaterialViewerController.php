@@ -17,9 +17,10 @@ class MaterialViewerController extends Controller
     {
         $material->load(['facilitator', 'schedules.speaker']);
 
+        // Strip any local dev /research/ prefix from the URL
         $fileUrl = null;
         if ($material->external_url) {
-            $fileUrl = $material->external_url;
+            $fileUrl = preg_replace('#^/research/#', '/', $material->external_url);
         } elseif ($material->file) {
             $fileUrl = $material->file->url;
         }

@@ -3,10 +3,10 @@
 @section('styles')
 <link href="{{ asset('js/pptxjs/pptxjs.css') }}" rel="stylesheet" />
 <style>
-/* Font fix — text elements get Nunito, FA icons are NOT touched */
+/* Font — use Inter to match the rest of the admin panel */
 body, p, span, div, td, th, li, a, button, input, select, textarea, label,
 h1, h2, h3, h4, h5, h6, small, strong {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 .fa, .fas, .far, .fab, .fal,
 [class^="fa-"], [class*=" fa-"] {
@@ -261,7 +261,7 @@ h1, h2, h3, h4, h5, h6, small, strong {
     padding: 4px 12px;
     cursor: pointer;
     font-size: 12px;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 #slide-nav button:hover { background: rgba(255,255,255,.2); }
 #slide-nav button:disabled { opacity: .4; cursor: default; }

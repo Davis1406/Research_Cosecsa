@@ -6,9 +6,9 @@
     <title>{{ $material->title }} — Viewer</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Nunito', sans-serif; box-sizing: border-box; }
+        * { font-family: 'Inter', system-ui, -apple-system, sans-serif; box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #f0f2f5; }
 
         .viewer-shell {

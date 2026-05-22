@@ -151,11 +151,10 @@ class TrainingMaterialsController extends Controller
 
         $trainingMaterial->load(['facilitator', 'schedules.speaker']);
 
-        // Build the file URL to serve
+        // Build the file URL to serve; strip any local dev /research/ prefix
         $fileUrl = null;
         if ($trainingMaterial->external_url) {
-            // Already a local path like /cosecsa-training/materials/...
-            $fileUrl = $trainingMaterial->external_url;
+            $fileUrl = preg_replace('#^/research/#', '/', $trainingMaterial->external_url);
         } elseif ($trainingMaterial->file) {
             $fileUrl = $trainingMaterial->file->url;
         }

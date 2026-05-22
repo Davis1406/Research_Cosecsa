@@ -177,7 +177,7 @@
                             <div style="font-size:11px; color:#888;">{{ ucfirst($m->type) }}</div>
                         </div>
                     </div>
-                    <a href="{{ route('material.view', $m) }}" class="btn btn-sm" style="background:#f0f7f3; color:#2c7a4b; border:1px solid #2c7a4b44; font-size:11px;">
+                    <a href="{{ route('admin.training-materials.viewer', $m) }}" class="btn btn-sm" style="background:#f0f7f3; color:#2c7a4b; border:1px solid #2c7a4b44; font-size:11px;">
                         <i class="fas fa-eye"></i>
                     </a>
                 </div>
