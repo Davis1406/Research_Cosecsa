@@ -54,7 +54,7 @@
                             <td>
                                 @if($sponsor->logo)
                                     <a href="{{ $sponsor->logo->getUrl() }}" target="_blank">
-                                        <img src="{{ $sponsor->logo->getUrl('thumb') }}" width="50px" height="50px">
+                                        <img src="{{ $sponsor->logo->getUrl() }}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">
                                     </a>
                                 @endif
                             </td>

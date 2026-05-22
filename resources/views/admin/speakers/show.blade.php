@@ -49,7 +49,7 @@
                         <td>
                             @if($speaker->photo)
                                 <a href="{{ $speaker->photo->getUrl() }}" target="_blank">
-                                    <img src="{{ $speaker->photo->getUrl('thumb') }}" width="50px" height="50px">
+                                    <img src="{{ $speaker->photo->getUrl() }}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">
                                 </a>
                             @endif
                         </td>

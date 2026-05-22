@@ -33,7 +33,7 @@
                         <td>
                             @foreach($venue->photos as $key => $media)
                                 <a href="{{ $media->getUrl() }}" target="_blank">
-                                    <img src="{{ $media->getUrl('thumb') }}" width="50px" height="50px">
+                                    <img src="{{ $media->getUrl() }}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">
                                 </a>
                             @endforeach
                         </td>
