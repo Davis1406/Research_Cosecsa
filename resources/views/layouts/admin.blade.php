@@ -191,7 +191,10 @@
             background: #f5e0e0 !important; color: #a02626 !important;
             border-color: #e8b4b4 !important; border-radius: 4px !important;
         }
-        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_length select {
+            border: 1.5px solid #d1d5db !important; border-radius: 6px !important;
+            padding: 4px 28px 4px 8px !important; font-size: 13px !important;
+        }
         .dataTables_wrapper .dataTables_filter input {
             border: 1.5px solid #d1d5db !important; border-radius: 6px !important;
             padding: 4px 8px !important; font-size: 13px !important;
