@@ -87,8 +87,8 @@
 @parent
 <script>
 $(function () {
-    var dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
-    $('.datatable-Quiz').DataTable({ buttons: dtButtons, order: [[1, 'asc']] });
+    var extraBtns = [];
+    window.dtInit('.datatable-Quiz', extraBtns, [[1, 'asc']]);
 });
 </script>
 @endsection

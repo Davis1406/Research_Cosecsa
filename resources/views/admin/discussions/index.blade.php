@@ -60,8 +60,7 @@
 @parent
 <script>
 $(function () {
-    var dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
-    $('.datatable-Discussion').DataTable({ buttons: dtButtons, order: [[5, 'desc']] });
+    window.dtInit('.datatable-Discussion', [], [[5, 'desc']]);
 });
 </script>
 @endsection

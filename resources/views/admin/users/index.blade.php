@@ -83,12 +83,12 @@
 @parent
 <script>
 $(function () {
-    var dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
+    var extraBtns = [];
     @can('user_delete')
-    dtButtons.push({
+    extraBtns.push({
         text: '{{ trans('global.datatables.delete') }}',
         url: '{{ route('admin.users.massDestroy') }}',
-        className: 'btn-danger',
+        className: 'btn btn-sm btn-danger mr-1',
         action: function (e, dt, node, config) {
             var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
                 return $(entry).data('entry-id');
@@ -101,7 +101,7 @@ $(function () {
         }
     });
     @endcan
-    $('.datatable-User').DataTable({ buttons: dtButtons, order: [[1, 'asc']] });
+    window.dtInit('.datatable-User', extraBtns, [[1, 'asc']]);
 });
 </script>
 @endsection

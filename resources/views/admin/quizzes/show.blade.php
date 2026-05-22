@@ -138,8 +138,7 @@
 @parent
 <script>
 $(function () {
-    var dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
-    $('.datatable-Attempts').DataTable({ buttons: dtButtons, order: [[3, 'desc']] });
+    window.dtInit('.datatable-Attempts', [], [[3, 'desc']]);
 });
 </script>
 @endsection

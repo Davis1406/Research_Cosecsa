@@ -68,8 +68,8 @@
 @parent
 <script>
 $(function () {
-    var dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
-    $('.datatable-Certificate').DataTable({ buttons: dtButtons, order: [[5, 'desc']] });
+    var extraBtns = [];
+    window.dtInit('.datatable-Certificate', extraBtns, [[5, 'desc']]);
 });
 </script>
 @endsection
