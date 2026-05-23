@@ -1,72 +1,100 @@
 @extends('layouts.admin')
 @section('content')
 
-<div class="card">
-    <div class="card-header">
-        {{ trans('global.create') }} {{ trans('cruds.user.title_singular') }}
+<div class="card" style="max-width:680px;">
+    <div class="card-header cosecsa-card-header">
+        <i class="fas fa-user-plus mr-2"></i> {{ trans('global.create') }} {{ trans('cruds.user.title_singular') }}
     </div>
 
     <div class="card-body">
-        <form action="{{ route("admin.users.store") }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
-            <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                <label for="name">{{ trans('cruds.user.fields.name') }}*</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($user) ? $user->name : '') }}" required>
+
+            {{-- Name --}}
+            <div class="form-group">
+                <label for="name">{{ trans('cruds.user.fields.name') }} *</label>
+                <input type="text" id="name" name="name" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                       value="{{ old('name') }}" required>
                 @if($errors->has('name'))
-                    <p class="help-block">
-                        {{ $errors->first('name') }}
-                    </p>
+                    <div class="invalid-feedback">{{ $errors->first('name') }}</div>
                 @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.name_helper') }}
-                </p>
             </div>
-            <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                <label for="email">{{ trans('cruds.user.fields.email') }}*</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ old('email', isset($user) ? $user->email : '') }}" required>
+
+            {{-- Email --}}
+            <div class="form-group">
+                <label for="email">{{ trans('cruds.user.fields.email') }} *</label>
+                <input type="email" id="email" name="email" class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                       value="{{ old('email') }}" required>
                 @if($errors->has('email'))
-                    <p class="help-block">
-                        {{ $errors->first('email') }}
-                    </p>
+                    <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                 @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.email_helper') }}
-                </p>
             </div>
-            <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                <label for="password">{{ trans('cruds.user.fields.password') }}</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+
+            {{-- Password --}}
+            <div class="form-group">
+                <label for="password">{{ trans('cruds.user.fields.password') }} *</label>
+                <input type="password" id="password" name="password"
+                       class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}" required>
                 @if($errors->has('password'))
-                    <p class="help-block">
-                        {{ $errors->first('password') }}
-                    </p>
+                    <div class="invalid-feedback">{{ $errors->first('password') }}</div>
                 @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.password_helper') }}
-                </p>
             </div>
+
+            {{-- Roles — checkbox pills --}}
             <div class="form-group {{ $errors->has('roles') ? 'has-error' : '' }}">
-                <label for="roles">{{ trans('cruds.user.fields.roles') }}*
-                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                <select name="roles[]" id="roles" class="form-control select2" multiple="multiple" required>
-                    @foreach($roles as $id => $roles)
-                        <option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->roles->contains($id)) ? 'selected' : '' }}>{{ $roles }}</option>
-                    @endforeach
-                </select>
+                <label class="d-block mb-1">{{ trans('cruds.user.fields.roles') }} *</label>
+                <div class="roles-picker">
+                    <div class="mb-2" style="display:flex; gap:6px;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary roles-select-all">
+                            <i class="fas fa-check-double mr-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary roles-deselect-all">
+                            <i class="fas fa-times mr-1"></i>Deselect All
+                        </button>
+                    </div>
+                    <div class="roles-checkbox-group">
+                        @foreach($roles as $id => $roleName)
+                        <label class="roles-checkbox-label {{ in_array($id, old('roles', [])) ? 'roles-checked' : '' }}">
+                            <input type="checkbox" name="roles[]" value="{{ $id }}"
+                                   {{ in_array($id, old('roles', [])) ? 'checked' : '' }}>
+                            {{ $roleName }}
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
                 @if($errors->has('roles'))
-                    <p class="help-block">
-                        {{ $errors->first('roles') }}
-                    </p>
+                    <div class="text-danger mt-1" style="font-size:12px;">{{ $errors->first('roles') }}</div>
                 @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.roles_helper') }}
-                </p>
             </div>
-            <div>
-                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-cosecsa">
+                    <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
+                </button>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-light ml-2">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
             </div>
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+@parent
+<script>
+$(function () {
+    $(document).on('change', '.roles-checkbox-label input[type=checkbox]', function () {
+        $(this).closest('.roles-checkbox-label').toggleClass('roles-checked', this.checked);
+    });
+    $('.roles-select-all').on('click', function () {
+        $('.roles-checkbox-label input[type=checkbox]').prop('checked', true)
+            .closest('.roles-checkbox-label').addClass('roles-checked');
+    });
+    $('.roles-deselect-all').on('click', function () {
+        $('.roles-checkbox-label input[type=checkbox]').prop('checked', false)
+            .closest('.roles-checkbox-label').removeClass('roles-checked');
+    });
+});
+</script>
 @endsection

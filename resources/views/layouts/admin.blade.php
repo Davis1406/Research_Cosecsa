@@ -10,7 +10,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" />
     <link href="{{ asset('vendor/fontawesome/css/all.css') }}" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
+    <link href="{{ asset('vendor/select2/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/datatables/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/datatables/css/select.dataTables.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/datatables/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
@@ -221,6 +221,54 @@
         .select2-container--default .select2-selection--single:focus,
         .select2-container--default.select2-container--focus .select2-selection--multiple {
             border-color: #a02626 !important;
+        }
+
+        /* ── Roles checkbox pill picker ── */
+        .roles-picker {
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            padding: 14px;
+            background: #fafafa;
+        }
+        .roles-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .roles-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            padding: 7px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 20px;
+            background: #fff;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #4a5568 !important;
+            user-select: none;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+        }
+        .roles-checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+        .roles-checkbox-label:hover {
+            border-color: #a02626;
+            background: #fff5f5;
+            color: #a02626 !important;
+        }
+        .roles-checkbox-label.roles-checked {
+            border-color: #a02626;
+            background: #a02626;
+            color: #fff !important;
+            font-weight: 600 !important;
+        }
+        .roles-checkbox-label.roles-checked::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 11px;
         }
     </style>
     @yield('styles')
@@ -481,7 +529,7 @@
 {{-- Scripts --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
+<script src="{{ asset('vendor/select2/js/select2.full.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('vendor/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
