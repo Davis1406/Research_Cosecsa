@@ -7,7 +7,7 @@
     <title>COSECSA Viewer — @yield('page-title', 'Dashboard')</title>
     <link rel="icon" type="image/png" href="{{ asset('img/cosecsa-favicon.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="{{ asset('vendor/fontawesome/css/all.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
@@ -100,13 +100,13 @@
         </div>
     </div>
 
-    <nav class="viewer-nav">
+    <nav class="viewer-nav" style="overflow-y:auto; flex:1;">
         <div class="viewer-nav-label">Overview</div>
         <a href="{{ route('viewer.dashboard') }}" class="{{ request()->routeIs('viewer.dashboard') ? 'active' : '' }}">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
 
-        <div class="viewer-nav-label">People</div>
+        <div class="viewer-nav-label">Directory</div>
         <a href="{{ route('viewer.facilitators') }}" class="{{ request()->routeIs('viewer.facilitators') ? 'active' : '' }}">
             <i class="fas fa-chalkboard-teacher"></i> Facilitators
         </a>
@@ -117,6 +117,14 @@
         <div class="viewer-nav-label">Programme</div>
         <a href="{{ route('viewer.timetable') }}" class="{{ request()->routeIs('viewer.timetable') ? 'active' : '' }}">
             <i class="fas fa-calendar-alt"></i> Timetable
+        </a>
+        <a href="{{ route('viewer.materials') }}" class="{{ request()->routeIs('viewer.materials') ? 'active' : '' }}">
+            <i class="fas fa-book"></i> Materials
+        </a>
+
+        <div class="viewer-nav-label">Account</div>
+        <a href="{{ route('viewer.profile.edit') }}" class="{{ request()->routeIs('viewer.profile.edit') ? 'active' : '' }}">
+            <i class="fas fa-user-cog"></i> My Profile
         </a>
     </nav>
 
@@ -143,7 +151,7 @@
         @yield('content')
     </div>
 
-    <div class="viewer-footer">&copy; {{ date('Y') }} COSECSA Research Training System &mdash; Read-Only Access</div>
+    <div class="viewer-footer">COSECSA &copy; {{ date('Y') }}</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

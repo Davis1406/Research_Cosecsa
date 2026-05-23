@@ -518,7 +518,7 @@
     </div>
 
     <footer class="portal-footer">
-        &copy; {{ date('Y') }} COSECSA Research Training System Platform. All rights reserved.
+        COSECSA &copy; {{ date('Y') }}
     </footer>
 </div>
 

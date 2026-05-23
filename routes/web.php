@@ -152,12 +152,15 @@ Route::post('/notifications/mark-item-read', function (\Illuminate\Http\Request 
     return response()->json(['ok' => true]);
 })->name('notifications.mark-item-read')->middleware('auth');
 
-// ── Viewer Portal (Diana / read-only) ────────────────────────────
+// ── Viewer Portal ─────────────────────────────────────────────────
 Route::prefix('viewer')->name('viewer.')->namespace('Viewer')->middleware(['auth', 'role:viewer'])->group(function () {
     Route::get('/', 'ViewerController@dashboard')->name('dashboard');
     Route::get('/facilitators', 'ViewerController@facilitators')->name('facilitators');
     Route::get('/trainees', 'ViewerController@trainees')->name('trainees');
     Route::get('/timetable', 'ViewerController@timetable')->name('timetable');
+    Route::get('/materials', 'MaterialsController@index')->name('materials');
+    Route::get('/profile', 'ProfileController@edit')->name('profile.edit');
+    Route::put('/profile', 'ProfileController@update')->name('profile.update');
 });
 
 // ── Trainee Portal ────────────────────────────────────────────────

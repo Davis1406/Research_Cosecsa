@@ -66,17 +66,25 @@
         .cert-inner::before { top: 16px; left: 16px; border-right: none; border-bottom: none; }
         .cert-inner::after  { bottom: 16px; right: 16px; border-left: none; border-top: none; }
 
-        /* Logo row */
+        /* Logo row — left logo, optional centre, right logo */
         .cert-logos {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 24px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .cert-logos .logo-left,
+        .cert-logos .logo-right {
+            flex: 0 0 auto;
+        }
+        .cert-logos .logo-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }
         .cert-logos img {
             height: 72px;
-            max-width: 120px;
+            max-width: 130px;
             object-fit: contain;
         }
 
@@ -214,19 +222,28 @@
 <div class="certificate">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        {{-- Logos (up to 3 side-by-side) --}}
+        {{-- Logos: left logo | optional centre logo | right logo --}}
         <div class="cert-logos">
-            @if($certificate->logo_path)
-                <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo">
-            @else
-                <img src="{{ asset('img/cosecsa-favicon.png') }}" alt="COSECSA">
-            @endif
-            @if($certificate->logo2_path)
-                <img src="{{ asset('storage/' . $certificate->logo2_path) }}" alt="Logo 2">
-            @endif
+            <div class="logo-left">
+                @if($certificate->logo_path)
+                    <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo">
+                @else
+                    <img src="{{ asset('img/cosecsa-logo.png') }}" alt="COSECSA">
+                @endif
+            </div>
             @if($certificate->logo3_path)
+            <div class="logo-center">
                 <img src="{{ asset('storage/' . $certificate->logo3_path) }}" alt="Logo 3">
+            </div>
             @endif
+            <div class="logo-right">
+                @if($certificate->logo2_path)
+                    <img src="{{ asset('storage/' . $certificate->logo2_path) }}" alt="Logo 2">
+                @else
+                    {{-- Placeholder space to keep layout balanced when no second logo --}}
+                    <div style="width:130px;"></div>
+                @endif
+            </div>
         </div>
 
         <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
@@ -246,7 +263,7 @@
         <div class="cert-event" style="font-weight:700;">{{ $certificate->event_name }}</div>
 
         <div class="cert-venue-date">
-            {{ $certificate->venue ? $certificate->venue . ' &bull; ' : '' }}{{ $certificate->event_date }}
+            {{ $certificate->venue ? $certificate->venue . ' • ' : '' }}{{ $certificate->event_date }}
         </div>
 
         <div class="cert-divider"></div>
@@ -287,7 +304,7 @@
         </div>
         @endif
 
-        <div class="cert-footer">{{ $certificate->org_name ?? 'COSECSA' }} &copy; {{ date('Y') }} &mdash; Research Training System</div>
+        <div class="cert-footer">COSECSA &copy; {{ date('Y') }}</div>
     </div>
 </div>
 
