@@ -27,6 +27,11 @@ class CheckRole
             }
         }
 
+        // Redirect viewers to their own portal rather than showing a 403
+        if (in_array('viewer', $userRoles)) {
+            return redirect('/viewer');
+        }
+
         abort(403, 'Access denied.');
     }
 }

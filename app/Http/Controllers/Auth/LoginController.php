@@ -45,6 +45,9 @@ class LoginController extends Controller
         if (in_array('facilitator', $roles) || in_array('lead-facilitator', $roles)) {
             return '/facilitator';
         }
+        if (in_array('viewer', $roles)) {
+            return '/viewer';
+        }
         return '/admin';
     }
 }
