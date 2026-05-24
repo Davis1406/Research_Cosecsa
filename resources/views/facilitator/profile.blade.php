@@ -63,8 +63,12 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label-sm">Bio / Short Description</label>
-          <textarea name="description" class="form-control" rows="3" placeholder="Brief professional bio...">{{ old('description', $speaker->description ?? '') }}</textarea>
+          <label class="form-label-sm">Institution <span class="text-danger">*</span></label>
+          <input type="text" name="description" class="form-control" value="{{ old('description', $speaker->description ?? '') }}" placeholder="e.g. UGHE / COSECSA" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label-sm">Bio</label>
+          <textarea name="full_description" class="form-control" rows="4" placeholder="Brief professional biography...">{{ old('full_description', $speaker->full_description ?? '') }}</textarea>
         </div>
         <div class="row">
           <div class="col-md-4 form-group">

@@ -21,7 +21,8 @@ class ProfileController extends Controller
         $rules = [
             'name'           => 'required|string|max:255',
             'email'          => 'required|email|unique:users,email,' . $user->id,
-            'description'    => 'nullable|string|max:1000',
+            'description'      => 'nullable|string|max:255',
+            'full_description' => 'nullable|string|max:3000',
             'twitter'        => 'nullable|string|max:255',
             'linkedin'       => 'nullable|string|max:255',
             'facebook'       => 'nullable|string|max:255',
@@ -48,7 +49,8 @@ class ProfileController extends Controller
         if ($speaker) {
             $speaker->update([
                 'name'           => $validated['name'],
-                'description'    => $validated['description'] ?? $speaker->description,
+                'description'      => $validated['description'] ?? $speaker->description,
+                'full_description' => $validated['full_description'] ?? $speaker->full_description,
                 'twitter'        => $validated['twitter'] ?? null,
                 'linkedin'       => $validated['linkedin'] ?? null,
                 'facebook'       => $validated['facebook'] ?? null,
