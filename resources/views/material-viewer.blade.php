@@ -125,6 +125,30 @@
         /* PDF */
         .viewer-frame { flex: 1; border: none; width: 100%; height: 100%; display: block; }
 
+        /* Loading overlay */
+        .pdf-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 10;
+            transition: opacity 0.3s;
+        }
+        .pdf-loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .pdf-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #C9A84C;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pdf-loading-text { font-size: 13px; color: #888; font-weight: 500; }
+
         /* Video */
         .video-wrap {
             flex: 1;
@@ -374,7 +398,19 @@
                 @endif
 
             @elseif($material->type === 'document')
-                <iframe class="viewer-frame" src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH" title="{{ $material->title }}"></iframe>
+                {{-- Loading overlay shown until iframe fires onload --}}
+                <div class="pdf-loading-overlay" id="pdf-overlay">
+                    <div class="pdf-spinner"></div>
+                    <div class="pdf-loading-text">Loading PDF&hellip;</div>
+                    <a href="{{ $fileUrlEncoded }}" download
+                       style="font-size:12px; color:#C9A84C; margin-top:4px; text-decoration:none;">
+                        <i class="fas fa-download" style="margin-right:4px;"></i>Download instead
+                    </a>
+                </div>
+                <iframe class="viewer-frame"
+                        src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH"
+                        title="{{ $material->title }}"
+                        onload="hidePdfOverlay()"></iframe>
 
             @elseif($material->type === 'video')
                 <div class="video-wrap">
@@ -441,6 +477,14 @@
 
 
 <script>
+function hidePdfOverlay() {
+    var overlay = document.getElementById('pdf-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(function() { overlay.style.display = 'none'; }, 350);
+    }
+}
+
 $(function() {
     var $btn = $('#btn-fullscreen');
     var target = document.querySelector('.v-main');

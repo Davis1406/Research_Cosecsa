@@ -62,12 +62,16 @@ class TrainingMaterialsController extends Controller
         $trainingMaterial->update($request->all());
 
         if ($request->input('file', false)) {
+            // A new file was uploaded — replace the existing one
             if (!$trainingMaterial->file || $request->input('file') !== $trainingMaterial->file->file_name) {
+                $trainingMaterial->clearMediaCollection('file');
                 $trainingMaterial->addMedia(storage_path('tmp/uploads/' . $request->input('file')))->toMediaCollection('file');
             }
-        } elseif ($trainingMaterial->file) {
-            $trainingMaterial->file->delete();
+        } elseif ($request->input('remove_file') === '1' && $trainingMaterial->file) {
+            // Explicit "remove file" checkbox — only then delete
+            $trainingMaterial->clearMediaCollection('file');
         }
+        // Otherwise: no new file and no remove flag → keep existing file untouched
 
         return redirect()->route('admin.training-materials.index')->with('message', 'Material updated successfully.');
     }

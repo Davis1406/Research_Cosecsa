@@ -5,9 +5,10 @@
         <i class="fas fa-edit mr-2"></i> {{ trans('global.edit') }} {{ trans('cruds.trainingMaterial.title_singular') }}
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('admin.training-materials.update', [$trainingMaterial->id]) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.training-materials.update', [$trainingMaterial->id]) }}" enctype="multipart/form-data" id="edit-form">
             @method('PUT')
             @csrf
+
             <div class="form-group">
                 <label class="required" for="title">{{ trans('cruds.trainingMaterial.fields.title') }}</label>
                 <input class="form-control {{ $errors->has('title') ? 'is-invalid' : '' }}" type="text" name="title" id="title" value="{{ old('title', $trainingMaterial->title) }}" required>
@@ -15,46 +16,100 @@
                     <div class="invalid-feedback">{{ $errors->first('title') }}</div>
                 @endif
             </div>
+
             <div class="form-group">
                 <label for="category">{{ trans('cruds.trainingMaterial.fields.category') }}</label>
                 <input class="form-control {{ $errors->has('category') ? 'is-invalid' : '' }}" type="text" name="category" id="category" value="{{ old('category', $trainingMaterial->category) }}">
             </div>
+
             <div class="form-group">
                 <label class="required" for="type">{{ trans('cruds.trainingMaterial.fields.type') }}</label>
                 <select class="form-control {{ $errors->has('type') ? 'is-invalid' : '' }}" name="type" id="type" required>
-                    <option value="document" {{ old('type', $trainingMaterial->type) == 'document' ? 'selected' : '' }}>Document / PDF</option>
+                    <option value="document"     {{ old('type', $trainingMaterial->type) == 'document'     ? 'selected' : '' }}>Document / PDF</option>
                     <option value="presentation" {{ old('type', $trainingMaterial->type) == 'presentation' ? 'selected' : '' }}>Presentation (PPT/Slides)</option>
-                    <option value="video" {{ old('type', $trainingMaterial->type) == 'video' ? 'selected' : '' }}>Video</option>
-                    <option value="image" {{ old('type', $trainingMaterial->type) == 'image' ? 'selected' : '' }}>Image / Diagram</option>
+                    <option value="video"        {{ old('type', $trainingMaterial->type) == 'video'        ? 'selected' : '' }}>Video</option>
+                    <option value="image"        {{ old('type', $trainingMaterial->type) == 'image'        ? 'selected' : '' }}>Image / Diagram</option>
                 </select>
             </div>
+
             <div class="form-group">
                 <label for="description">{{ trans('cruds.trainingMaterial.fields.description') }}</label>
                 <textarea class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" id="description" rows="3">{{ old('description', $trainingMaterial->description) }}</textarea>
             </div>
+
             <div class="form-group">
                 <label for="speaker_id">{{ trans('cruds.trainingMaterial.fields.speaker') }}</label>
-                <select class="form-control select2 {{ $errors->has('speaker_id') ? 'is-invalid' : '' }}" name="speaker_id" id="speaker_id">
+                <select class="form-control {{ $errors->has('speaker_id') ? 'is-invalid' : '' }}" name="speaker_id" id="speaker_id">
+                    <option value="">— None —</option>
                     @foreach($facilitators as $id => $name)
                         <option value="{{ $id }}" {{ old('speaker_id', $trainingMaterial->speaker_id) == $id ? 'selected' : '' }}>{{ $name }}</option>
                     @endforeach
                 </select>
             </div>
+
+            {{-- ── File section ─────────────────────────────────────────── --}}
             <div class="form-group">
-                <label for="file">{{ trans('cruds.trainingMaterial.fields.file') }}</label>
-                <div class="needsclick dropzone {{ $errors->has('file') ? 'is-invalid' : '' }}" id="file-dropzone">
-                </div>
+                <label>{{ trans('cruds.trainingMaterial.fields.file') }}</label>
+
                 @if($trainingMaterial->file)
-                    <div class="mt-2">
-                        <p class="mb-1"><strong>Current file:</strong> <a href="{{ $trainingMaterial->file->url }}" target="_blank">{{ $trainingMaterial->file->file_name }}</a></p>
+                    {{-- Current file card --}}
+                    <div id="current-file-card" style="border:1px solid #d1d5db; border-radius:8px; padding:14px 16px; background:#f9fafb; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            @php
+                                $ext = strtolower(pathinfo($trainingMaterial->file->file_name, PATHINFO_EXTENSION));
+                                $icon = match(true) {
+                                    in_array($ext, ['pdf'])           => 'fa-file-pdf text-danger',
+                                    in_array($ext, ['ppt','pptx'])    => 'fa-file-powerpoint text-warning',
+                                    in_array($ext, ['doc','docx'])    => 'fa-file-word text-primary',
+                                    in_array($ext, ['xls','xlsx'])    => 'fa-file-excel text-success',
+                                    in_array($ext, ['jpg','jpeg','png','gif']) => 'fa-file-image text-info',
+                                    in_array($ext, ['mp4','mov'])     => 'fa-file-video text-danger',
+                                    in_array($ext, ['mp3'])           => 'fa-file-audio text-warning',
+                                    default                           => 'fa-file text-secondary',
+                                };
+                            @endphp
+                            <i class="fas {{ $icon }}" style="font-size:24px;"></i>
+                            <div>
+                                <div style="font-weight:600; font-size:13px; color:#2d3748;">{{ $trainingMaterial->file->file_name }}</div>
+                                <div style="font-size:11px; color:#888;">{{ number_format($trainingMaterial->file->size / 1024, 1) }} KB
+                                    &nbsp;·&nbsp;
+                                    <a href="{{ $trainingMaterial->file->url }}" target="_blank" style="color:#C9A84C;">Preview / Download</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" id="btn-replace" class="btn btn-sm btn-outline-primary" onclick="showReplaceZone()">
+                                <i class="fas fa-retweet mr-1"></i> Replace File
+                            </button>
+                            <button type="button" id="btn-remove" class="btn btn-sm btn-outline-danger" onclick="confirmRemove()">
+                                <i class="fas fa-trash mr-1"></i> Remove
+                            </button>
+                        </div>
                     </div>
+
+                    {{-- Hidden remove flag --}}
+                    <input type="hidden" name="remove_file" id="remove_file" value="0">
                 @endif
+
+                {{-- Replace / upload dropzone (hidden by default if file exists) --}}
+                <div id="upload-zone" style="{{ $trainingMaterial->file ? 'display:none;' : '' }}">
+                    <div class="needsclick dropzone {{ $errors->has('file') ? 'is-invalid' : '' }}" id="file-dropzone"></div>
+                    @if($trainingMaterial->file)
+                        <button type="button" class="btn btn-sm btn-link text-muted mt-1 p-0" onclick="hideReplaceZone()">
+                            <i class="fas fa-times mr-1"></i> Cancel replacement
+                        </button>
+                    @endif
+                </div>
+
+                <small class="form-text text-muted mt-1">Accepted: PDF, Word, PowerPoint, Excel, images, video, audio, ZIP. Max 100MB.</small>
             </div>
+
             <div class="form-group">
                 <label for="external_url">{{ trans('cruds.trainingMaterial.fields.external_url') }}</label>
                 <input class="form-control {{ $errors->has('external_url') ? 'is-invalid' : '' }}" type="url" name="external_url" id="external_url" value="{{ old('external_url', $trainingMaterial->external_url) }}" placeholder="https://...">
-                <small class="form-text text-muted">Use this for video links (YouTube, Vimeo, etc.)</small>
+                <small class="form-text text-muted">Use for YouTube, Vimeo, or other external links.</small>
             </div>
+
             <div class="form-group">
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
@@ -65,30 +120,61 @@
     </div>
 </div>
 @endsection
+
 @section('scripts')
 @parent
 <script>
     Dropzone.autoDiscover = false;
     var uploadedFileMap = {};
+
     $(function() {
         var fileDropZone = new Dropzone('#file-dropzone', {
             url: '{{ route('admin.training-materials.storeMedia') }}',
-            maxFilesize: 50,
+            maxFilesize: 100,
             addRemoveLinks: true,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            params: { size: 50 },
-            success: function (file, response) {
-                $('form').append('<input type="hidden" name="file" value="' + response.name + '">')
-                uploadedFileMap[file.name] = response.name
+            params: { size: 100 },
+            success: function(file, response) {
+                $('form').append('<input type="hidden" name="file" value="' + response.name + '">');
+                uploadedFileMap[file.name] = response.name;
+                // If replacing, clear the remove flag
+                $('#remove_file').val('0');
             },
-            removedfile: function (file) {
-                file.previewElement.remove()
-                var name = '';
-                if (typeof file.file_name !== 'undefined') { name = file.file_name } else { name = uploadedFileMap[file.name] }
-                $('form').find('input[name="file"][value="' + name + '"]').remove()
+            removedfile: function(file) {
+                file.previewElement.remove();
+                var name = typeof file.file_name !== 'undefined' ? file.file_name : uploadedFileMap[file.name];
+                $('form').find('input[name="file"][value="' + name + '"]').remove();
             },
-            init: function() { this.on('addedfile', function(file) { if (this.files.length > 1) { this.removeFile(this.files[0]) } }) }
-        })
-    })
+            init: function() {
+                this.on('addedfile', function(file) {
+                    if (this.files.length > 1) { this.removeFile(this.files[0]); }
+                });
+            }
+        });
+    });
+
+    function showReplaceZone() {
+        document.getElementById('upload-zone').style.display = 'block';
+        document.getElementById('btn-replace').style.display = 'none';
+        // Clear any remove flag when replacing
+        var removeInput = document.getElementById('remove_file');
+        if (removeInput) removeInput.value = '0';
+    }
+
+    function hideReplaceZone() {
+        document.getElementById('upload-zone').style.display = 'none';
+        document.getElementById('btn-replace').style.display = '';
+    }
+
+    function confirmRemove() {
+        if (confirm('Remove the current file? It will be permanently deleted when you save.')) {
+            document.getElementById('remove_file').value = '1';
+            document.getElementById('current-file-card').style.opacity = '0.4';
+            document.getElementById('btn-remove').textContent = '✓ Will be removed on save';
+            document.getElementById('btn-remove').disabled = true;
+            document.getElementById('btn-replace').style.display = 'none';
+            document.getElementById('upload-zone').style.display = 'none';
+        }
+    }
 </script>
 @endsection
