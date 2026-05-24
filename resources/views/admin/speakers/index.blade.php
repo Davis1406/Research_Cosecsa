@@ -101,7 +101,10 @@ $(function () {
         }
     });
     @endcan
-    window.dtInit('.datatable-Speaker', extraBtns, [[1, 'asc']]);
+    // Column indices: 0=checkbox,1=ID,2=Name,3=Institution,4=Bio,5=Twitter,6=Facebook,7=LinkedIn,8=Actions
+    window.dtInit('.datatable-Speaker', extraBtns, [[1, 'asc']], [
+        { visible: false, targets: [6] }   // Facebook hidden by default; toggle via Column visibility
+    ]);
 });
 </script>
 @endsection

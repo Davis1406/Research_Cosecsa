@@ -564,8 +564,8 @@ window._dtBtns = [
     { extend: 'colvis', className: 'btn btn-sm btn-outline-secondary',      text: '<i class="fas fa-columns mr-1"></i>{{ trans('global.datatables.colvis') }}' }
 ];
 
-// Helper called by every admin index page: dtInit('.datatable-X', extraButtons, [[col,'dir']])
-window.dtInit = function(selector, extraBtns, order) {
+// Helper called by every admin index page: dtInit('.datatable-X', extraButtons, [[col,'dir']], extraColumnDefs)
+window.dtInit = function(selector, extraBtns, order, extraColumnDefs) {
     // Reset the Buttons default button class so buttons.bootstrap4.min.js doesn't
     // prepend "btn btn-secondary" to every button — our per-button className is used exclusively.
     if ($.fn && $.fn.dataTable && $.fn.dataTable.Buttons) {
@@ -583,7 +583,7 @@ window.dtInit = function(selector, extraBtns, order) {
         columnDefs:   [
             { orderable: false, className: 'select-checkbox', targets: 0 },
             { orderable: false, searchable: false, targets: -1 }
-        ],
+        ].concat(extraColumnDefs || []),
         select:       { style: 'multi+shift', selector: 'td:first-child' },
         language:     { url: '{{ asset('vendor/datatables/i18n/English.json') }}' }
     });
