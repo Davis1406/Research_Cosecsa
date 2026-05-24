@@ -24,6 +24,7 @@
                         <th>{{ trans('cruds.speaker.fields.id') }}</th>
                         <th>{{ trans('cruds.speaker.fields.name') }}</th>
                         <th>{{ trans('cruds.speaker.fields.description') }}</th>
+                        <th>{{ trans('cruds.speaker.fields.full_description') }}</th>
                         <th>{{ trans('cruds.speaker.fields.twitter') }}</th>
                         <th>{{ trans('cruds.speaker.fields.facebook') }}</th>
                         <th>{{ trans('cruds.speaker.fields.linkedin') }}</th>
@@ -37,6 +38,7 @@
                         <td>{{ $speaker->id }}</td>
                         <td>{{ $speaker->name ?? '' }}</td>
                         <td>{{ $speaker->description ?? '' }}</td>
+                        <td>{{ Str::limit($speaker->full_description ?? '', 80) }}</td>
                         <td>{{ $speaker->twitter ?? '' }}</td>
                         <td>{{ $speaker->facebook ?? '' }}</td>
                         <td>{{ $speaker->linkedin ?? '' }}</td>
