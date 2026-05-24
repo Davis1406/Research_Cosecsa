@@ -48,9 +48,26 @@ class MaterialViewerController extends Controller
 
     /**
      * Render a trainee's uploaded presentation (PPTX) — for facilitator review.
+     * Trainees may only render their own documents; facilitators/admins can render any.
      */
     public function renderTraineeSlides(TraineeDocument $document)
     {
+        $user      = auth()->user();
+        $userRoles = $user->roles->pluck('title')
+            ->map(fn($t) => strtolower(str_replace(' ', '-', $t)))
+            ->toArray();
+
+        $isFacilitatorOrAdmin = collect(['admin', 'super-admin', 'facilitator', 'lead-facilitator'])
+            ->contains(fn($r) => in_array($r, $userRoles));
+
+        if (!$isFacilitatorOrAdmin) {
+            // Trainees can only render their own documents
+            $trainee = $user->trainee;
+            if (!$trainee || $document->trainee_id !== $trainee->id) {
+                abort(403, 'You do not have permission to view this document.');
+            }
+        }
+
         $fullPath = $document->full_path;
 
         if (!file_exists($fullPath)) {

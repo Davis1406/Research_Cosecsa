@@ -180,10 +180,14 @@ class TrainingMaterialsController extends Controller
 
     public function storeMedia(Request $request)
     {
+        $request->validate([
+            'file' => 'required|file|max:102400|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,mp3,zip,txt,csv',
+        ]);
+
         $path = storage_path('tmp/uploads');
 
         if (!file_exists($path)) {
-            mkdir($path, 0777, true);
+            mkdir($path, 0755, true);
         }
 
         $file = $request->file('file');

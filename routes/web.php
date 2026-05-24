@@ -3,6 +3,13 @@
 Route::get('/', function () { return redirect('/login'); })->name('home');
 Auth::routes(['register' => false]);
 
+// Extra HTTP-level rate limit on login (on top of Laravel's built-in ThrottleLogins)
+Route::post('/login', '\App\Http\Controllers\Auth\LoginController@login')->middleware('throttle:5,1');
+
+// Force-password-change page — any authenticated user, bypasses role checks
+Route::get('/change-password',  'Auth\ChangePasswordController@show')->name('change-password.show')->middleware('auth');
+Route::post('/change-password', 'Auth\ChangePasswordController@update')->name('change-password.update')->middleware('auth');
+
 // /home — smart redirect to role dashboard
 Route::get('/home', function () {
     if (!auth()->check()) {
