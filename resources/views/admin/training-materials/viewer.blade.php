@@ -1,9 +1,8 @@
 @extends('layouts.admin')
 
 @section('styles')
-<link href="{{ asset('js/pptxjs/pptxjs.css') }}" rel="stylesheet" />
 <style>
-/* Font — use Inter to match the rest of the admin panel */
+/* Font */
 body, p, span, div, td, th, li, a, button, input, select, textarea, label,
 h1, h2, h3, h4, h5, h6, small, strong {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -111,6 +110,62 @@ h1, h2, h3, h4, h5, h6, small, strong {
     flex-shrink: 0;
 }
 
+/* Replace-file panel inside sidebar */
+#replace-panel {
+    padding: 12px 14px;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+#replace-panel .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #a02626;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+/* Dropzone inside replace panel */
+#replace-dropzone {
+    min-height: 70px !important;
+    border: 2px dashed #ccc !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    padding: 6px !important;
+    cursor: pointer;
+}
+#replace-dropzone:hover { border-color: #a02626 !important; }
+#replace-dropzone .dz-message {
+    margin: 0 !important;
+    padding: 8px !important;
+    font-size: 12px !important;
+    color: #aaa !important;
+    text-align: center;
+}
+/* Dropzone preview items — ensure visibility */
+#replace-dropzone .dz-preview {
+    margin: 4px !important;
+    min-height: 70px !important;
+}
+#replace-dropzone .dz-preview .dz-image {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 4px !important;
+}
+#replace-dropzone .dz-preview .dz-details {
+    opacity: 1 !important;
+    font-size: 10px !important;
+    padding: 4px !important;
+}
+#replace-dropzone .dz-preview .dz-filename span { font-size: 10px !important; }
+#replace-dropzone .dz-preview .dz-size span    { font-size: 10px !important; }
+#replace-dropzone .dz-preview.dz-success .dz-success-mark { opacity: 1 !important; }
+#replace-dropzone .dz-preview.dz-success .dz-error-mark   { opacity: 0 !important; }
+#replace-save-btn { display: none; }
+
 /* Main viewer */
 .viewer-main {
     flex: 1;
@@ -135,7 +190,7 @@ h1, h2, h3, h4, h5, h6, small, strong {
 .viewer-topbar-title { font-size: 13px; font-weight: 600; color: #2d2d2d; }
 .viewer-body {
     flex: 1;
-    overflow: hidden;   /* inner containers handle their own scroll */
+    overflow: auto;
     display: flex;
     flex-direction: column;
 }
@@ -147,53 +202,6 @@ h1, h2, h3, h4, h5, h6, small, strong {
     width: 100%;
     height: 100%;
     display: block;
-}
-
-/* PPTX renderer */
-#pptx-container {
-    flex: 1;
-    overflow: auto;
-    background: #555;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-#pptx-container .slide {
-    box-shadow: 0 4px 20px rgba(0,0,0,.4);
-    border-radius: 4px;
-    overflow: hidden;
-    max-width: 100%;
-}
-.pptx-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    color: #ccc;
-    gap: 14px;
-    width: 100%;
-}
-.pptx-loading .spinner {
-    width: 40px; height: 40px;
-    border: 4px solid rgba(255,255,255,.2);
-    border-top-color: #C9A84C;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.pptx-error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    color: #ccc;
-    gap: 12px;
-    width: 100%;
-    text-align: center;
 }
 
 /* Video */
@@ -240,38 +248,12 @@ h1, h2, h3, h4, h5, h6, small, strong {
     width: 100vw;
 }
 .viewer-main:fullscreen .viewer-topbar { padding: 10px 20px; }
-
-/* Slide nav bar */
-#slide-nav {
-    background: #333;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    flex-shrink: 0;
-    color: #ccc;
-    font-size: 13px;
-}
-#slide-nav button {
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.2);
-    color: #fff;
-    border-radius: 4px;
-    padding: 4px 12px;
-    cursor: pointer;
-    font-size: 12px;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-#slide-nav button:hover { background: rgba(255,255,255,.2); }
-#slide-nav button:disabled { opacity: .4; cursor: default; }
 </style>
 @endsection
 
 @php
-    // URL-encode the file path for use in src/href attributes (handle spaces in filenames).
-    // For absolute URLs (Spatie MediaLibrary) only encode the path portion — never touch the scheme/host.
-    // For relative paths, encode each segment.
+    // URL-encode the file path for use in src/href attributes.
+    // For absolute URLs (Spatie MediaLibrary) only encode the path portion.
     $fileUrlEncoded = null;
     if ($fileUrl) {
         if (str_starts_with($fileUrl, 'http')) {
@@ -283,10 +265,19 @@ h1, h2, h3, h4, h5, h6, small, strong {
         }
     }
 
-    // Detect actual file type by extension (overrides the stored 'type' column for display)
+    // Detect file type
     $fileExt = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
     $isPptx  = in_array($fileExt, ['pptx', 'ppt']) || $trainingMaterial->type === 'presentation';
     $isPdf   = $fileExt === 'pdf' || ($trainingMaterial->type === 'document' && !$isPptx);
+
+    // Office Online embed URL for PPTX
+    $officeViewerUrl = null;
+    if ($isPptx && $fileUrl) {
+        $absoluteUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteUrl);
+    }
 @endphp
 
 @section('content')
@@ -366,6 +357,37 @@ h1, h2, h3, h4, h5, h6, small, strong {
             @endif
         </div>
 
+        {{-- Replace file panel (hidden until triggered) --}}
+        @can('training_material_edit')
+        <div id="replace-panel" style="display:none;">
+            <div class="panel-title">
+                <span><i class="fas fa-retweet mr-1"></i> Replace File</span>
+                <button type="button" onclick="toggleReplacePanel(false)"
+                        style="background:none;border:none;color:#aaa;cursor:pointer;padding:0;font-size:14px;" title="Cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="needsclick dropzone" id="replace-dropzone"></div>
+            <button id="replace-save-btn" class="btn btn-cosecsa btn-sm w-100 mt-2"
+                    onclick="submitReplace()">
+                <i class="fas fa-save mr-1"></i> Save New File
+            </button>
+            <div id="replace-status" style="font-size:11px; color:#888; margin-top:4px; text-align:center;"></div>
+            {{-- Hidden form for submitting the replacement --}}
+            <form id="replace-form"
+                  action="{{ route('admin.training-materials.update', $trainingMaterial->id) }}"
+                  method="POST" style="display:none;">
+                @csrf
+                @method('PUT')
+                {{-- preserve required fields --}}
+                <input type="hidden" name="title"    value="{{ $trainingMaterial->title }}">
+                <input type="hidden" name="type"     value="{{ $trainingMaterial->type }}">
+                <input type="hidden" name="remove_file" value="0">
+                <input type="hidden" name="file" id="replace-file-input" value="">
+            </form>
+        </div>
+        @endcan
+
         <div class="sidebar-actions">
             @if($fileUrl)
             <a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-cosecsa w-100">
@@ -375,6 +397,11 @@ h1, h2, h3, h4, h5, h6, small, strong {
                 <i class="fas fa-external-link-alt mr-1"></i> Open in New Tab
             </a>
             @endif
+            @can('training_material_edit')
+            <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="toggleReplacePanel(true)">
+                <i class="fas fa-retweet mr-1"></i> Replace File
+            </button>
+            @endcan
             <a href="{{ route('admin.training-materials.index') }}" class="btn btn-sm btn-light w-100">
                 <i class="fas fa-arrow-left mr-1"></i> Back to Materials
             </a>
@@ -417,18 +444,27 @@ h1, h2, h3, h4, h5, h6, small, strong {
             </div>
 
         @elseif($isPptx)
-            {{-- PPTX: local Python renderer --}}
-            <div id="pptx-container">
-                <div class="pptx-loading" id="pptx-loading">
-                    <div class="spinner"></div>
-                    <div>Loading presentation&hellip;</div>
+            {{-- PPTX: Microsoft Office Online embed --}}
+            @if($officeViewerUrl)
+                <iframe class="viewer-frame"
+                        src="{{ $officeViewerUrl }}"
+                        frameborder="0"
+                        title="{{ $trainingMaterial->title }}">
+                </iframe>
+            @else
+                <div class="nofile-wrap">
+                    <div class="nofile-card">
+                        <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; margin-bottom:16px; display:block;"></i>
+                        <h5 style="font-weight:700; color:#2d2d2d;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">The file URL could not be resolved for preview.</p>
+                        @if($fileUrlEncoded)
+                        <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">
+                            <i class="fas fa-download mr-1"></i> Download File
+                        </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div id="slide-nav" style="display:none;">
-                <button id="btn-prev" onclick="slideNav(-1)" disabled>&#8592; Prev</button>
-                <span id="slide-counter">Slide 1 / 1</span>
-                <button id="btn-next" onclick="slideNav(1)">Next &#8594;</button>
-            </div>
+            @endif
 
         @elseif($trainingMaterial->type === 'video')
             {{-- Video player --}}
@@ -476,6 +512,8 @@ h1, h2, h3, h4, h5, h6, small, strong {
 @parent
 
 <script>
+Dropzone.autoDiscover = false;
+
 $(function () {
 
     // ── Fullscreen toggle ────────────────────────────────────────────────
@@ -505,87 +543,64 @@ $(function () {
         });
     }
 
-    // ── PPTX local renderer ──────────────────────────────────────────────
-    @if($isPptx)
-    var slides      = [];
-    var currentSlide = 0;
-
-    function updateNav() {
-        var total = slides.length;
-        $('#slide-counter').text('Slide ' + (currentSlide + 1) + ' / ' + total);
-        $('#btn-prev').prop('disabled', currentSlide === 0);
-        $('#btn-next').prop('disabled', currentSlide === total - 1);
-        // Show only current slide
-        $('#pptx-container .pptx-slide').hide();
-        $('#pptx-container .pptx-slide').eq(currentSlide).show();
-    }
-
-    window.slideNav = function (dir) {
-        var next = currentSlide + dir;
-        if (next >= 0 && next < slides.length) {
-            currentSlide = next;
-            updateNav();
-            // Scroll container to top on slide change
-            var $c = $('#pptx-container');
-            $c.scrollTop(0);
+    // ── Replace-file Dropzone ────────────────────────────────────────────
+    @can('training_material_edit')
+    var replaceDropzone = new Dropzone('#replace-dropzone', {
+        url: '{{ route('admin.training-materials.storeMedia') }}',
+        maxFilesize: 100,
+        maxFiles: 1,
+        addRemoveLinks: true,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        params: { size: 100 },
+        dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:20px;color:#ccc;display:block;margin-bottom:4px;"></i>Drop file or click to browse',
+        success: function (file, response) {
+            $('#replace-file-input').val(response.name);
+            $('#replace-save-btn').show();
+            $('#replace-status').text('Ready to save: ' + response.original_name).css('color', '#2d8a4e');
+        },
+        removedfile: function (file) {
+            file.previewElement.remove();
+            $('#replace-file-input').val('');
+            $('#replace-save-btn').hide();
+            $('#replace-status').text('');
+        },
+        error: function (file, msg) {
+            $('#replace-status').text('Upload error: ' + (typeof msg === 'string' ? msg : msg.message)).css('color', '#c0392b');
+        },
+        init: function () {
+            this.on('addedfile', function () {
+                if (this.files.length > 1) this.removeFile(this.files[0]);
+            });
         }
-    };
-
-    // Keyboard navigation
-    $(document).on('keydown', function (e) {
-        if (!slides.length) return;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  slideNav(1);
-        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    slideNav(-1);
     });
-
-    // Fetch slides from local Python renderer
-    fetch('{{ route('admin.training-materials.renderSlides', $trainingMaterial->id) }}')
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            var $container = $('#pptx-container');
-            $container.find('.pptx-loading').remove();
-
-            if (data.error) {
-                $container.html(
-                    '<div class="pptx-error">' +
-                    '<i class="fas fa-exclamation-triangle fa-2x" style="color:#e07b39;"></i>' +
-                    '<div style="font-size:14px;">' + data.error + '</div>' +
-                    @if($fileUrlEncoded)
-                    '<a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">' +
-                    '<i class="fas fa-download mr-1"></i> Download File</a>' +
-                    @endif
-                    '</div>'
-                );
-                return;
-            }
-
-            slides = data.slides || [];
-            if (!slides.length) {
-                $container.html('<div class="pptx-error"><div>No slides found in this presentation.</div></div>');
-                return;
-            }
-
-            // Inject all slides; wrap each in a .slide div for box-shadow
-            var html = slides.map(function (s, i) {
-                return '<div class="slide" style="' + (i > 0 ? 'display:none;' : '') + '">' + s + '</div>';
-            }).join('');
-            $container.append(html);
-
-            // Show nav bar
-            $('#slide-nav').show();
-            currentSlide = 0;
-            updateNav();
-        })
-        .catch(function (err) {
-            $('#pptx-container').html(
-                '<div class="pptx-error">' +
-                '<i class="fas fa-exclamation-triangle fa-2x" style="color:#e07b39;"></i>' +
-                '<div>Could not load slides: ' + err + '</div>' +
-                '</div>'
-            );
-        });
-    @endif
+    @endcan
 
 });
+
+// Toggle replace panel visibility
+function toggleReplacePanel(show) {
+    var $panel   = $('#replace-panel');
+    var $actions = $('.sidebar-actions');
+    if (show) {
+        $panel.slideDown(150);
+        // Scroll sidebar to show the panel
+        $panel[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        $panel.slideUp(150);
+        $('#replace-save-btn').hide();
+        $('#replace-status').text('');
+    }
+}
+
+// Submit the replacement form
+function submitReplace() {
+    var newFile = $('#replace-file-input').val();
+    if (!newFile) {
+        $('#replace-status').text('Please upload a file first.').css('color', '#c0392b');
+        return;
+    }
+    $('#replace-status').text('Saving…').css('color', '#888');
+    $('#replace-form').submit();
+}
 </script>
 @endsection

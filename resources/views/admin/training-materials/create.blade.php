@@ -80,28 +80,50 @@
 @endsection
 @section('scripts')
 @parent
+<style>
+/* Dropzone upload area */
+#file-dropzone {
+    min-height: 100px;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color .2s;
+}
+#file-dropzone:hover, #file-dropzone.dz-drag-hover { border-color: #a02626 !important; background: #fff5f5; }
+#file-dropzone .dz-message { padding: 20px; color: #aaa; font-size: 13px; }
+/* Preview item */
+#file-dropzone .dz-preview                       { margin: 8px; }
+#file-dropzone .dz-preview .dz-image             { width: 80px; height: 80px; border-radius: 6px; }
+#file-dropzone .dz-preview .dz-image img         { width: 100%; height: 100%; object-fit: cover; max-width: none; }
+#file-dropzone .dz-preview .dz-details           { opacity: 1; background: rgba(255,255,255,.85); }
+#file-dropzone .dz-preview .dz-filename span,
+#file-dropzone .dz-preview .dz-size span         { background: transparent; }
+#file-dropzone .dz-preview.dz-success .dz-success-mark { opacity: 1; }
+#file-dropzone .dz-preview.dz-error  .dz-error-mark    { opacity: 1; }
+</style>
 <script>
     Dropzone.autoDiscover = false;
     var uploadedFileMap = {};
     $(function() {
         var fileDropZone = new Dropzone('#file-dropzone', {
             url: '{{ route('admin.training-materials.storeMedia') }}',
-            maxFilesize: 50,
+            maxFilesize: 100,
             addRemoveLinks: true,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            params: { size: 50 },
+            params: { size: 100 },
+            dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:28px;color:#ccc;display:block;margin-bottom:6px;"></i>Drop file here or <strong>click to browse</strong><br><small style="color:#bbb;">PDF, Word, PowerPoint, Excel, images, video, audio, ZIP — max 100 MB</small>',
             success: function (file, response) {
-                $('form').append('<input type="hidden" name="file" value="' + response.name + '">')
-                uploadedFileMap[file.name] = response.name
+                $('form').append('<input type="hidden" name="file" value="' + response.name + '">');
+                uploadedFileMap[file.name] = response.name;
             },
             removedfile: function (file) {
-                file.previewElement.remove()
-                var name = '';
-                if (typeof file.file_name !== 'undefined') { name = file.file_name } else { name = uploadedFileMap[file.name] }
-                $('form').find('input[name="file"][value="' + name + '"]').remove()
+                file.previewElement.remove();
+                var name = typeof file.file_name !== 'undefined' ? file.file_name : uploadedFileMap[file.name];
+                $('form').find('input[name="file"][value="' + name + '"]').remove();
             },
-            init: function() { this.on('addedfile', function(file) { if (this.files.length > 1) { this.removeFile(this.files[0]) } }) }
-        })
-    })
+            init: function() { this.on('addedfile', function(file) { if (this.files.length > 1) { this.removeFile(this.files[0]); } }); }
+        });
+    });
 </script>
 @endsection
