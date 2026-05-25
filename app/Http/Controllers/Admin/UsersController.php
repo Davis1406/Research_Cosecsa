@@ -7,6 +7,7 @@ use App\Http\Requests\MassDestroyUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Role;
+use App\Trainee;
 use App\User;
 use Gate;
 use Illuminate\Http\Request;
@@ -37,6 +38,9 @@ class UsersController extends Controller
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
 
+        // Auto-create a linked Trainee record if the trainee role is assigned
+        $this->ensureTraineeProfile($user);
+
         return redirect()->route('admin.users.index');
     }
 
@@ -55,6 +59,9 @@ class UsersController extends Controller
     {
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
+
+        // Ensure a Trainee profile exists if the trainee role is (now) assigned
+        $this->ensureTraineeProfile($user->fresh());
 
         return redirect()->route('admin.users.index');
     }
@@ -82,5 +89,24 @@ class UsersController extends Controller
         User::whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Create a Trainee record linked to $user if they have the trainee role
+     * and one does not already exist.
+     */
+    protected function ensureTraineeProfile(User $user): void
+    {
+        $hasTraineeRole = $user->roles()
+            ->where('slug', 'trainee')
+            ->exists();
+
+        if ($hasTraineeRole && !$user->trainee()->exists()) {
+            Trainee::create([
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'user_id' => $user->id,
+            ]);
+        }
     }
 }
