@@ -127,6 +127,69 @@ class MaterialManagerController extends Controller
                          ->with('message', 'Material deleted.');
     }
 
+    /**
+     * Accept a temp-file upload via Dropzone (mirrors admin storeMedia).
+     */
+    public function storeMedia(Request $request)
+    {
+        $request->validate(['file' => 'required|file|max:102400']);
+
+        $dangerousExts = ['php','php3','php4','php5','phtml','exe','sh','bat','cmd','js','vbs'];
+        $ext = strtolower($request->file('file')->getClientOriginalExtension());
+        if (in_array($ext, $dangerousExts)) {
+            return response()->json(['error' => 'File type not allowed.'], 422);
+        }
+
+        $path = storage_path('tmp/uploads');
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $file = $request->file('file');
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+        $file->move($path, $name);
+
+        return response()->json(['name' => $name, 'original_name' => $file->getClientOriginalName()]);
+    }
+
+    /**
+     * Replace only the file of a material (called from the inline replace panel).
+     */
+    public function replaceFile(Request $request, TrainingMaterial $material)
+    {
+        $tmpName = $request->input('file');
+        if (!$tmpName) {
+            return back()->with('error', 'No file received.');
+        }
+
+        $tmpPath = storage_path('tmp/uploads/' . $tmpName);
+
+        if (!file_exists($tmpPath)) {
+            return back()->with('error', 'Uploaded file not found. Please try again.');
+        }
+
+        // If the material uses Spatie MediaLibrary, replace there
+        if ($material->file) {
+            $material->clearMediaCollection('file');
+            $material->addMedia($tmpPath)->toMediaCollection('file');
+            // Clear any external_url so the media file is used
+            $material->update(['external_url' => null]);
+        } else {
+            // Otherwise store in public/materials and update external_url
+            $origName = preg_replace('/^\w+_/', '', $tmpName); // strip the uniqid_ prefix
+            $subDir   = $this->subDirForType($material->type);
+            $destDir  = public_path('materials/' . $subDir);
+            if (!is_dir($destDir)) {
+                mkdir($destDir, 0755, true);
+            }
+            rename($tmpPath, $destDir . '/' . $origName);
+            $material->update(['external_url' => '/materials/' . $subDir . '/' . $origName]);
+        }
+
+        return redirect()->route('facilitator.material-manager.index')
+                         ->with('message', 'File for "' . $material->title . '" replaced successfully.');
+    }
+
     private function subDirForType(string $type): string
     {
         return match($type) {

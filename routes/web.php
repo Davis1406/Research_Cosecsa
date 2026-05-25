@@ -194,8 +194,10 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/manage/materials', 'MaterialManagerController@index')->name('material-manager.index');
     Route::get('/manage/materials/create', 'MaterialManagerController@create')->name('material-manager.create');
     Route::post('/manage/materials', 'MaterialManagerController@store')->name('material-manager.store');
+    Route::post('/manage/materials/media', 'MaterialManagerController@storeMedia')->name('material-manager.storeMedia');
     Route::get('/manage/materials/{material}/edit', 'MaterialManagerController@edit')->name('material-manager.edit');
     Route::put('/manage/materials/{material}', 'MaterialManagerController@update')->name('material-manager.update');
+    Route::post('/manage/materials/{material}/replace-file', 'MaterialManagerController@replaceFile')->name('material-manager.replaceFile');
     Route::delete('/manage/materials/{material}', 'MaterialManagerController@destroy')->name('material-manager.destroy')->middleware('role:lead-facilitator');
 
     // Lead facilitator only — timetable/schedule management
