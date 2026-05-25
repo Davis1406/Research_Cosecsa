@@ -43,6 +43,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Users
     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
+    Route::post('users/{user}/reset-password', 'UsersController@resetPassword')->name('users.resetPassword');
     Route::resource('users', 'UsersController');
 
     // Settings

@@ -92,6 +92,23 @@ class UsersController extends Controller
     }
 
     /**
+     * Reset a user's password directly from the admin panel.
+     */
+    public function resetPassword(Request $request, User $user)
+    {
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'new_password'              => ['required', 'min:6', 'confirmed'],
+            'new_password_confirmation' => ['required'],
+        ]);
+
+        $user->update(['password' => $request->new_password]);
+
+        return back()->with('success', 'Password for ' . $user->name . ' has been reset successfully.');
+    }
+
+    /**
      * Create a Trainee record linked to $user if they have the trainee role
      * and one does not already exist.
      */
