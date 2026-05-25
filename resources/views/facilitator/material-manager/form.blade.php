@@ -15,7 +15,7 @@
 </div>
 
 <form action="{{ $isEdit ? route('facilitator.material-manager.update', $material->id) : route('facilitator.material-manager.store') }}"
-      method="POST" enctype="multipart/form-data">
+      method="POST" id="fac-mat-form">
     @csrf
     @if($isEdit) @method('PUT') @endif
 
@@ -126,14 +126,19 @@
                     <div id="file-upload-wrap">
                         <div class="form-group mb-0">
                             <label class="form-label-sm">{{ $isEdit ? 'Replace file (optional)' : 'Upload file' }}</label>
-                            <input type="file" name="file" class="form-control-file" id="file-input"
-                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mov,.webm,.mp3,.wav,.ogg,.m4a">
-                            <small class="text-muted d-block mt-1" id="file-hint">
-                                Presentations: PPTX, PPT &bull; Documents: PDF, DOC &bull; Videos: MP4, MOV &bull; Audio: MP3, WAV, OGG &bull; Max 100MB.
-                            </small>
-                            <div id="file-selected" style="display:none; font-size:12px; color:#28a745; margin-top:4px;">
-                                <i class="fas fa-check-circle mr-1"></i><span></span>
+                            <div class="needsclick dropzone" id="fac-mat-dropzone"></div>
+                            {{-- progress bar --}}
+                            <div id="fac-mat-progress-wrap" style="display:none; margin-top:8px;">
+                                <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:3px;">
+                                    <span>Uploading…</span><span id="fac-mat-pct">0%</span>
+                                </div>
+                                <div style="height:5px; background:#e9ecef; border-radius:3px; overflow:hidden;">
+                                    <div id="fac-mat-bar" style="height:100%; width:0%; background:#C9A84C; border-radius:3px; transition:width .15s ease;"></div>
+                                </div>
                             </div>
+                            <div id="fac-mat-status" style="font-size:12px; color:#888; margin-top:6px;"></div>
+                            <input type="hidden" name="file" id="fac-mat-file-token" value="">
+                            <small class="text-muted d-block mt-1">Presentations: PPTX, PPT &bull; Documents: PDF, DOC &bull; Videos: MP4, MOV &bull; Audio: MP3, WAV &bull; Max 100MB.</small>
                         </div>
                     </div>
                 </div>
@@ -167,15 +172,9 @@
 
 @section('scripts')
 <script>
+Dropzone.autoDiscover = false;
+
 // ── Type icon + field visibility ──
-var typeIcons = {
-    presentation: 'fa-file-powerpoint',
-    document:     'fa-file-pdf',
-    video:        'fa-video',
-    youtube:      'fa-brands fa-youtube',
-    audio:        'fa-headphones'
-};
-// fallback for fa-brands if FA5 free
 var typeIconsFa = {
     presentation: 'fas fa-file-powerpoint',
     document:     'fas fa-file-pdf',
@@ -187,7 +186,6 @@ document.getElementById('type-select').addEventListener('change', function() {
     var val = this.value;
     var iconClass = typeIconsFa[val] || 'fas fa-file';
     document.getElementById('type-icon').innerHTML = '<i class="' + iconClass + '"></i>';
-    // Show/hide YouTube vs file
     var ytWrap   = document.getElementById('youtube-url-wrap');
     var fileWrap = document.getElementById('file-upload-wrap');
     if (val === 'youtube') {
@@ -200,13 +198,54 @@ document.getElementById('type-select').addEventListener('change', function() {
 });
 document.getElementById('type-select').dispatchEvent(new Event('change'));
 
-// ── File picker feedback ──
-document.getElementById('file-input').addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var sel = document.getElementById('file-selected');
-    sel.style.display = 'block';
-    sel.querySelector('span').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)';
+// ── Dropzone for file upload ──
+$(function() {
+    var facMatDz = new Dropzone('#fac-mat-dropzone', {
+        url: '{{ route('facilitator.material-manager.storeMedia') }}',
+        maxFilesize: 100,
+        maxFiles: 1,
+        addRemoveLinks: true,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+        dictDefaultMessage: window.DZ_DEFAULT_MSG,
+        sending: function() {
+            $('#fac-mat-progress-wrap').show();
+            $('#fac-mat-bar').css('width', '0%');
+            $('#fac-mat-pct').text('0%');
+        },
+        uploadprogress: function(file, progress) {
+            var pct = Math.round(progress) + '%';
+            $('#fac-mat-bar').css('width', pct);
+            $('#fac-mat-pct').text(pct);
+        },
+        success: function(file, response) {
+            $('#fac-mat-bar').css('width', '100%');
+            $('#fac-mat-pct').text('100%');
+            setTimeout(function(){ $('#fac-mat-progress-wrap').hide(); }, 600);
+            $('#fac-mat-file-token').val(response.name);
+            $('#fac-mat-status').text('✔ Ready: ' + response.original_name).css('color', '#2d8a4e');
+        },
+        removedfile: function(file) {
+            file.previewElement.remove();
+            $('#fac-mat-file-token').val('');
+            $('#fac-mat-status').text('');
+            $('#fac-mat-progress-wrap').hide();
+            $('#fac-mat-bar').css('width', '0%');
+        },
+        error: function(file, msg, xhr) {
+            var err = typeof msg === 'string' ? msg : (msg.error || msg.message || 'Upload failed');
+            if (xhr && xhr.status === 422) {
+                try { var p = JSON.parse(xhr.responseText); err = p.errors ? Object.values(p.errors).flat().join(' ') : (p.message || err); } catch(e){}
+            }
+            $('#fac-mat-status').text('Error: ' + err).css('color', '#c0392b');
+        },
+        init: function() {
+            this.on('addedfile', function(file) {
+                if (this.files.length > 1) this.removeFile(this.files[0]);
+                dzSetFileIcon(file);
+            });
+        }
+    });
 });
 
 // ── Category dropdown ──

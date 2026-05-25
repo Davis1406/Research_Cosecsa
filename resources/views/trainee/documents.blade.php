@@ -16,7 +16,7 @@
                         No trainee profile linked. Contact administrator.
                     </div>
                 @else
-                <form action="{{ route('trainee.documents.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('trainee.documents.store') }}" method="POST" id="doc-upload-form">
                     @csrf
                     <div class="form-group">
                         <label class="doc-label">Type <span class="text-danger">*</span></label>
@@ -35,18 +35,24 @@
                     </div>
                     <div class="form-group">
                         <label class="doc-label">File <span class="text-danger">*</span></label>
-                        <input type="file" name="file" class="form-control-file" required id="doc-file-input"
-                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx">
-                        <small class="text-muted d-block mt-1" id="file-hint">
-                            Presentations: PPTX, PPT (max 20MB). Docs: PDF, DOC, JPG, PNG (max 20MB).
-                        </small>
-                        <div id="file-selected" style="display:none; font-size:12px; color:#28a745; margin-top:4px;">
-                            <i class="fas fa-check-circle mr-1"></i><span></span>
+                        <div class="needsclick dropzone" id="doc-dropzone"></div>
+                        {{-- progress bar --}}
+                        <div id="doc-progress-wrap" style="display:none; margin-top:8px;">
+                            <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:3px;">
+                                <span>Uploading…</span><span id="doc-pct">0%</span>
+                            </div>
+                            <div style="height:5px; background:#e9ecef; border-radius:3px; overflow:hidden;">
+                                <div id="doc-bar" style="height:100%; width:0%; background:#C9A84C; border-radius:3px; transition:width .15s ease;"></div>
+                            </div>
                         </div>
+                        <div id="doc-status" style="font-size:12px; color:#888; margin-top:6px;"></div>
+                        {{-- hidden token set after upload completes --}}
+                        <input type="hidden" name="file" id="doc-file-token" value="">
                     </div>
-                    <button type="submit" class="btn btn-block" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px;">
+                    <button type="submit" id="doc-submit-btn" class="btn btn-block" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px;" disabled>
                         <i class="fas fa-cloud-upload-alt mr-2"></i> Upload
                     </button>
+                    <small class="text-muted d-block text-center mt-1">Select a file above first</small>
                 </form>
                 @endif
             </div>
@@ -203,6 +209,8 @@
 
 @section('scripts')
 <script>
+Dropzone.autoDiscover = false;
+
 // Show/hide title field based on type
 var typeSelect = document.getElementById('doc-type-select');
 var titleField = document.getElementById('title-field');
@@ -212,13 +220,58 @@ function toggleTitle() {
 typeSelect.addEventListener('change', toggleTitle);
 toggleTitle();
 
-// File input feedback
-document.getElementById('doc-file-input').addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var sel = document.getElementById('file-selected');
-    sel.style.display = 'block';
-    sel.querySelector('span').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)';
+// Dropzone
+$(function() {
+    var docDz = new Dropzone('#doc-dropzone', {
+        url: '{{ route('trainee.documents.storeMedia') }}',
+        maxFilesize: 20,
+        maxFiles: 1,
+        addRemoveLinks: true,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+        dictDefaultMessage: window.DZ_DEFAULT_MSG,
+        sending: function() {
+            $('#doc-progress-wrap').show();
+            $('#doc-bar').css('width', '0%');
+            $('#doc-pct').text('0%');
+            $('#doc-submit-btn').prop('disabled', true);
+        },
+        uploadprogress: function(file, progress) {
+            var pct = Math.round(progress) + '%';
+            $('#doc-bar').css('width', pct);
+            $('#doc-pct').text(pct);
+        },
+        success: function(file, response) {
+            $('#doc-bar').css('width', '100%');
+            $('#doc-pct').text('100%');
+            setTimeout(function(){ $('#doc-progress-wrap').hide(); }, 600);
+            $('#doc-file-token').val(response.name);
+            $('#doc-status').text('✔ Ready: ' + response.original_name).css('color', '#2d8a4e');
+            $('#doc-submit-btn').prop('disabled', false).closest('form').find('small').text('');
+        },
+        removedfile: function(file) {
+            file.previewElement.remove();
+            $('#doc-file-token').val('');
+            $('#doc-submit-btn').prop('disabled', true);
+            $('#doc-status').text('');
+            $('#doc-progress-wrap').hide();
+            $('#doc-bar').css('width', '0%');
+        },
+        error: function(file, msg, xhr) {
+            var err = typeof msg === 'string' ? msg : (msg.error || msg.message || 'Upload failed');
+            if (xhr && xhr.status === 422) {
+                try { var p = JSON.parse(xhr.responseText); err = p.errors ? Object.values(p.errors).flat().join(' ') : (p.message || err); } catch(e){}
+            }
+            $('#doc-status').text('Error: ' + err).css('color', '#c0392b');
+            $('#doc-submit-btn').prop('disabled', true);
+        },
+        init: function() {
+            this.on('addedfile', function(file) {
+                if (this.files.length > 1) this.removeFile(this.files[0]);
+                dzSetFileIcon(file);
+            });
+        }
+    });
 });
 </script>
 @endsection

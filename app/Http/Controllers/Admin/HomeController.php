@@ -12,11 +12,15 @@ class HomeController
 {
     public function index()
     {
+        // Exclude tea/lunch breaks from session counts
+        $sessionsQuery = Schedule::where('title', 'not like', '%break%')
+                                  ->where('title', 'not like', '%tea%');
+
         $stats = [
             'trainees'      => Trainee::count(),
             'facilitators'  => Speaker::count(),
             'materials'     => TrainingMaterial::count(),
-            'sessions'      => Schedule::count(),
+            'sessions'      => (clone $sessionsQuery)->count(),
             'presentations' => TrainingMaterial::where('type', 'presentation')->count(),
             'videos'        => TrainingMaterial::where('type', 'video')->count(),
             'documents'     => TrainingMaterial::where('type', 'document')->count(),
@@ -24,7 +28,8 @@ class HomeController
 
         $recentTrainees   = Trainee::latest()->take(5)->get();
         $recentMaterials  = TrainingMaterial::with('facilitator')->latest()->take(5)->get();
-        $upcomingSessions = Schedule::with('speaker')->orderBy('day_number')->orderBy('start_time')->take(5)->get();
+        $upcomingSessions = (clone $sessionsQuery)->with('speaker')
+                                ->orderBy('day_number')->orderBy('start_time')->take(5)->get();
 
         // Logins in the last 24 hours, most recent first
         $recentLogins = LoginLog::with('user')

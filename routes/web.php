@@ -180,6 +180,7 @@ Route::prefix('trainee')->name('trainee.')->namespace('Trainee')->middleware(['a
     Route::put('/profile', 'ProfileController@update')->name('profile.update');
     Route::get('/documents', 'DocumentsController@index')->name('documents.index');
     Route::post('/documents', 'DocumentsController@store')->name('documents.store');
+    Route::post('/documents/media', 'DocumentsController@storeMedia')->name('documents.storeMedia');
     Route::delete('/documents/{document}', 'DocumentsController@destroy')->name('documents.destroy');
 });
 

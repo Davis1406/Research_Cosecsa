@@ -44,17 +44,28 @@ class MaterialManagerController extends Controller
         if ($validated['type'] === 'youtube') {
             $externalUrl = $request->input('youtube_url');
         } elseif ($request->hasFile('file')) {
+            // Direct file upload fallback
             $file     = $request->file('file');
             $origName = $file->getClientOriginalName();
             $subDir   = $this->subDirForType($validated['type']);
             $destDir  = public_path('materials/' . $subDir);
-
-            if (!is_dir($destDir)) {
-                mkdir($destDir, 0755, true);
-            }
-
+            if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
             $file->move($destDir, $origName);
             $externalUrl = '/research/materials/' . $subDir . '/' . $origName;
+        } elseif ($request->input('file') && !$request->hasFile('file')) {
+            // Dropzone temp-upload token
+            $tmpName  = $request->input('file');
+            $tmpPath  = storage_path('tmp/uploads/' . $tmpName);
+            if (file_exists($tmpPath)) {
+                $ext      = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
+                $detType  = $this->typeFromExt($ext) ?? $validated['type'];
+                $subDir   = $this->subDirForType($detType);
+                $destDir  = public_path('materials/' . $subDir);
+                if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
+                rename($tmpPath, $destDir . '/' . $tmpName);
+                $externalUrl = '/research/materials/' . $subDir . '/' . $tmpName;
+                $validated['type'] = $detType;
+            }
         }
 
         TrainingMaterial::create([
@@ -94,17 +105,28 @@ class MaterialManagerController extends Controller
         if ($validated['type'] === 'youtube') {
             $externalUrl = $request->input('youtube_url') ?: $externalUrl;
         } elseif ($request->hasFile('file')) {
+            // Direct file upload fallback
             $file     = $request->file('file');
             $origName = $file->getClientOriginalName();
             $subDir   = $this->subDirForType($validated['type']);
             $destDir  = public_path('materials/' . $subDir);
-
-            if (!is_dir($destDir)) {
-                mkdir($destDir, 0755, true);
-            }
-
+            if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
             $file->move($destDir, $origName);
             $externalUrl = '/research/materials/' . $subDir . '/' . $origName;
+        } elseif ($request->input('file') && !$request->hasFile('file')) {
+            // Dropzone temp-upload token
+            $tmpName  = $request->input('file');
+            $tmpPath  = storage_path('tmp/uploads/' . $tmpName);
+            if (file_exists($tmpPath)) {
+                $ext     = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
+                $detType = $this->typeFromExt($ext) ?? $validated['type'];
+                $subDir  = $this->subDirForType($detType);
+                $destDir = public_path('materials/' . $subDir);
+                if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
+                rename($tmpPath, $destDir . '/' . $tmpName);
+                $externalUrl = '/research/materials/' . $subDir . '/' . $tmpName;
+                $validated['type'] = $detType;
+            }
         }
 
         $material->update([

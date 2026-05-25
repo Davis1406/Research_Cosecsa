@@ -175,16 +175,6 @@ Dropzone.autoDiscover = false;
 
 var facDropzones = {};
 
-// Icon map for file types
-var facIconMap = {
-    pdf:'fa-file-pdf text-danger', ppt:'fa-file-powerpoint text-warning',
-    pptx:'fa-file-powerpoint text-warning', doc:'fa-file-word text-primary',
-    docx:'fa-file-word text-primary', mp4:'fa-file-video text-info',
-    mov:'fa-file-video text-info', mp3:'fa-file-audio text-warning',
-    png:'fa-file-image text-info', jpg:'fa-file-image text-info',
-    jpeg:'fa-file-image text-info', zip:'fa-file-archive text-secondary',
-};
-
 function facOpenReplace(id) {
     $('#replace-row-' + id).show();
     // Init Dropzone lazily on first open
@@ -195,18 +185,8 @@ function facOpenReplace(id) {
             maxFiles: 1,
             addRemoveLinks: true,
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            previewTemplate: '<div class="dz-preview dz-file-preview">'
-                + '<div class="dz-image" style="width:52px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#f4f6f9;">'
-                + '<span class="dz-file-icon" style="font-size:22px;"></span>'
-                + '</div>'
-                + '<div class="dz-details"><div class="dz-size"><span data-dz-size></span></div>'
-                + '<div class="dz-filename"><span data-dz-name></span></div></div>'
-                + '<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>'
-                + '<div class="dz-success-mark"><span>✔</span></div>'
-                + '<div class="dz-error-mark"><span>✘</span></div>'
-                + '<div class="dz-error-message"><span data-dz-errormessage></span></div></div>',
-            dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:20px;color:#ccc;display:block;margin-bottom:4px;"></i>'
-                + '<span style="font-size:12px;color:#aaa;">Drop file or click to browse</span>',
+            previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+            dictDefaultMessage: window.DZ_DEFAULT_MSG,
             sending: function() {
                 $('#fac-progress-wrap-' + id).show();
                 $('#fac-bar-' + id).css('width','0%');
@@ -242,9 +222,7 @@ function facOpenReplace(id) {
             init: function() {
                 this.on('addedfile', function(file) {
                     if (this.files.length > 1) this.removeFile(this.files[0]);
-                    var ext = file.name.split('.').pop().toLowerCase();
-                    var icon = facIconMap[ext] || 'fa-file text-secondary';
-                    $(file.previewElement).find('.dz-file-icon').addClass('fas ' + icon);
+                    dzSetFileIcon(file);
                 });
             }
         });
