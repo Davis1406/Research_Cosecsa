@@ -69,15 +69,26 @@ class TrainingMaterialsController extends Controller
 
         if ($request->input('file', false)) {
             // A new file was uploaded — replace the existing one
-            if (!$trainingMaterial->file || $request->input('file') !== $trainingMaterial->file->file_name) {
+            $tmpName = $request->input('file');
+            $tmpPath = storage_path('tmp/uploads/' . $tmpName);
+
+            if (file_exists($tmpPath) &&
+                (!$trainingMaterial->file || $tmpName !== $trainingMaterial->file->file_name)) {
                 $trainingMaterial->clearMediaCollection('file');
-                $trainingMaterial->addMedia(storage_path('tmp/uploads/' . $request->input('file')))->toMediaCollection('file');
+                $trainingMaterial->addMedia($tmpPath)->toMediaCollection('file');
             }
         } elseif ($request->input('remove_file') === '1' && $trainingMaterial->file) {
             // Explicit "remove file" checkbox — only then delete
             $trainingMaterial->clearMediaCollection('file');
         }
         // Otherwise: no new file and no remove flag → keep existing file untouched
+
+        // If the save was triggered from the viewer page, go back there
+        if ($request->input('_from') === 'viewer') {
+            return redirect()
+                ->route('admin.training-materials.viewer', $trainingMaterial->id)
+                ->with('message', 'File replaced successfully.');
+        }
 
         return redirect()->route('admin.training-materials.index')->with('message', 'Material updated successfully.');
     }
@@ -191,8 +202,15 @@ class TrainingMaterialsController extends Controller
     public function storeMedia(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:102400|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,mp3,zip,txt,csv',
+            'file' => 'required|file|max:102400',
         ]);
+
+        // Block only genuinely dangerous extensions
+        $dangerousExts = ['php', 'php3', 'php4', 'php5', 'phtml', 'exe', 'sh', 'bat', 'cmd', 'js', 'vbs', 'py'];
+        $ext = strtolower($request->file('file')->getClientOriginalExtension());
+        if (in_array($ext, $dangerousExts)) {
+            return response()->json(['error' => 'File type not allowed.'], 422);
+        }
 
         $path = storage_path('tmp/uploads');
 

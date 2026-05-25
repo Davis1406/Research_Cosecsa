@@ -282,6 +282,13 @@ h1, h2, h3, h4, h5, h6, small, strong {
 
 @section('content')
 
+@if(session('message'))
+<div class="alert alert-success alert-dismissible fade show py-2 mb-2" role="alert">
+    <i class="fas fa-check-circle mr-2"></i> {{ session('message') }}
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+</div>
+@endif
+
 {{-- Breadcrumb --}}
 <div class="d-flex align-items-center mb-3" style="gap:8px; font-size:13px; color:#888;">
     <a href="{{ route('admin.training-materials.index') }}" style="color:#a02626; text-decoration:none;">
@@ -380,9 +387,10 @@ h1, h2, h3, h4, h5, h6, small, strong {
                 @csrf
                 @method('PUT')
                 {{-- preserve required fields --}}
-                <input type="hidden" name="title"    value="{{ $trainingMaterial->title }}">
-                <input type="hidden" name="type"     value="{{ $trainingMaterial->type }}">
+                <input type="hidden" name="title"      value="{{ $trainingMaterial->title }}">
+                <input type="hidden" name="type"       value="{{ $trainingMaterial->type }}">
                 <input type="hidden" name="remove_file" value="0">
+                <input type="hidden" name="_from"      value="viewer">
                 <input type="hidden" name="file" id="replace-file-input" value="">
             </form>
         </div>
@@ -564,8 +572,15 @@ $(function () {
             $('#replace-save-btn').hide();
             $('#replace-status').text('');
         },
-        error: function (file, msg) {
-            $('#replace-status').text('Upload error: ' + (typeof msg === 'string' ? msg : msg.message)).css('color', '#c0392b');
+        error: function (file, msg, xhr) {
+            var errText = typeof msg === 'string' ? msg : (msg.error || msg.message || JSON.stringify(msg));
+            if (xhr && xhr.status === 422) {
+                try {
+                    var parsed = JSON.parse(xhr.responseText);
+                    errText = parsed.errors ? Object.values(parsed.errors).flat().join(' ') : (parsed.message || errText);
+                } catch(e) {}
+            }
+            $('#replace-status').text('Upload error: ' + errText).css('color', '#c0392b');
         },
         init: function () {
             this.on('addedfile', function () {
