@@ -13,8 +13,11 @@ class DashboardController extends Controller
     public function index()
     {
         $trainee = auth()->user()->trainee;
-        $totalSessions = Schedule::count();
-        $completedSessions = Schedule::where('is_completed', true)->count();
+        $noBreaks = Schedule::where('title', 'not like', '%break%')
+                             ->where('title', 'not like', '%lunch%')
+                             ->where('title', 'not like', '%tea%');
+        $totalSessions     = (clone $noBreaks)->count();
+        $completedSessions = (clone $noBreaks)->where('is_completed', true)->count();
         $totalMaterials = TrainingMaterial::count();
         $myDocuments = $trainee ? $trainee->documents()->count() : 0;
 

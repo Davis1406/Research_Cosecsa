@@ -14,7 +14,11 @@ class DashboardController extends Controller
         $user    = auth()->user();
         $speaker = $user->speaker;
         $isLead  = $user->roles->pluck('title')->contains('Lead Facilitator');
-        $mySessions     = $speaker ? Schedule::where('speaker_id', $speaker->id)->count() : 0;
+        $mySessions     = $speaker ? Schedule::where('speaker_id', $speaker->id)
+                                              ->where('title', 'not like', '%break%')
+                                              ->where('title', 'not like', '%lunch%')
+                                              ->where('title', 'not like', '%tea%')
+                                              ->count() : 0;
         $myMaterials    = $speaker ? TrainingMaterial::where('speaker_id', $speaker->id)->count() : 0;
         $totalMaterials = TrainingMaterial::count();
         $totalTrainees  = Trainee::count();
