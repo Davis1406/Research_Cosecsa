@@ -571,19 +571,8 @@ $(function () {
         addRemoveLinks: true,
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
         params: { size: 100 },
-        previewTemplate: '<div class="dz-preview dz-file-preview">'
-            + '<div class="dz-image" style="width:60px;height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#f4f6f9;">'
-            + '<span class="dz-file-icon" style="font-size:26px;"></span>'
-            + '</div>'
-            + '<div class="dz-details"><div class="dz-size"><span data-dz-size></span></div>'
-            + '<div class="dz-filename"><span data-dz-name></span></div></div>'
-            + '<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>'
-            + '<div class="dz-success-mark"><span>✔</span></div>'
-            + '<div class="dz-error-mark"><span>✘</span></div>'
-            + '<div class="dz-error-message"><span data-dz-errormessage></span></div>'
-            + '</div>',
-        dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:22px;color:#ccc;display:block;margin-bottom:6px;"></i>'
-            + '<span style="font-size:12px;color:#aaa;">Drop file or click to browse</span>',
+        previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+        dictDefaultMessage: window.DZ_DEFAULT_MSG,
         sending: function () {
             $('#replace-progress-wrap').show();
             $('#replace-progress-bar').css('width', '0%');
@@ -622,19 +611,7 @@ $(function () {
         init: function () {
             this.on('addedfile', function (file) {
                 if (this.files.length > 1) this.removeFile(this.files[0]);
-                // Set a file-type icon based on extension
-                var ext  = file.name.split('.').pop().toLowerCase();
-                var iconMap = {
-                    pdf:'fa-file-pdf text-danger', ppt:'fa-file-powerpoint text-warning',
-                    pptx:'fa-file-powerpoint text-warning', doc:'fa-file-word text-primary',
-                    docx:'fa-file-word text-primary', xls:'fa-file-excel text-success',
-                    xlsx:'fa-file-excel text-success', mp4:'fa-file-video text-info',
-                    mov:'fa-file-video text-info', mp3:'fa-file-audio text-warning',
-                    zip:'fa-file-archive text-secondary', jpg:'fa-file-image text-info',
-                    jpeg:'fa-file-image text-info', png:'fa-file-image text-info',
-                };
-                var icon = iconMap[ext] || 'fa-file text-secondary';
-                $(file.previewElement).find('.dz-file-icon').addClass('fas ' + icon);
+                dzSetFileIcon(file);
             });
         }
     });
