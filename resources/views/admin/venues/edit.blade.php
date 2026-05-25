@@ -105,6 +105,8 @@ Dropzone.options.photosDropzone = {
     headers: {
       'X-CSRF-TOKEN': "{{ csrf_token() }}"
     },
+    previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+    dictDefaultMessage: window.DZ_DEFAULT_MSG,
     params: {
       size: 2,
       width: 4096,
@@ -126,6 +128,9 @@ Dropzone.options.photosDropzone = {
       $('form').find('input[name="photos[]"][value="' + name + '"]').remove()
     },
     init: function () {
+      this.on('addedfile', function(file) {
+          dzSetFileIcon(file);
+      });
 @if(isset($venue) && $venue->photos)
       var files =
         {!! json_encode($venue->photos) !!}

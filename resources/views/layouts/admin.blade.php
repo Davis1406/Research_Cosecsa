@@ -17,6 +17,37 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
+    <style>
+    /* ── Global Dropzone file-preview styles ───────────────────────────── */
+    .dropzone { border: 2px dashed #ccc; border-radius: 8px; background: #fafafa; cursor: pointer; transition: border-color .2s, background .2s; }
+    .dropzone:hover, .dropzone.dz-drag-hover { border-color: #a02626 !important; background: #fff5f5; }
+    .dropzone .dz-message { padding: 24px 16px; color: #aaa; font-size: 13px; }
+    /* Preview card */
+    .dropzone .dz-preview { margin: 10px; }
+    .dropzone .dz-preview .dz-image {
+        width: 80px; height: 80px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        background: #f4f6f9; overflow: hidden;
+    }
+    .dropzone .dz-preview .dz-image img { display: none; } /* hide blank img, we use icons */
+    .dropzone .dz-preview .dz-file-icon { font-size: 32px; }
+    .dropzone .dz-preview .dz-details { opacity: 1; background: rgba(255,255,255,.88); }
+    .dropzone .dz-preview .dz-filename span,
+    .dropzone .dz-preview .dz-size span { background: transparent; font-size: 11px; }
+    .dropzone .dz-preview.dz-success .dz-success-mark { opacity: 1; }
+    .dropzone .dz-preview.dz-error  .dz-error-mark   { opacity: 1; }
+    /* Linear progress bar */
+    .dropzone .dz-preview .dz-progress {
+        height: 4px; background: #e9ecef; border-radius: 2px;
+        opacity: 1 !important; top: auto; left: auto; right: auto;
+        margin: 4px 10px 0; width: calc(100% - 20px); position: relative;
+    }
+    .dropzone .dz-preview .dz-progress .dz-upload {
+        display: block; height: 100%; width: 0%;
+        background: #a02626; border-radius: 2px; transition: width .2s ease;
+    }
+    .dropzone .dz-preview.dz-complete .dz-progress { display: none; }
+    </style>
 
     <style>
         /* ── Base ── */
@@ -677,6 +708,46 @@ document.addEventListener('click', function (e) {
         if (panel) panel.style.display = 'none';
     }
 });
+</script>
+<script>
+// ── Shared Dropzone helpers (available to all admin pages) ───────────────────
+window.DZ_ICON_MAP = {
+    pdf:'fa-file-pdf text-danger',
+    ppt:'fa-file-powerpoint text-warning', pptx:'fa-file-powerpoint text-warning',
+    doc:'fa-file-word text-primary',       docx:'fa-file-word text-primary',
+    xls:'fa-file-excel text-success',      xlsx:'fa-file-excel text-success',
+    mp4:'fa-file-video text-info',         mov:'fa-file-video text-info',
+    mp3:'fa-file-audio text-warning',      wav:'fa-file-audio text-warning',
+    ogg:'fa-file-audio text-warning',      m4a:'fa-file-audio text-warning',
+    zip:'fa-file-archive text-secondary',
+    png:'fa-file-image text-info', jpg:'fa-file-image text-info',
+    jpeg:'fa-file-image text-info', gif:'fa-file-image text-info',
+    webp:'fa-file-image text-info',
+};
+
+window.DZ_PREVIEW_TEMPLATE =
+    '<div class="dz-preview dz-file-preview">' +
+      '<div class="dz-image"><span class="dz-file-icon fas fa-file text-secondary"></span></div>' +
+      '<div class="dz-details">' +
+        '<div class="dz-size"><span data-dz-size></span></div>' +
+        '<div class="dz-filename"><span data-dz-name></span></div>' +
+      '</div>' +
+      '<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
+      '<div class="dz-success-mark"><i class="fas fa-check-circle" style="color:#28a745;font-size:20px;"></i></div>' +
+      '<div class="dz-error-mark"><i class="fas fa-times-circle" style="color:#dc3545;font-size:20px;"></i></div>' +
+      '<div class="dz-error-message"><span data-dz-errormessage></span></div>' +
+    '</div>';
+
+window.DZ_DEFAULT_MSG =
+    '<i class="fas fa-cloud-upload-alt" style="font-size:32px;color:#ccc;display:block;margin-bottom:8px;"></i>' +
+    'Drop file here or <strong>click to browse</strong><br>' +
+    '<small style="color:#bbb;">PDF, Word, PowerPoint, Excel, images, video, audio, ZIP — max 100 MB</small>';
+
+function dzSetFileIcon(file) {
+    var ext  = (file.name || '').split('.').pop().toLowerCase();
+    var icon = window.DZ_ICON_MAP[ext] || 'fa-file text-secondary';
+    $(file.previewElement).find('.dz-file-icon').removeClass().addClass('dz-file-icon fas ' + icon);
+}
 </script>
 @yield('scripts')
 </body>

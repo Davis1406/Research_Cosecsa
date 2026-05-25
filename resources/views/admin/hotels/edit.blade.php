@@ -93,6 +93,8 @@
     headers: {
       'X-CSRF-TOKEN': "{{ csrf_token() }}"
     },
+    previewTemplate: window.DZ_PREVIEW_TEMPLATE,
+    dictDefaultMessage: window.DZ_DEFAULT_MSG,
     params: {
       size: 2,
       width: 4096,
@@ -110,6 +112,10 @@
       }
     },
     init: function () {
+      this.on('addedfile', function(file) {
+          if (this.files.length > 1) this.removeFile(this.files[0]);
+          dzSetFileIcon(file);
+      });
 @if(isset($hotel) && $hotel->photo)
       var file = {!! json_encode($hotel->photo) !!}
           this.options.addedfile.call(this, file)
