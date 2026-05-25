@@ -135,7 +135,7 @@ h1, h2, h3, h4, h5, h6, small, strong {
 .viewer-topbar-title { font-size: 13px; font-weight: 600; color: #2d2d2d; }
 .viewer-body {
     flex: 1;
-    overflow: auto;
+    overflow: hidden;   /* inner containers handle their own scroll */
     display: flex;
     flex-direction: column;
 }
@@ -284,18 +284,9 @@ h1, h2, h3, h4, h5, h6, small, strong {
     }
 
     // Detect actual file type by extension (overrides the stored 'type' column for display)
-    $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
-    $isPptx      = in_array($fileExt, ['pptx', 'ppt']) || $trainingMaterial->type === 'presentation';
-    $isPdf       = $fileExt === 'pdf' || ($trainingMaterial->type === 'document' && !$isPptx);
-
-    // Office Online embed URL for PPTX (works regardless of stored 'type' column)
-    $officeViewerUrl = null;
-    if ($isPptx && $fileUrl) {
-        $absoluteUrl = str_starts_with($fileUrl, 'http')
-            ? $fileUrl
-            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
-        $officeViewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteUrl);
-    }
+    $fileExt = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
+    $isPptx  = in_array($fileExt, ['pptx', 'ppt']) || $trainingMaterial->type === 'presentation';
+    $isPdf   = $fileExt === 'pdf' || ($trainingMaterial->type === 'document' && !$isPptx);
 @endphp
 
 @section('content')
@@ -426,27 +417,18 @@ h1, h2, h3, h4, h5, h6, small, strong {
             </div>
 
         @elseif($isPptx)
-            {{-- PPTX: Microsoft Office Online embed (full theme fidelity) --}}
-            @if($officeViewerUrl)
-                <iframe class="viewer-frame"
-                        src="{{ $officeViewerUrl }}"
-                        frameborder="0"
-                        title="{{ $trainingMaterial->title }}">
-                </iframe>
-            @else
-                <div class="nofile-wrap">
-                    <div class="nofile-card">
-                        <i class="fas fa-file-powerpoint" style="font-size:48px; color:#ddd; margin-bottom:16px; display:block;"></i>
-                        <h5 style="font-weight:700; color:#2d2d2d;">Preview unavailable</h5>
-                        <p style="color:#888; font-size:13px;">The file URL could not be resolved for preview.</p>
-                        @if($fileUrlEncoded)
-                        <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">
-                            <i class="fas fa-download mr-1"></i> Download File
-                        </a>
-                        @endif
-                    </div>
+            {{-- PPTX: local Python renderer --}}
+            <div id="pptx-container">
+                <div class="pptx-loading" id="pptx-loading">
+                    <div class="spinner"></div>
+                    <div>Loading presentation&hellip;</div>
                 </div>
-            @endif
+            </div>
+            <div id="slide-nav" style="display:none;">
+                <button id="btn-prev" onclick="slideNav(-1)" disabled>&#8592; Prev</button>
+                <span id="slide-counter">Slide 1 / 1</span>
+                <button id="btn-next" onclick="slideNav(1)">Next &#8594;</button>
+            </div>
 
         @elseif($trainingMaterial->type === 'video')
             {{-- Video player --}}
@@ -494,36 +476,116 @@ h1, h2, h3, h4, h5, h6, small, strong {
 @parent
 
 <script>
-// Fullscreen toggle — expands the viewer-main panel using the Fullscreen API
 $(function () {
-    var $btn = $('#btn-fullscreen');
-    if (!$btn.length) return;
 
+    // ── Fullscreen toggle ────────────────────────────────────────────────
+    var $btn    = $('#btn-fullscreen');
     var $target = $('.viewer-main')[0];
 
-    function enterFS() {
-        if ($target.requestFullscreen)           $target.requestFullscreen();
-        else if ($target.webkitRequestFullscreen) $target.webkitRequestFullscreen();
-        else if ($target.mozRequestFullScreen)    $target.mozRequestFullScreen();
-    }
-    function exitFS() {
-        if (document.exitFullscreen)             document.exitFullscreen();
-        else if (document.webkitExitFullscreen)  document.webkitExitFullscreen();
-        else if (document.mozCancelFullScreen)   document.mozCancelFullScreen();
+    if ($btn.length) {
+        function enterFS() {
+            if ($target.requestFullscreen)            $target.requestFullscreen();
+            else if ($target.webkitRequestFullscreen) $target.webkitRequestFullscreen();
+            else if ($target.mozRequestFullScreen)    $target.mozRequestFullScreen();
+        }
+        function exitFS() {
+            if (document.exitFullscreen)            document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if (document.mozCancelFullScreen)  document.mozCancelFullScreen();
+        }
+        $btn.on('click', function () {
+            var isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+            if (isFS) exitFS(); else enterFS();
+        });
+        $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange', function () {
+            var isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+            $btn.html(isFS
+                ? '<i class="fas fa-compress-alt mr-1"></i> Exit full screen'
+                : '<i class="fas fa-expand-alt mr-1"></i> Full screen');
+        });
     }
 
-    $btn.on('click', function () {
-        var isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
-        if (isFS) exitFS(); else enterFS();
+    // ── PPTX local renderer ──────────────────────────────────────────────
+    @if($isPptx)
+    var slides      = [];
+    var currentSlide = 0;
+
+    function updateNav() {
+        var total = slides.length;
+        $('#slide-counter').text('Slide ' + (currentSlide + 1) + ' / ' + total);
+        $('#btn-prev').prop('disabled', currentSlide === 0);
+        $('#btn-next').prop('disabled', currentSlide === total - 1);
+        // Show only current slide
+        $('#pptx-container .pptx-slide').hide();
+        $('#pptx-container .pptx-slide').eq(currentSlide).show();
+    }
+
+    window.slideNav = function (dir) {
+        var next = currentSlide + dir;
+        if (next >= 0 && next < slides.length) {
+            currentSlide = next;
+            updateNav();
+            // Scroll container to top on slide change
+            var $c = $('#pptx-container');
+            $c.scrollTop(0);
+        }
+    };
+
+    // Keyboard navigation
+    $(document).on('keydown', function (e) {
+        if (!slides.length) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  slideNav(1);
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    slideNav(-1);
     });
 
-    // Swap icon when entering/leaving fullscreen
-    $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange', function () {
-        var isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
-        $btn.html(isFS
-            ? '<i class="fas fa-compress-alt mr-1"></i> Exit full screen'
-            : '<i class="fas fa-expand-alt mr-1"></i> Full screen');
-    });
+    // Fetch slides from local Python renderer
+    fetch('{{ route('admin.training-materials.renderSlides', $trainingMaterial->id) }}')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            var $container = $('#pptx-container');
+            $container.find('.pptx-loading').remove();
+
+            if (data.error) {
+                $container.html(
+                    '<div class="pptx-error">' +
+                    '<i class="fas fa-exclamation-triangle fa-2x" style="color:#e07b39;"></i>' +
+                    '<div style="font-size:14px;">' + data.error + '</div>' +
+                    @if($fileUrlEncoded)
+                    '<a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">' +
+                    '<i class="fas fa-download mr-1"></i> Download File</a>' +
+                    @endif
+                    '</div>'
+                );
+                return;
+            }
+
+            slides = data.slides || [];
+            if (!slides.length) {
+                $container.html('<div class="pptx-error"><div>No slides found in this presentation.</div></div>');
+                return;
+            }
+
+            // Inject all slides; wrap each in a .slide div for box-shadow
+            var html = slides.map(function (s, i) {
+                return '<div class="slide" style="' + (i > 0 ? 'display:none;' : '') + '">' + s + '</div>';
+            }).join('');
+            $container.append(html);
+
+            // Show nav bar
+            $('#slide-nav').show();
+            currentSlide = 0;
+            updateNav();
+        })
+        .catch(function (err) {
+            $('#pptx-container').html(
+                '<div class="pptx-error">' +
+                '<i class="fas fa-exclamation-triangle fa-2x" style="color:#e07b39;"></i>' +
+                '<div>Could not load slides: ' + err + '</div>' +
+                '</div>'
+            );
+        });
+    @endif
+
 });
 </script>
 @endsection
