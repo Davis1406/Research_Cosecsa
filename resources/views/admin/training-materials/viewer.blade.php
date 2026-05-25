@@ -269,8 +269,19 @@ h1, h2, h3, h4, h5, h6, small, strong {
 @endsection
 
 @php
-    // URL-encode the file path for use in src/href attributes (handle spaces in filenames)
-    $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
+    // URL-encode the file path for use in src/href attributes (handle spaces in filenames).
+    // For absolute URLs (Spatie MediaLibrary) only encode the path portion — never touch the scheme/host.
+    // For relative paths, encode each segment.
+    $fileUrlEncoded = null;
+    if ($fileUrl) {
+        if (str_starts_with($fileUrl, 'http')) {
+            $p = parse_url($fileUrl);
+            $encodedPath = implode('/', array_map('rawurlencode', explode('/', $p['path'] ?? '')));
+            $fileUrlEncoded = ($p['scheme'] ?? 'https') . '://' . ($p['host'] ?? '') . $encodedPath;
+        } else {
+            $fileUrlEncoded = implode('/', array_map('rawurlencode', explode('/', $fileUrl)));
+        }
+    }
 
     // Detect actual file type by extension (overrides the stored 'type' column for display)
     $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';

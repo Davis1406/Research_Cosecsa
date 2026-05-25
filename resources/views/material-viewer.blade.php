@@ -236,7 +236,17 @@
 <body>
 
 @php
-    $fileUrlEncoded = $fileUrl ? implode('/', array_map('rawurlencode', explode('/', $fileUrl))) : null;
+    if ($fileUrl) {
+        if (str_starts_with($fileUrl, 'http')) {
+            $p = parse_url($fileUrl);
+            $encodedPath = implode('/', array_map('rawurlencode', explode('/', $p['path'] ?? '')));
+            $fileUrlEncoded = ($p['scheme'] ?? 'https') . '://' . ($p['host'] ?? '') . $encodedPath;
+        } else {
+            $fileUrlEncoded = implode('/', array_map('rawurlencode', explode('/', $fileUrl)));
+        }
+    } else {
+        $fileUrlEncoded = null;
+    }
     $backUrl = url()->previous();
 
     // Detect by extension so PPTX stored as type='document' still gets Office Online
