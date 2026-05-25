@@ -31,6 +31,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\ForcePasswordChange::class,
+            \App\Http\Middleware\RecordLoginActivity::class,
         ],
     ];
 
