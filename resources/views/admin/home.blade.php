@@ -71,6 +71,70 @@
     </div>
 </div>
 
+{{-- Today's Visitors --}}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between" style="border-bottom:2px solid #2d6fa8;">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-sign-in-alt mr-1" style="color:#2d6fa8;"></i>
+                    Today's Visitors
+                    <span class="badge ml-2" style="background:#2d6fa8; color:#fff; font-size:11px; border-radius:10px; padding:3px 8px;">
+                        {{ $recentLogins->count() }} login{{ $recentLogins->count() === 1 ? '' : 's' }} in last 24 h
+                    </span>
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                @if($recentLogins->isEmpty())
+                    <p class="text-center text-muted p-3 mb-0">No logins recorded in the last 24 hours.</p>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead style="background:#f4f6f9;">
+                                <tr>
+                                    <th style="width:36px;"></th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>IP Address</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentLogins as $log)
+                                @php
+                                    $roles = $log->user?->roles->pluck('title')->implode(', ') ?? '—';
+                                    $roleSlug = strtolower($log->user?->roles->first()?->title ?? '');
+                                    $dotColor = match(true) {
+                                        str_contains($roleSlug, 'admin')            => '#a02626',
+                                        str_contains($roleSlug, 'lead')             => '#2c7a4b',
+                                        str_contains($roleSlug, 'facilitator')      => '#C9A84C',
+                                        str_contains($roleSlug, 'trainee')          => '#2d6fa8',
+                                        default                                     => '#adb5bd',
+                                    };
+                                @endphp
+                                <tr>
+                                    <td class="text-center">
+                                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:{{ $dotColor }};"></span>
+                                    </td>
+                                    <td class="font-weight-bold">{{ $log->user?->name ?? '(deleted)' }}</td>
+                                    <td><small class="text-muted">{{ $roles }}</small></td>
+                                    <td><small class="text-muted font-monospace">{{ $log->ip_address ?? '—' }}</small></td>
+                                    <td>
+                                        <small class="text-muted" title="{{ $log->logged_in_at->format('Y-m-d H:i:s') }}">
+                                            {{ $log->logged_in_at->diffForHumans() }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Recent Activity Row --}}
 <div class="row">
     {{-- Recent Trainees --}}

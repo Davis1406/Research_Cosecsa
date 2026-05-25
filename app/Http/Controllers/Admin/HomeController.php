@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\LoginLog;
 use App\Schedule;
 use App\Speaker;
 use App\Trainee;
@@ -25,6 +26,12 @@ class HomeController
         $recentMaterials  = TrainingMaterial::with('facilitator')->latest()->take(5)->get();
         $upcomingSessions = Schedule::with('speaker')->orderBy('day_number')->orderBy('start_time')->take(5)->get();
 
-        return view('admin.home', compact('stats', 'recentTrainees', 'recentMaterials', 'upcomingSessions'));
+        // Logins in the last 24 hours, most recent first
+        $recentLogins = LoginLog::with('user')
+            ->where('logged_in_at', '>=', now()->subDay())
+            ->orderByDesc('logged_in_at')
+            ->get();
+
+        return view('admin.home', compact('stats', 'recentTrainees', 'recentMaterials', 'upcomingSessions', 'recentLogins'));
     }
 }
