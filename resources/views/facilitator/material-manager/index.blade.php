@@ -56,9 +56,18 @@
             </thead>
             <tbody>
                 @foreach($grouped[$type] as $mat)
-                <tr>
+                @php $canEdit = $editableIds->contains($mat->id); @endphp
+                <tr style="{{ $canEdit ? '' : 'opacity:.72;' }}">
                     <td style="vertical-align:middle; padding:10px 16px;">
-                        <div style="font-weight:600; font-size:13.5px; color:#2d3748;">{{ $mat->title }}</div>
+                        <div style="font-weight:600; font-size:13.5px; color:#2d3748; display:flex; align-items:center; gap:6px;">
+                            {{ $mat->title }}
+                            @if(!$canEdit)
+                                <span title="You are not the assigned facilitator for this material's sessions"
+                                      style="font-size:10px; color:#aaa; font-weight:400; display:inline-flex; align-items:center; gap:3px;">
+                                    <i class="fas fa-lock" style="font-size:9px;"></i> view only
+                                </span>
+                            @endif
+                        </div>
                         @if($mat->description)
                             <div style="font-size:11.5px; color:#888; margin-top:1px;">{{ Str::limit($mat->description, 60) }}</div>
                         @endif
@@ -82,28 +91,35 @@
                         @endif
                     </td>
                     <td style="vertical-align:middle; text-align:right; padding-right:16px;">
-                        <button type="button" class="btn btn-sm btn-replace-toggle"
-                                data-id="{{ $mat->id }}"
-                                style="background:#fff8e1; color:#856404; border:1px solid #ffe082; font-size:12px; margin-right:4px;"
-                                title="Replace file">
-                            <i class="fas fa-retweet"></i>
-                        </button>
-                        <a href="{{ route('facilitator.material-manager.edit', $mat->id) }}"
-                           class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:12px; margin-right:4px;">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        @if(auth()->user()->roles->pluck('title')->contains('Lead Facilitator'))
-                        <form action="{{ route('facilitator.material-manager.destroy', $mat->id) }}" method="POST" style="display:inline;"
-                              onsubmit="return confirm('Delete \'{{ addslashes($mat->title) }}\'?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm" style="background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; font-size:12px;">
-                                <i class="fas fa-trash"></i>
+                        @if($canEdit)
+                            <button type="button" class="btn btn-sm btn-replace-toggle"
+                                    data-id="{{ $mat->id }}"
+                                    style="background:#fff8e1; color:#856404; border:1px solid #ffe082; font-size:12px; margin-right:4px;"
+                                    title="Replace file">
+                                <i class="fas fa-retweet"></i>
                             </button>
-                        </form>
+                            <a href="{{ route('facilitator.material-manager.edit', $mat->id) }}"
+                               class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:12px; margin-right:4px;">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @if(auth()->user()->roles->pluck('title')->contains('Lead Facilitator'))
+                            <form action="{{ route('facilitator.material-manager.destroy', $mat->id) }}" method="POST" style="display:inline;"
+                                  onsubmit="return confirm('Delete \'{{ addslashes($mat->title) }}\'?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-sm" style="background:#fff5f5; color:#e53e3e; border:1px solid #fed7d7; font-size:12px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            @endif
+                        @else
+                            <span title="Not assigned to your sessions" style="font-size:11px; color:#ccc; padding:0 8px;">
+                                <i class="fas fa-lock"></i>
+                            </span>
                         @endif
                     </td>
                 </tr>
-                {{-- Replace-file panel row --}}
+                {{-- Replace-file panel row (only renders for editable materials) --}}
+                @if($canEdit)
                 <tr id="replace-row-{{ $mat->id }}" style="display:none; background:#fffdf5;">
                     <td colspan="5" style="padding:14px 20px; border-top:2px dashed #ffe082;">
                         <div style="font-size:12px; font-weight:700; color:#856404; margin-bottom:10px; text-transform:uppercase; letter-spacing:.4px;">
@@ -142,6 +158,7 @@
                         </div>
                     </td>
                 </tr>
+                @endif
                 @endforeach
             </tbody>
         </table>

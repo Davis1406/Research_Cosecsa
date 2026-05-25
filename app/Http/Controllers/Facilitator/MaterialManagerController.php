@@ -3,17 +3,77 @@
 namespace App\Http\Controllers\Facilitator;
 
 use App\Http\Controllers\Controller;
+use App\Schedule;
 use App\TrainingMaterial;
 use App\Speaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MaterialManagerController extends Controller
 {
+    // ── Authorization helpers ─────────────────────────────────────────────
+
+    /** The Speaker record for the currently logged-in facilitator (or null). */
+    private function mySpeaker(): ?Speaker
+    {
+        return auth()->user()->speaker;
+    }
+
+    /** True if the current user is a Lead Facilitator (can edit everything). */
+    private function isLead(): bool
+    {
+        return auth()->user()->roles->pluck('title')
+            ->map(fn($t) => strtolower($t))
+            ->contains('lead facilitator');
+    }
+
+    /**
+     * Returns the IDs of materials this facilitator is allowed to edit:
+     * – materials whose speaker_id matches their own Speaker
+     * – materials linked (via pivot) to a schedule where they are the speaker
+     */
+    private function editableMaterialIds(): \Illuminate\Support\Collection
+    {
+        if ($this->isLead()) {
+            return TrainingMaterial::pluck('id');
+        }
+
+        $speaker = $this->mySpeaker();
+        if (!$speaker) {
+            return collect();
+        }
+
+        // Materials directly assigned to this speaker
+        $directIds = TrainingMaterial::where('speaker_id', $speaker->id)->pluck('id');
+
+        // Materials linked to any session where this speaker presents
+        $sessionIds = Schedule::where('speaker_id', $speaker->id)->pluck('id');
+        $pivotIds   = \DB::table('schedule_training_material')
+                         ->whereIn('schedule_id', $sessionIds)
+                         ->pluck('training_material_id');
+
+        return $directIds->merge($pivotIds)->unique()->values();
+    }
+
+    /** 403 if the current facilitator cannot edit this material. */
+    private function authorizeEdit(TrainingMaterial $material): void
+    {
+        if ($this->isLead()) {
+            return;
+        }
+        if (!$this->editableMaterialIds()->contains($material->id)) {
+            abort(403, 'You can only edit materials assigned to your sessions.');
+        }
+    }
+
+    // ── Controller actions ────────────────────────────────────────────────
+
     public function index()
     {
-        $materials = TrainingMaterial::with('facilitator')
-            ->latest()->get();
-        return view('facilitator.material-manager.index', compact('materials'));
+        $materials   = TrainingMaterial::with(['facilitator', 'schedules'])->latest()->get();
+        $editableIds = $this->editableMaterialIds();
+
+        return view('facilitator.material-manager.index', compact('materials', 'editableIds'));
     }
 
     public function create()
@@ -83,6 +143,8 @@ class MaterialManagerController extends Controller
 
     public function edit(TrainingMaterial $material)
     {
+        $this->authorizeEdit($material);
+
         $speakers   = Speaker::orderBy('name')->get();
         $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
         return view('facilitator.material-manager.form', compact('material', 'speakers', 'categories'));
@@ -90,6 +152,7 @@ class MaterialManagerController extends Controller
 
     public function update(Request $request, TrainingMaterial $material)
     {
+        $this->authorizeEdit($material);
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
             'type'         => 'required|in:document,presentation,video,youtube,audio',
@@ -144,6 +207,7 @@ class MaterialManagerController extends Controller
 
     public function destroy(TrainingMaterial $material)
     {
+        $this->authorizeEdit($material);
         $material->delete();
         return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'Material deleted.');
@@ -179,6 +243,8 @@ class MaterialManagerController extends Controller
      */
     public function replaceFile(Request $request, TrainingMaterial $material)
     {
+        $this->authorizeEdit($material);
+
         $tmpName = $request->input('file');
         if (!$tmpName) {
             return back()->with('error', 'No file received.');
