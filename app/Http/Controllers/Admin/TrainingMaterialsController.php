@@ -76,6 +76,13 @@ class TrainingMaterialsController extends Controller
                 (!$trainingMaterial->file || $tmpName !== $trainingMaterial->file->file_name)) {
                 $trainingMaterial->clearMediaCollection('file');
                 $trainingMaterial->addMedia($tmpPath)->toMediaCollection('file');
+
+                // Auto-update material type based on the new file's extension
+                $ext = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
+                $detectedType = $this->typeFromExt($ext);
+                if ($detectedType && $detectedType !== $trainingMaterial->type) {
+                    $trainingMaterial->update(['type' => $detectedType]);
+                }
             }
         } elseif ($request->input('remove_file') === '1' && $trainingMaterial->file) {
             // Explicit "remove file" checkbox — only then delete
@@ -91,6 +98,19 @@ class TrainingMaterialsController extends Controller
         }
 
         return redirect()->route('admin.training-materials.index')->with('message', 'Material updated successfully.');
+    }
+
+    /** Map a file extension to a material type slug. */
+    private function typeFromExt(string $ext): ?string
+    {
+        return match(true) {
+            in_array($ext, ['ppt','pptx'])                        => 'presentation',
+            in_array($ext, ['pdf','doc','docx','xls','xlsx','txt','csv','zip']) => 'document',
+            in_array($ext, ['mp4','mov','webm','avi'])            => 'video',
+            in_array($ext, ['mp3','wav','ogg','m4a'])             => 'audio',
+            in_array($ext, ['jpg','jpeg','png','gif','webp'])     => 'image',
+            default                                               => null,
+        };
     }
 
     public function show(TrainingMaterial $trainingMaterial)

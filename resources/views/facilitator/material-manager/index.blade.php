@@ -113,6 +113,15 @@
                              id="fac-dz-{{ $mat->id }}"
                              style="min-height:80px; border:2px dashed #ccc; border-radius:6px; background:#fff; cursor:pointer; margin-bottom:8px;">
                         </div>
+                        {{-- Linear upload progress --}}
+                        <div id="fac-progress-wrap-{{ $mat->id }}" style="display:none; margin-bottom:8px;">
+                            <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:3px;">
+                                <span>Uploading…</span><span id="fac-pct-{{ $mat->id }}">0%</span>
+                            </div>
+                            <div style="height:5px; background:#e9ecef; border-radius:3px; overflow:hidden;">
+                                <div id="fac-bar-{{ $mat->id }}" style="height:100%; width:0%; background:#C9A84C; border-radius:3px; transition:width .15s ease;"></div>
+                            </div>
+                        </div>
                         <div id="fac-status-{{ $mat->id }}" style="font-size:12px; color:#888; margin-bottom:8px;"></div>
                         <form id="fac-replace-form-{{ $mat->id }}"
                               action="{{ route('facilitator.material-manager.replaceFile', $mat->id) }}"
@@ -198,7 +207,20 @@ function facOpenReplace(id) {
                 + '<div class="dz-error-message"><span data-dz-errormessage></span></div></div>',
             dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:20px;color:#ccc;display:block;margin-bottom:4px;"></i>'
                 + '<span style="font-size:12px;color:#aaa;">Drop file or click to browse</span>',
+            sending: function() {
+                $('#fac-progress-wrap-' + id).show();
+                $('#fac-bar-' + id).css('width','0%');
+                $('#fac-pct-' + id).text('0%');
+            },
+            uploadprogress: function(file, progress) {
+                var pct = Math.round(progress) + '%';
+                $('#fac-bar-' + id).css('width', pct);
+                $('#fac-pct-' + id).text(pct);
+            },
             success: function(file, response) {
+                $('#fac-bar-' + id).css('width','100%');
+                $('#fac-pct-' + id).text('100%');
+                setTimeout(function(){ $('#fac-progress-wrap-' + id).hide(); }, 600);
                 $('#fac-file-' + id).val(response.name);
                 $('#fac-save-' + id).show();
                 $('#fac-status-' + id).text('✔ Ready: ' + response.original_name).css('color','#2d8a4e');
@@ -208,6 +230,7 @@ function facOpenReplace(id) {
                 $('#fac-file-' + id).val('');
                 $('#fac-save-' + id).hide();
                 $('#fac-status-' + id).text('');
+                $('#fac-progress-wrap-' + id).hide();
             },
             error: function(file, msg, xhr) {
                 var err = typeof msg === 'string' ? msg : (msg.error || msg.message || 'Upload failed');
@@ -233,6 +256,8 @@ function facCloseReplace(id) {
     $('#fac-status-' + id).text('');
     $('#fac-save-' + id).hide();
     $('#fac-file-' + id).val('');
+    $('#fac-progress-wrap-' + id).hide();
+    $('#fac-bar-' + id).css('width','0%');
     if (facDropzones[id]) {
         facDropzones[id].removeAllFiles(true);
     }

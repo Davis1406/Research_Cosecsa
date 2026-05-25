@@ -377,6 +377,15 @@ h1, h2, h3, h4, h5, h6, small, strong {
                 </button>
             </div>
             <div class="needsclick dropzone" id="replace-dropzone"></div>
+            {{-- Linear upload progress --}}
+            <div id="replace-progress-wrap" style="display:none; margin-top:8px;">
+                <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:3px;">
+                    <span>Uploading…</span><span id="replace-pct">0%</span>
+                </div>
+                <div style="height:5px; background:#e9ecef; border-radius:3px; overflow:hidden;">
+                    <div id="replace-progress-bar" style="height:100%; width:0%; background:#a02626; border-radius:3px; transition:width .15s ease;"></div>
+                </div>
+            </div>
             <button id="replace-save-btn" class="btn btn-cosecsa btn-sm w-100 mt-2"
                     onclick="submitReplace()">
                 <i class="fas fa-save mr-1"></i> Save New File
@@ -575,7 +584,20 @@ $(function () {
             + '</div>',
         dictDefaultMessage: '<i class="fas fa-cloud-upload-alt" style="font-size:22px;color:#ccc;display:block;margin-bottom:6px;"></i>'
             + '<span style="font-size:12px;color:#aaa;">Drop file or click to browse</span>',
+        sending: function () {
+            $('#replace-progress-wrap').show();
+            $('#replace-progress-bar').css('width', '0%');
+            $('#replace-pct').text('0%');
+        },
+        uploadprogress: function (file, progress) {
+            var pct = Math.round(progress) + '%';
+            $('#replace-progress-bar').css('width', pct);
+            $('#replace-pct').text(pct);
+        },
         success: function (file, response) {
+            $('#replace-progress-bar').css('width', '100%');
+            $('#replace-pct').text('100%');
+            setTimeout(function(){ $('#replace-progress-wrap').hide(); }, 600);
             $('#replace-file-input').val(response.name);
             $('#replace-save-btn').show();
             $('#replace-status').text('✔ Ready: ' + response.original_name).css('color', '#2d8a4e');
@@ -585,6 +607,7 @@ $(function () {
             $('#replace-file-input').val('');
             $('#replace-save-btn').hide();
             $('#replace-status').text('');
+            $('#replace-progress-wrap').hide();
         },
         error: function (file, msg, xhr) {
             var errText = typeof msg === 'string' ? msg : (msg.error || msg.message || JSON.stringify(msg));

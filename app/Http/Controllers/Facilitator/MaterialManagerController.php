@@ -168,26 +168,50 @@ class MaterialManagerController extends Controller
             return back()->with('error', 'Uploaded file not found. Please try again.');
         }
 
+        // Auto-detect material type from the new file's extension
+        $ext          = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
+        $detectedType = $this->typeFromExt($ext);
+        $updates      = [];
+        if ($detectedType && $detectedType !== $material->type) {
+            $updates['type'] = $detectedType;
+        }
+
         // If the material uses Spatie MediaLibrary, replace there
         if ($material->file) {
             $material->clearMediaCollection('file');
             $material->addMedia($tmpPath)->toMediaCollection('file');
-            // Clear any external_url so the media file is used
-            $material->update(['external_url' => null]);
+            $updates['external_url'] = null; // ensure media file is used
         } else {
-            // Otherwise store in public/materials and update external_url
-            $origName = preg_replace('/^\w+_/', '', $tmpName); // strip the uniqid_ prefix
-            $subDir   = $this->subDirForType($material->type);
+            // Store in public/materials and update external_url
+            $origName = preg_replace('/^\w+_/', '', $tmpName);
+            $subDir   = $this->subDirForType($detectedType ?? $material->type);
             $destDir  = public_path('materials/' . $subDir);
             if (!is_dir($destDir)) {
                 mkdir($destDir, 0755, true);
             }
             rename($tmpPath, $destDir . '/' . $origName);
-            $material->update(['external_url' => '/materials/' . $subDir . '/' . $origName]);
+            $updates['external_url'] = '/materials/' . $subDir . '/' . $origName;
+        }
+
+        if ($updates) {
+            $material->update($updates);
         }
 
         return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'File for "' . $material->title . '" replaced successfully.');
+    }
+
+    /** Map a file extension to a material type slug. */
+    private function typeFromExt(string $ext): ?string
+    {
+        return match(true) {
+            in_array($ext, ['ppt','pptx'])                        => 'presentation',
+            in_array($ext, ['pdf','doc','docx','xls','xlsx','txt','csv','zip']) => 'document',
+            in_array($ext, ['mp4','mov','webm','avi'])            => 'video',
+            in_array($ext, ['mp3','wav','ogg','m4a'])             => 'audio',
+            in_array($ext, ['jpg','jpeg','png','gif','webp'])     => 'image',
+            default                                               => null,
+        };
     }
 
     private function subDirForType(string $type): string
