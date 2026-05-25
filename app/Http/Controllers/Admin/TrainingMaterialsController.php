@@ -77,12 +77,13 @@ class TrainingMaterialsController extends Controller
                 $trainingMaterial->clearMediaCollection('file');
                 $trainingMaterial->addMedia($tmpPath)->toMediaCollection('file');
 
-                // Auto-update material type based on the new file's extension
-                $ext = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
+                // Auto-update type and clear external_url so the new media file is used
+                $ext          = strtolower(pathinfo($tmpName, PATHINFO_EXTENSION));
                 $detectedType = $this->typeFromExt($ext);
-                if ($detectedType && $detectedType !== $trainingMaterial->type) {
-                    $trainingMaterial->update(['type' => $detectedType]);
-                }
+                $trainingMaterial->update([
+                    'external_url' => null,
+                    'type'         => $detectedType ?? $trainingMaterial->type,
+                ]);
             }
         } elseif ($request->input('remove_file') === '1' && $trainingMaterial->file) {
             // Explicit "remove file" checkbox — only then delete
@@ -192,12 +193,14 @@ class TrainingMaterialsController extends Controller
 
         $trainingMaterial->load(['facilitator', 'schedules.speaker']);
 
-        // Build the file URL to serve; strip any local dev /research/ prefix
+        // Build the file URL to serve.
+        // Spatie media file takes priority — external_url is only a fallback
+        // for materials that were uploaded before the media library was used.
         $fileUrl = null;
-        if ($trainingMaterial->external_url) {
-            $fileUrl = preg_replace('#^/research/#', '/', $trainingMaterial->external_url);
-        } elseif ($trainingMaterial->file) {
+        if ($trainingMaterial->file) {
             $fileUrl = $trainingMaterial->file->url;
+        } elseif ($trainingMaterial->external_url) {
+            $fileUrl = preg_replace('#^/research/#', '/', $trainingMaterial->external_url);
         }
 
         return view('admin.training-materials.viewer', compact('trainingMaterial', 'fileUrl'));
