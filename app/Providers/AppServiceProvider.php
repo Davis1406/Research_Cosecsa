@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\TrainingMaterial;
+use App\TraineeDocument;
 use App\TraineeDocumentComment;
 use App\Message;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +62,21 @@ class AppServiceProvider extends ServiceProvider
                                    : route('facilitator.presentations.view', $c->trainee_document_id),
                 ]);
 
-            $notifItems = $materials->merge($comments)
+            $uploads = TraineeDocument::with('trainee')->latest()->take(10)->get()->map(fn($doc) => [
+                'key'   => 'upload_' . $doc->id,
+                'type'  => 'upload',
+                'title' => ($doc->trainee?->name ?? 'A trainee') . ' uploaded a document',
+                'sub'   => trim(($doc->document_type ? ucfirst($doc->document_type) : '') . ($doc->title ? ' · ' . $doc->title : '')),
+                'time'  => $doc->created_at,
+                'icon'  => 'fa-file-upload',
+                'color' => '#2d6fa8',
+                'new'   => $isNew('upload_' . $doc->id, $doc->created_at),
+                'url'   => $isAdmin
+                               ? route('admin.presentations.view', $doc->id)
+                               : route('facilitator.presentations.view', $doc->id),
+            ]);
+
+            $notifItems = $materials->merge($comments)->merge($uploads)
                 ->sortByDesc('time')
                 ->take(15)
                 ->values();
