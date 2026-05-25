@@ -40,7 +40,13 @@ class TrainingMaterialsController extends Controller
         $trainingMaterial = TrainingMaterial::create($request->all());
 
         if ($request->input('file', false)) {
-            $trainingMaterial->addMedia(storage_path('tmp/uploads/' . $request->input('file')))->toMediaCollection('file');
+            try {
+                $trainingMaterial->addMedia(storage_path('tmp/uploads/' . $request->input('file')))
+                    ->toMediaCollection('file');
+            } catch (\Exception $e) {
+                $trainingMaterial->delete();
+                return back()->withInput()->with('error', 'File could not be saved: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('admin.training-materials.index')->with('message', 'Material uploaded successfully.');
