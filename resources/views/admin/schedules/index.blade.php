@@ -96,8 +96,10 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
     $firstSession    = $sessions->first();
     $date            = $firstSession->date;
     $dateFormatted   = \Carbon\Carbon::parse($date)->format('l, F j, Y');
-    $total           = $sessions->count();
-    $done            = $sessions->where('is_completed', true)->count();
+    // Exclude breaks/tea from the progress count
+    $realSessions    = $sessions->filter(fn($s) => !preg_match('/break|lunch|tea/i', $s->title));
+    $total           = $realSessions->count();
+    $done            = $realSessions->where('is_completed', true)->count();
     $pct             = $total > 0 ? round(($done/$total)*100) : 0;
     $allDone         = $done === $total && $total > 0;
     $collapseId      = 'day-collapse-' . $dayNumber;
