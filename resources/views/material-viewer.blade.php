@@ -286,15 +286,31 @@
     $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
     $isPptx      = in_array($fileExt, ['pptx', 'ppt']) || $material->type === 'presentation';
 
+    // Spreadsheet (Excel) — Office Online embed (same service as PPTX)
+    $isXlsx = in_array($fileExt, ['xls', 'xlsx']) || $material->type === 'spreadsheet';
+    $officeViewerUrlXlsx = null;
+    if ($isXlsx && $fileUrl && !$isPptx) {
+        $absoluteXlsxUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrlXlsx = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteXlsxUrl);
+    }
+
     // Stata files
     $isStataScript = $fileExt === 'do';   // plain-text Stata .do script
     $isStataData   = $fileExt === 'dta';  // binary Stata data file
     $stataCode     = null;
-    if ($isStataScript && $fileUrl && !str_starts_with($fileUrl, 'http')) {
-        // Strip the leading /research/ (or any single path prefix) to get the public-relative path
-        $relative = ltrim(preg_replace('#^/[^/]+/#', '', $fileUrl), '/');
-        $localPath = public_path($relative);
-        if (file_exists($localPath) && filesize($localPath) < 500000) {
+    if ($isStataScript && $fileUrl) {
+        if (str_starts_with($fileUrl, 'http')) {
+            // Spatie MediaLibrary URL — extract path and decode URL encoding
+            $p         = parse_url($fileUrl);
+            $decoded   = rawurldecode($p['path'] ?? '');
+            $localPath = public_path(ltrim($decoded, '/'));
+        } else {
+            $relative  = ltrim(preg_replace('#^/[^/]+/#', '', $fileUrl), '/');
+            $localPath = public_path($relative);
+        }
+        if (!empty($localPath) && file_exists($localPath) && filesize($localPath) < 500000) {
             $stataCode = file_get_contents($localPath);
         }
     }
@@ -454,6 +470,19 @@
                     </div></div>
                 @endif
 
+            @elseif($isXlsx)
+                {{-- Excel / Spreadsheet — Microsoft Office Online embed --}}
+                @if($officeViewerUrlXlsx)
+                    <iframe class="viewer-frame" src="{{ $officeViewerUrlXlsx }}" frameborder="0" title="{{ $material->title }}"></iframe>
+                @else
+                    <div class="nofile-wrap"><div class="nofile-card">
+                        <i class="fas fa-file-excel" style="font-size:48px; color:#1d6f42; display:block; margin-bottom:16px;"></i>
+                        <h5 style="font-weight:700; color:#2d3748;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">Could not build an Office Online preview URL.</p>
+                        @if($fileUrlEncoded)<a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold mt-2"><i class="fas fa-download mr-1"></i> Download</a>@endif
+                    </div></div>
+                @endif
+
             @elseif($material->type === 'document')
                 {{-- Loading overlay shown until iframe fires onload --}}
                 <div class="pdf-loading-overlay" id="pdf-overlay">
@@ -562,6 +591,23 @@
                         @if($fileUrlEncoded)
                         <a href="{{ $fileUrlEncoded }}" download class="btn btn-gold">
                             <i class="fas fa-download mr-2"></i>Download .dta File
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+            @else
+                {{-- Fallback: any other file type — offer download --}}
+                <div class="nofile-wrap">
+                    <div class="nofile-card">
+                        <i class="fas fa-file-download" style="font-size:48px; color:#C9A84C; display:block; margin-bottom:16px;"></i>
+                        <h5 style="font-weight:700; color:#2d3748;">{{ $material->title }}</h5>
+                        <p style="color:#888; font-size:13px; margin-bottom:20px;">
+                            This file type cannot be previewed in the browser.
+                        </p>
+                        @if($fileUrlEncoded)
+                        <a href="{{ $fileUrlEncoded }}" download class="btn btn-gold">
+                            <i class="fas fa-download mr-2"></i>Download File
                         </a>
                         @endif
                     </div>

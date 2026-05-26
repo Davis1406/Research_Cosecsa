@@ -301,14 +301,30 @@ h1, h2, h3, h4, h5, h6, small, strong {
     $isPdf   = $fileExt === 'pdf'
                || ($trainingMaterial->type === 'document' && !$isPptx && !in_array($fileExt, ['mp4','mov','mp3']));
 
+    // Spreadsheet (Excel) — Office Online embed
+    $isXlsx = in_array($fileExt, ['xls', 'xlsx']) || $trainingMaterial->type === 'spreadsheet';
+    $officeViewerUrlXlsx = null;
+    if ($isXlsx && $fileUrl && !$isPptx) {
+        $absoluteXlsxUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrlXlsx = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteXlsxUrl);
+    }
+
     // Stata files
     $isStataScript = $fileExt === 'do';
     $isStataData   = $fileExt === 'dta';
     $stataCode     = null;
-    if ($isStataScript && $fileUrl && !str_starts_with($fileUrl, 'http')) {
-        $relative  = ltrim(preg_replace('#^/[^/]+/#', '', $fileUrl), '/');
-        $localPath = public_path($relative);
-        if (file_exists($localPath) && filesize($localPath) < 500000) {
+    if ($isStataScript && $fileUrl) {
+        if (str_starts_with($fileUrl, 'http')) {
+            $p         = parse_url($fileUrl);
+            $decoded   = rawurldecode($p['path'] ?? '');
+            $localPath = public_path(ltrim($decoded, '/'));
+        } else {
+            $relative  = ltrim(preg_replace('#^/[^/]+/#', '', $fileUrl), '/');
+            $localPath = public_path($relative);
+        }
+        if (!empty($localPath) && file_exists($localPath) && filesize($localPath) < 500000) {
             $stataCode = file_get_contents($localPath);
         }
     }
@@ -541,6 +557,21 @@ h1, h2, h3, h4, h5, h6, small, strong {
                     </p>
                 </video>
             </div>
+
+        @elseif($isXlsx)
+            {{-- Excel / Spreadsheet — Microsoft Office Online embed --}}
+            @if($officeViewerUrlXlsx)
+                <iframe class="viewer-frame" src="{{ $officeViewerUrlXlsx }}" frameborder="0" title="{{ $trainingMaterial->title }}"></iframe>
+            @else
+                <div class="nofile-wrap">
+                    <div class="nofile-card">
+                        <i class="fas fa-file-excel" style="font-size:48px; color:#1d6f42; display:block; margin-bottom:16px;"></i>
+                        <h5 style="font-weight:700; color:#2d2d2d;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">Could not build an Office Online preview URL.</p>
+                        @if($fileUrlEncoded)<a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2"><i class="fas fa-download mr-1"></i> Download</a>@endif
+                    </div>
+                </div>
+            @endif
 
         @elseif($isPdf)
             {{-- PDF: browser native iframe --}}
