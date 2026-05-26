@@ -41,10 +41,16 @@
                                 <span class="badge badge-primary"><i class="fas fa-file-powerpoint mr-1"></i> Presentation</span>
                             @elseif($material->type === 'video')
                                 <span class="badge badge-danger"><i class="fas fa-video mr-1"></i> Video</span>
+                            @elseif($material->type === 'audio')
+                                <span class="badge badge-secondary"><i class="fas fa-headphones mr-1"></i> Audio</span>
                             @elseif($material->type === 'document')
                                 <span class="badge badge-info"><i class="fas fa-file-pdf mr-1"></i> Document</span>
+                            @elseif($material->type === 'spreadsheet')
+                                <span class="badge badge-success"><i class="fas fa-file-excel mr-1"></i> Spreadsheet</span>
                             @elseif($material->type === 'image')
                                 <span class="badge badge-warning"><i class="fas fa-image mr-1"></i> Image</span>
+                            @elseif($material->type === 'stata')
+                                <span class="badge badge-dark"><i class="fas fa-database mr-1"></i> Stata</span>
                             @else
                                 {{ $material->type }}
                             @endif

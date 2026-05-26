@@ -27,8 +27,11 @@
                     <option value="">{{ trans('global.pleaseSelect') }}</option>
                     <option value="document" {{ old('type') == 'document' ? 'selected' : '' }}>Document / PDF</option>
                     <option value="presentation" {{ old('type') == 'presentation' ? 'selected' : '' }}>Presentation (PPT/Slides)</option>
+                    <option value="spreadsheet" {{ old('type') == 'spreadsheet' ? 'selected' : '' }}>Spreadsheet (Excel / CSV)</option>
                     <option value="video" {{ old('type') == 'video' ? 'selected' : '' }}>Video</option>
+                    <option value="audio" {{ old('type') == 'audio' ? 'selected' : '' }}>Audio</option>
                     <option value="image" {{ old('type') == 'image' ? 'selected' : '' }}>Image / Diagram</option>
+                    <option value="stata" {{ old('type') == 'stata' ? 'selected' : '' }}>Stata File (.do / .dta)</option>
                 </select>
                 @if($errors->has('type'))
                     <div class="invalid-feedback">{{ $errors->first('type') }}</div>

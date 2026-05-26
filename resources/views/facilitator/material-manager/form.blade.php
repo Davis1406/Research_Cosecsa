@@ -43,6 +43,7 @@
                                 'video'        => 'Video (MP4 / MOV)',
                                 'audio'        => 'Audio (MP3 / WAV)',
                                 'image'        => 'Image / Diagram',
+                                'stata'        => 'Stata File (.do / .dta)',
                                 'youtube'      => 'YouTube / External Link',
                             ];
                         @endphp
@@ -140,7 +141,7 @@
                     <div id="fac-mat-status" style="font-size:12px; color:#888; margin-top:6px;"></div>
                     <input type="hidden" name="file" id="fac-mat-file-token" value="">
                     <small class="text-muted d-block mt-1">
-                        PPT/PPTX &bull; PDF &bull; DOC/DOCX &bull; XLS/XLSX &bull; CSV &bull; MP4/MOV &bull; MP3/WAV &bull; JPG/PNG &bull; ZIP &mdash; max 100 MB
+                        PPT/PPTX &bull; PDF &bull; DOC/DOCX &bull; XLS/XLSX &bull; CSV &bull; MP4/MOV &bull; MP3/WAV &bull; JPG/PNG &bull; ZIP &bull; Stata .do/.dta &mdash; max 100 MB
                     </small>
                 </div>
             </div>

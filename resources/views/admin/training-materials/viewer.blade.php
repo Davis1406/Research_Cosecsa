@@ -220,6 +220,35 @@ h1, h2, h3, h4, h5, h6, small, strong {
     box-shadow: 0 8px 32px rgba(0,0,0,.4);
 }
 
+/* Stata code viewer */
+.stata-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #1e1e2e;
+}
+.stata-toolbar {
+    background: #2d2d3e;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #44445a;
+}
+.stata-toolbar span { color: #aaa; font-size: 12px; }
+.stata-code-wrap { flex: 1; overflow: auto; padding: 20px 24px; }
+.stata-code {
+    margin: 0;
+    color: #cdd6f4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre;
+    tab-size: 4;
+}
+
 /* No-file card */
 .nofile-wrap {
     flex: 1;
@@ -272,6 +301,18 @@ h1, h2, h3, h4, h5, h6, small, strong {
     $isPdf   = $fileExt === 'pdf'
                || ($trainingMaterial->type === 'document' && !$isPptx && !in_array($fileExt, ['mp4','mov','mp3']));
 
+    // Stata files
+    $isStataScript = $fileExt === 'do';
+    $isStataData   = $fileExt === 'dta';
+    $stataCode     = null;
+    if ($isStataScript && $fileUrl && !str_starts_with($fileUrl, 'http')) {
+        $relative  = ltrim(preg_replace('#^/[^/]+/#', '', $fileUrl), '/');
+        $localPath = public_path($relative);
+        if (file_exists($localPath) && filesize($localPath) < 500000) {
+            $stataCode = file_get_contents($localPath);
+        }
+    }
+
     // Office Online embed URL for PPTX
     $officeViewerUrl = null;
     if ($isPptx && $fileUrl) {
@@ -310,6 +351,8 @@ h1, h2, h3, h4, h5, h6, small, strong {
                     <i class="fas fa-video"></i> Video
                 @elseif($trainingMaterial->type === 'presentation')
                     <i class="fas fa-file-powerpoint"></i> Presentation
+                @elseif($trainingMaterial->type === 'stata')
+                    <i class="fas fa-database"></i> Stata
                 @else
                     <i class="fas fa-file-pdf"></i> Document
                 @endif
@@ -505,6 +548,49 @@ h1, h2, h3, h4, h5, h6, small, strong {
                 src="{{ $fileUrlEncoded }}#toolbar=1&view=FitH"
                 title="{{ $trainingMaterial->title }}">
             </iframe>
+
+        @elseif($isStataScript)
+            {{-- .do file: plain-text Stata script --}}
+            <div class="stata-wrap">
+                <div class="stata-toolbar">
+                    <i class="fas fa-file-code" style="color:#7c8cf8; font-size:14px;"></i>
+                    <span>{{ basename($fileUrl) }}</span>
+                    <span style="margin-left:auto; background:#3a3a55; border-radius:4px; padding:2px 10px; color:#9ca3d4; font-size:11px; font-weight:700;">Stata Script (.do)</span>
+                </div>
+                <div class="stata-code-wrap">
+                    @if($stataCode !== null)
+                        <pre class="stata-code">{{ $stataCode }}</pre>
+                    @else
+                        <div style="text-align:center; padding:60px 20px;">
+                            <i class="fas fa-file-code" style="font-size:48px; color:#44445a; display:block; margin-bottom:16px;"></i>
+                            <p style="color:#6b6b8a; font-size:13px;">Could not load file content for preview.</p>
+                            @if($fileUrlEncoded)
+                            <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm mt-2">
+                                <i class="fas fa-download mr-1"></i> Download .do File
+                            </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+        @elseif($isStataData)
+            {{-- .dta file: binary Stata data file --}}
+            <div class="nofile-wrap">
+                <div class="nofile-card">
+                    <i class="fas fa-database" style="font-size:52px; color:#5a6678; display:block; margin-bottom:16px;"></i>
+                    <h5 style="font-weight:700; color:#2d2d2d;">Stata Data File (.dta)</h5>
+                    <p style="color:#888; font-size:13px; margin-bottom:20px;">
+                        Binary Stata datasets cannot be previewed in the browser.<br>
+                        Open this file in Stata, or use R / Python (<code>haven</code> package).
+                    </p>
+                    @if($fileUrlEncoded)
+                    <a href="{{ $fileUrlEncoded }}" download class="btn btn-cosecsa btn-sm">
+                        <i class="fas fa-download mr-2"></i>Download .dta File
+                    </a>
+                    @endif
+                </div>
+            </div>
 
         @else
             {{-- Other file type: download prompt --}}

@@ -91,7 +91,7 @@ class MaterialManagerController extends Controller
     {
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube',
+            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube,stata',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -155,7 +155,7 @@ class MaterialManagerController extends Controller
         $this->authorizeEdit($material);
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube',
+            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube,stata',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -298,6 +298,7 @@ class MaterialManagerController extends Controller
             in_array($ext, ['mp4','mov','webm','avi'])       => 'video',
             in_array($ext, ['mp3','wav','ogg','m4a'])        => 'audio',
             in_array($ext, ['jpg','jpeg','png','gif','webp'])=> 'image',
+            in_array($ext, ['dta','do'])                     => 'stata',
             default                                          => null,
         };
     }
@@ -310,6 +311,7 @@ class MaterialManagerController extends Controller
             'presentation' => 'presentations',
             'image'        => 'images',
             'spreadsheet'  => 'spreadsheets',
+            'stata'        => 'stata',
             default        => 'documents',
         };
     }

@@ -106,10 +106,12 @@ class TrainingMaterialsController extends Controller
     {
         return match(true) {
             in_array($ext, ['ppt','pptx'])                        => 'presentation',
-            in_array($ext, ['pdf','doc','docx','xls','xlsx','txt','csv','zip']) => 'document',
+            in_array($ext, ['xls','xlsx','csv'])                  => 'spreadsheet',
+            in_array($ext, ['pdf','doc','docx','txt','zip'])      => 'document',
             in_array($ext, ['mp4','mov','webm','avi'])            => 'video',
             in_array($ext, ['mp3','wav','ogg','m4a'])             => 'audio',
             in_array($ext, ['jpg','jpeg','png','gif','webp'])     => 'image',
+            in_array($ext, ['dta','do'])                          => 'stata',
             default                                               => null,
         };
     }

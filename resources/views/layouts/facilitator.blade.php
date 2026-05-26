@@ -439,6 +439,8 @@ window.DZ_ICON_MAP = {
     zip:'fa-file-archive text-secondary',
     png:'fa-file-image text-info', jpg:'fa-file-image text-info',
     jpeg:'fa-file-image text-info', gif:'fa-file-image text-info', webp:'fa-file-image text-info',
+    dta:'fa-database text-secondary',
+    do:'fa-file-code text-secondary',
 };
 window.DZ_PREVIEW_TEMPLATE =
     '<div class="dz-preview dz-file-preview">' +
@@ -455,7 +457,7 @@ window.DZ_PREVIEW_TEMPLATE =
 window.DZ_DEFAULT_MSG =
     '<i class="fas fa-cloud-upload-alt" style="font-size:32px;color:#ccc;display:block;margin-bottom:8px;"></i>' +
     'Drop file here or <strong>click to browse</strong><br>' +
-    '<small style="color:#bbb;">PDF, Word, PowerPoint, Excel, images, video, audio — max 100 MB</small>';
+    '<small style="color:#bbb;">PDF, Word, PowerPoint, Excel, images, video, audio, Stata (.do/.dta) — max 100 MB</small>';
 function dzSetFileIcon(file) {
     var ext  = (file.name || '').split('.').pop().toLowerCase();
     var icon = window.DZ_ICON_MAP[ext] || 'fa-file text-secondary';

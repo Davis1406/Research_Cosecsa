@@ -27,8 +27,11 @@
                 <select class="form-control {{ $errors->has('type') ? 'is-invalid' : '' }}" name="type" id="type" required>
                     <option value="document"     {{ old('type', $trainingMaterial->type) == 'document'     ? 'selected' : '' }}>Document / PDF</option>
                     <option value="presentation" {{ old('type', $trainingMaterial->type) == 'presentation' ? 'selected' : '' }}>Presentation (PPT/Slides)</option>
+                    <option value="spreadsheet"  {{ old('type', $trainingMaterial->type) == 'spreadsheet'  ? 'selected' : '' }}>Spreadsheet (Excel / CSV)</option>
                     <option value="video"        {{ old('type', $trainingMaterial->type) == 'video'        ? 'selected' : '' }}>Video</option>
+                    <option value="audio"        {{ old('type', $trainingMaterial->type) == 'audio'        ? 'selected' : '' }}>Audio</option>
                     <option value="image"        {{ old('type', $trainingMaterial->type) == 'image'        ? 'selected' : '' }}>Image / Diagram</option>
+                    <option value="stata"        {{ old('type', $trainingMaterial->type) == 'stata'        ? 'selected' : '' }}>Stata File (.do / .dta)</option>
                 </select>
             </div>
 

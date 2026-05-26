@@ -261,6 +261,8 @@ window.DZ_ICON_MAP = {
     zip:'fa-file-archive text-secondary',
     png:'fa-file-image text-info', jpg:'fa-file-image text-info',
     jpeg:'fa-file-image text-info', gif:'fa-file-image text-info',
+    dta:'fa-database text-secondary',
+    do:'fa-file-code text-secondary',
 };
 window.DZ_PREVIEW_TEMPLATE =
     '<div class="dz-preview dz-file-preview">' +

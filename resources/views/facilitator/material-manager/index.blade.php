@@ -35,6 +35,7 @@
         'video'        => 'Videos',
         'audio'        => 'Audio',
         'image'        => 'Images',
+        'stata'        => 'Stata Files',
         'youtube'      => 'External Links',
     ];
     $typeIcons  = [
@@ -44,6 +45,7 @@
         'video'        => 'fa-video',
         'audio'        => 'fa-headphones',
         'image'        => 'fa-image',
+        'stata'        => 'fa-database',
         'youtube'      => 'fa-link',
     ];
     $typeColors = [
@@ -53,6 +55,7 @@
         'video'        => '#0d6efd',
         'audio'        => '#7952b3',
         'image'        => '#0dcaf0',
+        'stata'        => '#5a6678',
         'youtube'      => '#888',
     ];
 @endphp
