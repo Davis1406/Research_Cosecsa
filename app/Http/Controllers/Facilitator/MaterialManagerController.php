@@ -91,7 +91,7 @@ class MaterialManagerController extends Controller
     {
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'type'         => 'required|in:document,presentation,video,youtube,audio',
+            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -155,7 +155,7 @@ class MaterialManagerController extends Controller
         $this->authorizeEdit($material);
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'type'         => 'required|in:document,presentation,video,youtube,audio',
+            'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -292,12 +292,13 @@ class MaterialManagerController extends Controller
     private function typeFromExt(string $ext): ?string
     {
         return match(true) {
-            in_array($ext, ['ppt','pptx'])                        => 'presentation',
-            in_array($ext, ['pdf','doc','docx','xls','xlsx','txt','csv','zip']) => 'document',
-            in_array($ext, ['mp4','mov','webm','avi'])            => 'video',
-            in_array($ext, ['mp3','wav','ogg','m4a'])             => 'audio',
-            in_array($ext, ['jpg','jpeg','png','gif','webp'])     => 'image',
-            default                                               => null,
+            in_array($ext, ['ppt','pptx'])                   => 'presentation',
+            in_array($ext, ['xls','xlsx','csv'])             => 'spreadsheet',
+            in_array($ext, ['pdf','doc','docx','txt','zip']) => 'document',
+            in_array($ext, ['mp4','mov','webm','avi'])       => 'video',
+            in_array($ext, ['mp3','wav','ogg','m4a'])        => 'audio',
+            in_array($ext, ['jpg','jpeg','png','gif','webp'])=> 'image',
+            default                                          => null,
         };
     }
 
@@ -306,8 +307,9 @@ class MaterialManagerController extends Controller
         return match($type) {
             'video'        => 'videos',
             'audio'        => 'audio',
-            'document'     => 'documents',
             'presentation' => 'presentations',
+            'image'        => 'images',
+            'spreadsheet'  => 'spreadsheets',
             default        => 'documents',
         };
     }

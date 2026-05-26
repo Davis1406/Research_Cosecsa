@@ -28,12 +28,36 @@
 
 @php
     $grouped = $materials->groupBy('type');
-    $typeLabels = ['presentation'=>'Presentations','document'=>'Documents','video'=>'Videos'];
-    $typeIcons  = ['presentation'=>'fa-file-powerpoint','document'=>'fa-file-pdf','video'=>'fa-video'];
-    $typeColors = ['presentation'=>'#C9A84C','document'=>'#e53e3e','video'=>'#0d6efd'];
+    $typeLabels = [
+        'presentation' => 'Presentations',
+        'document'     => 'Documents',
+        'spreadsheet'  => 'Spreadsheets',
+        'video'        => 'Videos',
+        'audio'        => 'Audio',
+        'image'        => 'Images',
+        'youtube'      => 'External Links',
+    ];
+    $typeIcons  = [
+        'presentation' => 'fa-file-powerpoint',
+        'document'     => 'fa-file-pdf',
+        'spreadsheet'  => 'fa-file-excel',
+        'video'        => 'fa-video',
+        'audio'        => 'fa-headphones',
+        'image'        => 'fa-image',
+        'youtube'      => 'fa-link',
+    ];
+    $typeColors = [
+        'presentation' => '#C9A84C',
+        'document'     => '#e53e3e',
+        'spreadsheet'  => '#1d6f42',
+        'video'        => '#0d6efd',
+        'audio'        => '#7952b3',
+        'image'        => '#0dcaf0',
+        'youtube'      => '#888',
+    ];
 @endphp
 
-@foreach(['presentation','document','video'] as $type)
+@foreach(array_keys($typeLabels) as $type)
 @if($grouped->has($type))
 <div class="card shadow-sm mb-4" style="border-radius:10px; overflow:hidden;">
     <div class="card-header d-flex align-items-center" style="background:#f8f9fa; border-bottom:2px solid {{ $typeColors[$type] }}; padding:12px 20px;">
