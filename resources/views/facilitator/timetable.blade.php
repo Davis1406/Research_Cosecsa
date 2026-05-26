@@ -25,25 +25,56 @@
 @if($days->isEmpty())
     <div class="alert alert-info">No sessions have been scheduled yet.</div>
 @else
+@php
+    $today        = \Carbon\Carbon::today();
+    $activeDayNum = null;
+
+    foreach ($days as $dn => $sess) {
+        $d = $sess->first()->date ?? null;
+        if ($d && \Carbon\Carbon::parse($d)->startOfDay()->eq($today)) {
+            $activeDayNum = $dn; break;
+        }
+    }
+    if ($activeDayNum === null) {
+        foreach ($days as $dn => $sess) {
+            $d = $sess->first()->date ?? null;
+            if ($d && \Carbon\Carbon::parse($d)->startOfDay()->gt($today)) {
+                $activeDayNum = $dn; break;
+            }
+        }
+    }
+    if ($activeDayNum === null) {
+        $activeDayNum = $days->keys()->last();
+    }
+@endphp
     @foreach($days as $dayNumber => $sessions)
-    @php $isFirst = $loop->first; $collapseId = 'day-'.$dayNumber; @endphp
-    <div class="day-card card shadow-sm mb-3" style="border-radius:8px; overflow:hidden; border:1px solid #e9ecef;">
+    @php
+        $isOpen     = ($dayNumber == $activeDayNum);
+        $collapseId = 'day-'.$dayNumber;
+        $dayDate    = $sessions->first()->date ?? null;
+        $isToday    = $dayDate && \Carbon\Carbon::parse($dayDate)->startOfDay()->eq($today);
+        $isPast     = $dayDate && \Carbon\Carbon::parse($dayDate)->startOfDay()->lt($today);
+    @endphp
+    <div class="day-card card shadow-sm mb-3" style="border-radius:8px; overflow:hidden; border:1px solid {{ $isToday ? '#C9A84C' : ($isPast ? '#e0e0e0' : '#e9ecef') }};">
         <div class="card-header d-flex align-items-center"
              data-toggle="collapse" data-target="#{{ $collapseId }}"
-             aria-expanded="{{ $isFirst ? 'true' : 'false' }}"
-             style="cursor:pointer; background:#fff; padding:14px 20px; border-bottom:2px solid #C9A84C;">
+             aria-expanded="{{ $isOpen ? 'true' : 'false' }}"
+             style="cursor:pointer; background:{{ $isPast ? '#f8f9fa' : '#fff' }}; padding:14px 20px; border-bottom:2px solid {{ $isToday ? '#C9A84C' : ($isPast ? '#e0e0e0' : '#e9ecef') }}; opacity:{{ $isPast ? '0.78' : '1' }};">
             <span style="background:#C9A84C; color:#fff; font-weight:700; font-size:0.85rem; border-radius:4px; padding:2px 10px; margin-right:12px;">
                 Day {{ $dayNumber }}
             </span>
-            @if($sessions->first()->date ?? false)
-                <span style="font-size:0.9rem; color:#555;">{{ \Carbon\Carbon::parse($sessions->first()->date)->format('l, j F Y') }}</span>
+            @if($isToday)
+                <span style="background:#fff8e1; border:1px solid #C9A84C; color:#856404; font-size:10px; font-weight:700; border-radius:10px; padding:1px 8px; margin-right:8px;">TODAY</span>
+            @endif
+            @if($dayDate)
+                <span style="font-size:0.9rem; color:{{ $isPast ? '#aaa' : '#555' }};">{{ \Carbon\Carbon::parse($dayDate)->format('l, j F Y') }}</span>
             @endif
             <span class="ml-auto d-flex align-items-center" style="gap:10px;">
                 <span class="day-count" style="font-size:0.8rem; color:#999;">{{ $sessions->count() }} session{{ $sessions->count()!==1?'s':'' }}</span>
-                <i class="fas fa-chevron-down day-chevron" style="color:#C9A84C; transition:transform 0.2s; {{ $isFirst ? 'transform:rotate(180deg);' : '' }}"></i>
+                <i class="fas fa-chevron-down day-chevron" style="color:#C9A84C; transition:transform 0.2s; {{ $isOpen ? 'transform:rotate(180deg);' : '' }}"></i>
             </span>
         </div>
-        <div id="{{ $collapseId }}" class="collapse {{ $isFirst ? 'show' : '' }}">
+        <div id="{{ $collapseId }}" class="collapse {{ $isOpen ? 'show' : '' }}">
             @foreach($sessions as $idx => $session)
             @php $sessId = 'sess-'.$dayNumber.'-'.$idx; @endphp
             <div class="session-row border-bottom"
