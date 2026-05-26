@@ -129,17 +129,60 @@
                     </div>
                 @else
                     @foreach($document->comments as $comment)
+                    @php $isMine = $comment->user_id === auth()->id(); @endphp
                     <div style="padding:14px 16px; {{ !$loop->last ? 'border-bottom:1px solid #f0f0f0;' : '' }}">
-                        <div class="d-flex align-items-center mb-1" style="gap:8px;">
-                            <div style="width:28px;height:28px;border-radius:50%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">
-                                {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <div class="d-flex align-items-center" style="gap:8px;">
+                                <div style="width:28px;height:28px;border-radius:50%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">
+                                    {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <div style="font-size:12px; font-weight:700; color:#2d3748;">{{ $comment->user->name }}</div>
+                                    <div style="font-size:10px; color:#aaa;">
+                                        {{ $comment->created_at->format('M j, Y \a\t H:i') }}
+                                        @if($comment->updated_at->gt($comment->created_at->addMinute()))
+                                            <span style="font-style:italic;">(edited)</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <div style="font-size:12px; font-weight:700; color:#2d3748;">{{ $comment->user->name }}</div>
-                                <div style="font-size:10px; color:#aaa;">{{ $comment->created_at->format('M j, Y \a\t H:i') }}</div>
-                            </div>
+                            @if($isMine)
+                            <button type="button"
+                                    onclick="toggleEditComment({{ $comment->id }})"
+                                    style="background:none;border:none;padding:2px 6px;cursor:pointer;color:#aaa;font-size:11px;"
+                                    title="Edit comment">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            @endif
                         </div>
-                        <div style="font-size:13px; color:#333; line-height:1.55; padding-left:36px;">{{ $comment->comment }}</div>
+
+                        {{-- Read view --}}
+                        <div id="comment-text-{{ $comment->id }}" style="font-size:13px; color:#333; line-height:1.55; padding-left:36px;">
+                            {{ $comment->comment }}
+                        </div>
+
+                        {{-- Inline edit form (hidden by default) --}}
+                        @if($isMine)
+                        <div id="comment-edit-{{ $comment->id }}" style="display:none; padding-left:36px; margin-top:8px;">
+                            <form action="{{ route('facilitator.presentations.comment.update', $comment->id) }}" method="POST">
+                                @csrf @method('PUT')
+                                <textarea name="comment" rows="3"
+                                          class="form-control mb-2"
+                                          style="font-size:13px; resize:vertical;">{{ $comment->comment }}</textarea>
+                                <div style="display:flex; gap:6px;">
+                                    <button type="submit" class="btn btn-sm"
+                                            style="background:#C9A84C; color:#fff; font-weight:700; font-size:12px;">
+                                        <i class="fas fa-check mr-1"></i> Save
+                                    </button>
+                                    <button type="button" class="btn btn-sm"
+                                            onclick="toggleEditComment({{ $comment->id }})"
+                                            style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:12px;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        @endif
                     </div>
                     @endforeach
                 @endif
@@ -147,5 +190,21 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function toggleEditComment(id) {
+    var textEl = document.getElementById('comment-text-' + id);
+    var editEl = document.getElementById('comment-edit-' + id);
+    var isEditing = editEl.style.display !== 'none';
+    textEl.style.display = isEditing ? 'block' : 'none';
+    editEl.style.display = isEditing ? 'none'  : 'block';
+    if (!isEditing) {
+        // Focus the textarea when opening
+        editEl.querySelector('textarea').focus();
+    }
+}
+</script>
 @endsection
 

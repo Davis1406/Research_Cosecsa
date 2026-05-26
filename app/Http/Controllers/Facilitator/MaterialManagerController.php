@@ -95,8 +95,8 @@ class MaterialManagerController extends Controller
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
-            'file'         => 'nullable|file|max:102400|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,mp3,zip,txt,csv', // 100MB
             'youtube_url'  => 'nullable|url|max:500',
+            // 'file' is either a Dropzone temp-token (string) or an actual upload — validated below
         ]);
 
         $externalUrl = null;
@@ -159,7 +159,6 @@ class MaterialManagerController extends Controller
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
-            'file'         => 'nullable|file|max:102400',
             'youtube_url'  => 'nullable|url|max:500',
         ]);
 

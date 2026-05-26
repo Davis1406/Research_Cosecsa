@@ -222,6 +222,7 @@ Route::prefix('facilitator')->name('facilitator.')->namespace('Facilitator')->mi
     Route::get('/presentations', 'PresentationsController@index')->name('presentations.index');
     Route::get('/presentations/{document}', 'PresentationsController@view')->name('presentations.view');
     Route::post('/presentations/{document}/comment', 'PresentationsController@comment')->name('presentations.comment');
+    Route::put('/presentations/comments/{comment}', 'PresentationsController@updateComment')->name('presentations.comment.update');
     Route::post('/presentations/{document}/assign-reviewers', 'PresentationsController@assignReviewers')->name('presentations.assign-reviewers')->middleware('role:lead-facilitator');
 
     // Lead facilitator only — facilitators management

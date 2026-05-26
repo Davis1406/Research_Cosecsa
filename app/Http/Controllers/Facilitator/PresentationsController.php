@@ -94,4 +94,19 @@ class PresentationsController extends Controller
 
         return back()->with('message', 'Comment posted successfully.');
     }
+
+    /**
+     * Update a facilitator's own comment.
+     */
+    public function updateComment(Request $request, TraineeDocumentComment $comment)
+    {
+        // Only the comment author can edit it
+        abort_if($comment->user_id !== auth()->id(), 403, 'You can only edit your own comments.');
+
+        $request->validate(['comment' => 'required|string|max:2000']);
+
+        $comment->update(['comment' => $request->comment]);
+
+        return back()->with('message', 'Comment updated.');
+    }
 }
