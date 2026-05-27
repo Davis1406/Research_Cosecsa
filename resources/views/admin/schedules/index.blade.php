@@ -91,6 +91,23 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
     @endcan
 </div>
 
+@php
+    // Determine which day to auto-expand: today → next upcoming → last day
+    $today        = \Carbon\Carbon::today();
+    $activeDayNum = null;
+    foreach ($days as $dn => $sess) {
+        $d = $sess->first()->date ?? null;
+        if ($d && \Carbon\Carbon::parse($d)->startOfDay()->eq($today)) { $activeDayNum = $dn; break; }
+    }
+    if ($activeDayNum === null) {
+        foreach ($days as $dn => $sess) {
+            $d = $sess->first()->date ?? null;
+            if ($d && \Carbon\Carbon::parse($d)->startOfDay()->gt($today)) { $activeDayNum = $dn; break; }
+        }
+    }
+    if ($activeDayNum === null) { $activeDayNum = $days->keys()->last(); }
+@endphp
+
 @foreach($days as $dayNumber => $sessions)
 @php
     $firstSession    = $sessions->first();
@@ -103,17 +120,23 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
     $pct             = $total > 0 ? round(($done/$total)*100) : 0;
     $allDone         = $done === $total && $total > 0;
     $collapseId      = 'day-collapse-' . $dayNumber;
-    $isOpen          = $dayNumber === 1;
+    $isOpen          = ($dayNumber == $activeDayNum);
+    $isToday         = $date && \Carbon\Carbon::parse($date)->startOfDay()->eq($today);
+    $isPast          = $date && \Carbon\Carbon::parse($date)->startOfDay()->lt($today);
 @endphp
 
-<div class="day-card mb-3">
+<div class="day-card mb-3" style="{{ $isPast ? 'opacity:.72;' : '' }} {{ $isToday ? 'border-color:#C9A84C;' : '' }}">
 
     {{-- Day header --}}
-    <div class="day-header" data-toggle="collapse" data-target="#{{ $collapseId }}">
+    <div class="day-header" data-toggle="collapse" data-target="#{{ $collapseId }}"
+         style="{{ $isPast ? 'background:#fafafa; border-bottom-color:#ddd;' : '' }} {{ $isToday ? 'border-bottom-color:#C9A84C;' : '' }}">
         <div style="display:flex; align-items:center; gap:14px;">
             <span class="day-badge">Day {{ $dayNumber }}</span>
+            @if($isToday)
+                <span style="background:#fff8e1; border:1px solid #C9A84C; color:#856404; font-size:10px; font-weight:700; border-radius:10px; padding:1px 8px;">TODAY</span>
+            @endif
             <div>
-                <span style="font-weight:700; font-size:14.5px; color:#2d2d2d;">{{ $dateFormatted }}</span>
+                <span style="font-weight:700; font-size:14.5px; color:{{ $isPast ? '#aaa' : '#2d2d2d' }};">{{ $dateFormatted }}</span>
                 <span style="font-size:12px; color:#aaa; margin-left:8px;">{{ $total }} sessions</span>
             </div>
         </div>
