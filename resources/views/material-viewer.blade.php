@@ -286,6 +286,16 @@
     $fileExt     = $fileUrl ? strtolower(pathinfo($fileUrl, PATHINFO_EXTENSION)) : '';
     $isPptx      = in_array($fileExt, ['pptx', 'ppt']) || $material->type === 'presentation';
 
+    // Word documents — Office Online embed
+    $isDocx = in_array($fileExt, ['doc', 'docx']);
+    $officeViewerUrlDocx = null;
+    if ($isDocx && $fileUrl) {
+        $absoluteDocxUrl = str_starts_with($fileUrl, 'http')
+            ? $fileUrl
+            : rtrim(config('app.url'), '/') . '/' . ltrim($fileUrl, '/');
+        $officeViewerUrlDocx = 'https://view.officeapps.live.com/op/embed.aspx?src=' . rawurlencode($absoluteDocxUrl);
+    }
+
     // Spreadsheet (Excel) — Office Online embed (same service as PPTX)
     $isXlsx = in_array($fileExt, ['xls', 'xlsx']) || $material->type === 'spreadsheet';
     $officeViewerUrlXlsx = null;
@@ -483,8 +493,21 @@
                     </div></div>
                 @endif
 
+            @elseif($isDocx)
+                {{-- Word document — Microsoft Office Online embed --}}
+                @if($officeViewerUrlDocx)
+                    <iframe class="viewer-frame" src="{{ $officeViewerUrlDocx }}" frameborder="0" title="{{ $material->title }}"></iframe>
+                @else
+                    <div class="nofile-wrap"><div class="nofile-card">
+                        <i class="fas fa-file-word" style="font-size:48px; color:#2b579a; display:block; margin-bottom:16px;"></i>
+                        <h5 style="font-weight:700; color:#2d3748;">Preview unavailable</h5>
+                        <p style="color:#888; font-size:13px;">Could not build an Office Online preview URL.</p>
+                        @if($fileUrlEncoded)<a href="{{ $fileUrlEncoded }}" download class="btn btn-sm btn-gold mt-2"><i class="fas fa-download mr-1"></i> Download</a>@endif
+                    </div></div>
+                @endif
+
             @elseif($material->type === 'document')
-                {{-- Loading overlay shown until iframe fires onload --}}
+                {{-- PDF — loading overlay shown until iframe fires onload --}}
                 <div class="pdf-loading-overlay" id="pdf-overlay">
                     <div class="pdf-spinner"></div>
                     <div class="pdf-loading-text">Loading PDF&hellip;</div>
