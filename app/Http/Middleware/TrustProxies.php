@@ -7,7 +7,12 @@ use Illuminate\Http\Request;
 
 class TrustProxies extends Middleware
 {
-    protected $proxies;
+    /**
+     * Trust all proxies — required when running behind nginx-proxy in Docker.
+     * nginx-proxy terminates SSL and forwards X-Forwarded-Proto: https;
+     * without this, Laravel ignores that header and redirect-loops forever.
+     */
+    protected $proxies = '*';
 
     protected $headers =
         Request::HEADER_X_FORWARDED_FOR |
