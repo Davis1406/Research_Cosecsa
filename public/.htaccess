@@ -20,8 +20,11 @@
 
     RewriteEngine On
 
-    # ── Force HTTPS (skip localhost / 127.0.0.1 for local dev) ───────────────
+    # ── Force HTTPS ───────────────────────────────────────────────────────────
+    # Behind nginx-proxy (Docker), Apache receives plain HTTP but the proxy
+    # sets X-Forwarded-Proto: https. Check both so we don't redirect-loop.
     RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
     RewriteCond %{HTTP_HOST} !^localhost [NC]
     RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
