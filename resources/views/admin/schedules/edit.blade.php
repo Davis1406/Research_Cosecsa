@@ -8,6 +8,14 @@
         <form action="{{ route('admin.schedules.update', [$schedule->id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <div class="form-group">
+                <label class="required" for="course_type">Course</label>
+                <select name="course_type" id="course_type" class="form-control">
+                    @foreach(config('courses.types') as $key => $meta)
+                        <option value="{{ $key }}" {{ old('course_type', $schedule->course_type) == $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="form-row">
                 <div class="form-group col-md-3">
                     <label class="required" for="day_number">{{ trans('cruds.schedule.fields.day_number') }}</label>
@@ -71,7 +79,7 @@
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
                 </button>
-                <a class="btn btn-secondary ml-2" href="{{ route('admin.schedules.index') }}">{{ trans('global.cancel') }}</a>
+                <a class="btn btn-secondary ml-2" href="{{ route('admin.schedules.index', ['course' => $courseType]) }}">{{ trans('global.cancel') }}</a>
             </div>
         </form>
     </div>

@@ -14,23 +14,35 @@ use Illuminate\Support\Facades\Hash;
 
 class TraineesController extends Controller
 {
-    public function index()
+    /**
+     * Resolve and validate the ?course= query param, falling back to the configured default.
+     */
+    private function resolveCourseType(Request $request)
     {
+        $courseType = $request->query('course', config('courses.default'));
+
+        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
+    }
+
+    public function index(Request $request)
+    {
+        $courseType  = $this->resolveCourseType($request);
         $traineeList = Trainee::with([
             'documents' => fn($q) => $q->with('reviewers'),
             'user',
-        ])->latest()->get();
+        ])->course($courseType)->latest()->get();
 
-        $totalSessions = Schedule::count();
-        $completedSessions = Schedule::where('is_completed', true)->count();
+        $totalSessions = Schedule::course($courseType)->count();
+        $completedSessions = Schedule::course($courseType)->where('is_completed', true)->count();
         $quizCount = Quiz::where('is_published', true)->count();
 
-        return view('facilitator.trainees', compact('traineeList', 'totalSessions', 'completedSessions', 'quizCount'));
+        return view('facilitator.trainees', compact('traineeList', 'totalSessions', 'completedSessions', 'quizCount', 'courseType'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('facilitator.trainees-form', ['trainee' => null, 'traineeUser' => null]);
+        $courseType = $this->resolveCourseType($request);
+        return view('facilitator.trainees-form', ['trainee' => null, 'traineeUser' => null, 'courseType' => $courseType]);
     }
 
     public function store(Request $request)
@@ -39,6 +51,7 @@ class TraineesController extends Controller
             'name'                => 'required|string|max:255',
             'email'               => 'required|email|unique:users,email',
             'password'            => 'required|string|min:8|confirmed',
+            'course_type'         => 'nullable|in:physical,online',
             'phone'               => 'nullable|string|max:50',
             'institution'         => 'nullable|string|max:255',
             'registration_number' => 'nullable|string|max:100',
@@ -59,9 +72,10 @@ class TraineesController extends Controller
             $user->roles()->attach($traineeRole->id);
         }
 
-        Trainee::create([
+        $trainee = Trainee::create([
             'name'                => $validated['name'],
             'email'               => $validated['email'],
+            'course_type'         => $validated['course_type'] ?? config('courses.default'),
             'phone'               => $validated['phone'] ?? null,
             'institution'         => $validated['institution'] ?? null,
             'registration_number' => $validated['registration_number'] ?? null,
@@ -72,13 +86,14 @@ class TraineesController extends Controller
             'user_id'             => $user->id,
         ]);
 
-        return redirect()->route('facilitator.trainees')->with('message', 'Trainee account created successfully.');
+        return redirect()->route('facilitator.trainees', ['course' => $trainee->course_type])
+            ->with('message', 'Trainee account created successfully.');
     }
 
     public function edit($id)
     {
         $trainee = Trainee::with('user')->findOrFail($id);
-        return view('facilitator.trainees-form', ['trainee' => $trainee, 'traineeUser' => $trainee->user]);
+        return view('facilitator.trainees-form', ['trainee' => $trainee, 'traineeUser' => $trainee->user, 'courseType' => $trainee->course_type]);
     }
 
     public function update(Request $request, $id)
@@ -89,6 +104,7 @@ class TraineesController extends Controller
         $rules = [
             'name'                => 'required|string|max:255',
             'email'               => 'required|email|unique:users,email,' . ($user ? $user->id : 0),
+            'course_type'         => 'nullable|in:physical,online',
             'phone'               => 'nullable|string|max:50',
             'institution'         => 'nullable|string|max:255',
             'registration_number' => 'nullable|string|max:100',
@@ -114,6 +130,7 @@ class TraineesController extends Controller
         $trainee->update([
             'name'                => $validated['name'],
             'email'               => $validated['email'],
+            'course_type'         => $validated['course_type'] ?? $trainee->course_type,
             'phone'               => $validated['phone'] ?? null,
             'institution'         => $validated['institution'] ?? null,
             'registration_number' => $validated['registration_number'] ?? null,
@@ -123,7 +140,8 @@ class TraineesController extends Controller
             'notes'               => $validated['notes'] ?? null,
         ]);
 
-        return redirect()->route('facilitator.trainees')->with('message', 'Trainee updated successfully.');
+        return redirect()->route('facilitator.trainees', ['course' => $trainee->course_type])
+            ->with('message', 'Trainee updated successfully.');
     }
 
     public function destroy($id)

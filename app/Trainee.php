@@ -22,6 +22,7 @@ class Trainee extends Model
         'name',
         'email',
         'phone',
+        'course_type',
         'institution',
         'registration_number',
         'country',
@@ -42,5 +43,10 @@ class Trainee extends Model
     public function documents()
     {
         return $this->hasMany(\App\TraineeDocument::class);
+    }
+
+    public function scopeCourse($query, $courseType)
+    {
+        return $query->where('course_type', $courseType);
     }
 }

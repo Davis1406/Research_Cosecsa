@@ -124,7 +124,7 @@
 <div class="content-header">
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap:8px;">
-            <a href="{{ route('admin.trainees.index') }}" style="font-size:13px; color:#718096; text-decoration:none; font-weight:600;">
+            <a href="{{ route('admin.trainees.index', ['course' => $trainee->course_type]) }}" style="font-size:13px; color:#718096; text-decoration:none; font-weight:600;">
                 <i class="fas fa-arrow-left mr-1"></i> Back to Trainees
             </a>
             <div style="display:flex; gap:8px;">
@@ -162,6 +162,7 @@
             <div style="flex:1; min-width:0;">
                 <div class="trainee-hero-name">{{ $trainee->name }}</div>
                 <div style="display:flex; flex-wrap:wrap; margin-top:4px;">
+                    <span class="hero-chip"><i class="fas {{ config("courses.types.{$trainee->course_type}.icon", 'fa-graduation-cap') }}"></i> {{ config("courses.types.{$trainee->course_type}.label", $trainee->course_type) }}</span>
                     @if($trainee->registration_number)
                     <span class="hero-chip"><i class="fas fa-id-badge"></i> {{ $trainee->registration_number }}</span>
                     @endif
@@ -219,6 +220,10 @@
             <div class="col-md-6">
                 <div class="info-card">
                     <div class="info-card-head"><i class="fas fa-address-card mr-1"></i> Contact & Identity</div>
+                    <div class="info-row">
+                        <div class="info-label">Course</div>
+                        <div class="info-value">{{ config("courses.types.{$trainee->course_type}.label", $trainee->course_type) }}</div>
+                    </div>
                     <div class="info-row">
                         <div class="info-label">Full Name</div>
                         <div class="info-value">{{ $trainee->name ?: '—' }}</div>

@@ -10,6 +10,14 @@
             @csrf
 
             <div class="form-group">
+                <label class="required" for="course_type">Course</label>
+                <select name="course_type" id="course_type" class="form-control">
+                    @foreach(config('courses.types') as $key => $meta)
+                        <option value="{{ $key }}" {{ old('course_type', $trainingMaterial->course_type) == $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="required" for="title">{{ trans('cruds.trainingMaterial.fields.title') }}</label>
                 <input class="form-control {{ $errors->has('title') ? 'is-invalid' : '' }}" type="text" name="title" id="title" value="{{ old('title', $trainingMaterial->title) }}" required>
                 @if($errors->has('title'))
@@ -117,7 +125,7 @@
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
                 </button>
-                <a class="btn btn-secondary ml-2" href="{{ route('admin.training-materials.index') }}">{{ trans('global.cancel') }}</a>
+                <a class="btn btn-secondary ml-2" href="{{ route('admin.training-materials.index', ['course' => $courseType]) }}">{{ trans('global.cancel') }}</a>
             </div>
         </form>
     </div>

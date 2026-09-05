@@ -3,9 +3,11 @@
 @section('page-title', 'Materials')
 
 @section('content')
+@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.materials'])
+
 <div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap:wrap; gap:10px;">
     <h5 class="mb-0" style="font-weight:700; color:#252525; font-size:1.1rem;">
-        <i class="fas fa-book mr-2" style="color:#C9A84C;"></i> Training Materials
+        <i class="fas fa-book mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.label") }} &mdash; Training Materials
     </h5>
     <div class="d-flex align-items-center" style="gap:10px;">
         <div class="d-flex align-items-center" style="gap:6px; flex-shrink:0;">

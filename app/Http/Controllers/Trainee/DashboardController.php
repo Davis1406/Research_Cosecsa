@@ -12,13 +12,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $trainee = auth()->user()->trainee;
-        $noBreaks = Schedule::where('title', 'not like', '%break%')
+        $trainee    = auth()->user()->trainee;
+        $courseType = $trainee->course_type ?? config('courses.default');
+
+        $noBreaks = Schedule::course($courseType)
+                             ->where('title', 'not like', '%break%')
                              ->where('title', 'not like', '%lunch%')
                              ->where('title', 'not like', '%tea%');
         $totalSessions     = (clone $noBreaks)->count();
         $completedSessions = (clone $noBreaks)->where('is_completed', true)->count();
-        $totalMaterials = TrainingMaterial::count();
+        $totalMaterials = TrainingMaterial::course($courseType)->count();
         $myDocuments = $trainee ? $trainee->documents()->count() : 0;
 
         $quizCount = Quiz::where('is_published', true)->count();
@@ -28,7 +31,7 @@ class DashboardController extends Controller
 
         return view('trainee.dashboard', compact(
             'trainee', 'totalSessions', 'completedSessions',
-            'totalMaterials', 'myDocuments', 'quizCount', 'quizPassed'
+            'totalMaterials', 'myDocuments', 'quizCount', 'quizPassed', 'courseType'
         ));
     }
 }

@@ -5,7 +5,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0" style="font-weight:700; color:#252525;">
-        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> Workshop Programme
+        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.subtitle") }}
     </h5>
 </div>
 
@@ -51,7 +51,7 @@
              aria-expanded="{{ $isOpen ? 'true' : 'false' }}"
              style="cursor:pointer; background:{{ $isPast ? '#3a3a3a' : '#252525' }}; padding:14px 20px; opacity:{{ $isPast ? '0.72' : '1' }};">
             <span style="background:#C9A84C; color:#252525; font-weight:700; font-size:13px; border-radius:4px; padding:2px 10px; margin-right:12px;">
-                Day {{ $dayNumber }}
+                {{ $courseType === 'online' ? 'Week' : 'Day' }} {{ $dayNumber }}
             </span>
             @if($isToday)
                 <span style="background:#C9A84C22; border:1px solid #C9A84C; color:#C9A84C; font-size:10px; font-weight:700; border-radius:10px; padding:1px 8px; margin-right:8px;">TODAY</span>

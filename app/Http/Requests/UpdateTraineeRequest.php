@@ -18,8 +18,9 @@ class UpdateTraineeRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'  => ['required'],
-            'email' => ['required', 'email', 'unique:trainees,email,' . $this->trainee->id],
+            'name'        => ['required'],
+            'email'       => ['required', 'email', 'unique:trainees,email,' . $this->trainee->id],
+            'course_type' => ['nullable', 'in:physical,online'],
         ];
     }
 }

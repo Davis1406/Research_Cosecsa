@@ -17,22 +17,35 @@ class TrainingMaterialsController extends Controller
 {
     use MediaUploadingTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('training_material_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $trainingMaterials = TrainingMaterial::with('facilitator')->orderBy('id','desc')->get();
+        $courseType = $this->resolveCourseType($request);
 
-        return view('admin.training-materials.index', compact('trainingMaterials'));
+        $trainingMaterials = TrainingMaterial::with('facilitator')->course($courseType)->orderBy('id', 'desc')->get();
+
+        return view('admin.training-materials.index', compact('trainingMaterials', 'courseType'));
     }
 
-    public function create()
+    /**
+     * Resolve and validate the ?course= query param, falling back to the configured default.
+     */
+    private function resolveCourseType(Request $request)
+    {
+        $courseType = $request->query('course', config('courses.default'));
+
+        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
+    }
+
+    public function create(Request $request)
     {
         abort_if(Gate::denies('training_material_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        $courseType   = $this->resolveCourseType($request);
         $facilitators = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.training-materials.create', compact('facilitators'));
+        return view('admin.training-materials.create', compact('facilitators', 'courseType'));
     }
 
     public function store(StoreTrainingMaterialRequest $request)
@@ -49,18 +62,20 @@ class TrainingMaterialsController extends Controller
             }
         }
 
-        return redirect()->route('admin.training-materials.index')->with('message', 'Material uploaded successfully.');
+        return redirect()->route('admin.training-materials.index', ['course' => $trainingMaterial->course_type])
+            ->with('message', 'Material uploaded successfully.');
     }
 
     public function edit(TrainingMaterial $trainingMaterial)
     {
         abort_if(Gate::denies('training_material_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        $courseType   = $trainingMaterial->course_type;
         $facilitators = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         $trainingMaterial->load('facilitator');
 
-        return view('admin.training-materials.edit', compact('facilitators', 'trainingMaterial'));
+        return view('admin.training-materials.edit', compact('facilitators', 'trainingMaterial', 'courseType'));
     }
 
     public function update(UpdateTrainingMaterialRequest $request, TrainingMaterial $trainingMaterial)
@@ -98,7 +113,8 @@ class TrainingMaterialsController extends Controller
                 ->with('message', 'File replaced successfully.');
         }
 
-        return redirect()->route('admin.training-materials.index')->with('message', 'Material updated successfully.');
+        return redirect()->route('admin.training-materials.index', ['course' => $trainingMaterial->course_type])
+            ->with('message', 'Material updated successfully.');
     }
 
     /** Map a file extension to a material type slug. */

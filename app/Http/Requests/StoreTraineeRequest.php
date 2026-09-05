@@ -18,8 +18,9 @@ class StoreTraineeRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'  => ['required'],
-            'email' => ['required', 'email', 'unique:trainees,email'],
+            'name'        => ['required'],
+            'email'       => ['required', 'email', 'unique:trainees,email'],
+            'course_type' => ['nullable', 'in:physical,online'],
         ];
     }
 }

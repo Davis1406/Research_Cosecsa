@@ -18,8 +18,9 @@ class UpdateTrainingMaterialRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => ['required'],
-            'type'  => ['required'],
+            'title'       => ['required'],
+            'type'        => ['required'],
+            'course_type' => ['nullable', 'in:physical,online'],
         ];
     }
 }

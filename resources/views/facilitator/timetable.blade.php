@@ -3,9 +3,11 @@
 @section('page-title', 'Programme')
 
 @section('content')
+@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.timetable'])
+
 <div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap:wrap; gap:10px;">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748; font-size:1.1rem;">
-        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> Programme
+        <i class="fas fa-calendar-alt mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.subtitle") }}
     </h5>
     <div class="d-flex align-items-center" style="gap:6px; flex-shrink:0;">
         <span style="font-size:0.8rem; color:#888; margin-right:2px;">View:</span>
@@ -61,7 +63,7 @@
              aria-expanded="{{ $isOpen ? 'true' : 'false' }}"
              style="cursor:pointer; background:{{ $isPast ? '#f8f9fa' : '#fff' }}; padding:14px 20px; border-bottom:2px solid {{ $isToday ? '#C9A84C' : ($isPast ? '#e0e0e0' : '#e9ecef') }}; opacity:{{ $isPast ? '0.78' : '1' }};">
             <span style="background:#C9A84C; color:#fff; font-weight:700; font-size:0.85rem; border-radius:4px; padding:2px 10px; margin-right:12px;">
-                Day {{ $dayNumber }}
+                {{ $courseType === 'online' ? 'Week' : 'Day' }} {{ $dayNumber }}
             </span>
             @if($isToday)
                 <span style="background:#fff8e1; border:1px solid #C9A84C; color:#856404; font-size:10px; font-weight:700; border-radius:10px; padding:1px 8px; margin-right:8px;">TODAY</span>

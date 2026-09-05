@@ -15,17 +15,30 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ScheduleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('schedule_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        $courseType = $this->resolveCourseType($request);
+
         $days = Schedule::with(['speaker', 'materials'])
+            ->course($courseType)
             ->orderBy('day_number')
             ->orderBy('start_time')
             ->get()
             ->groupBy('day_number');
 
-        return view('admin.schedules.index', compact('days'));
+        return view('admin.schedules.index', compact('days', 'courseType'));
+    }
+
+    /**
+     * Resolve and validate the ?course= query param, falling back to the configured default.
+     */
+    private function resolveCourseType(Request $request)
+    {
+        $courseType = $request->query('course', config('courses.default'));
+
+        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
     }
 
     public function toggleComplete(Request $request, Schedule $schedule)
@@ -42,14 +55,15 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         abort_if(Gate::denies('schedule_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $speakers  = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $materials = TrainingMaterial::orderBy('title')->get();
+        $courseType = $this->resolveCourseType($request);
+        $speakers   = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $materials  = TrainingMaterial::course($courseType)->orderBy('title')->get();
 
-        return view('admin.schedules.create', compact('speakers', 'materials'));
+        return view('admin.schedules.create', compact('speakers', 'materials', 'courseType'));
     }
 
     public function store(StoreScheduleRequest $request)
@@ -59,19 +73,20 @@ class ScheduleController extends Controller
         // Attach any selected training materials
         $schedule->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('admin.schedules.index');
+        return redirect()->route('admin.schedules.index', ['course' => $schedule->course_type]);
     }
 
     public function edit(Schedule $schedule)
     {
         abort_if(Gate::denies('schedule_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $speakers  = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $materials = TrainingMaterial::orderBy('title')->get();
+        $courseType = $schedule->course_type;
+        $speakers   = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $materials  = TrainingMaterial::course($courseType)->orderBy('title')->get();
 
         $schedule->load(['speaker', 'materials']);
 
-        return view('admin.schedules.edit', compact('speakers', 'schedule', 'materials'));
+        return view('admin.schedules.edit', compact('speakers', 'schedule', 'materials', 'courseType'));
     }
 
     public function update(UpdateScheduleRequest $request, Schedule $schedule)
@@ -81,7 +96,7 @@ class ScheduleController extends Controller
         // Sync attached training materials
         $schedule->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('admin.schedules.index');
+        return redirect()->route('admin.schedules.index', ['course' => $schedule->course_type]);
     }
 
     public function show(Schedule $schedule)

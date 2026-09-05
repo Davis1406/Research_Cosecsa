@@ -1,10 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
+@include('admin.partials.course-tabs', ['courseRoute' => 'admin.trainees.index'])
+
 @can('trainee_create')
 <div class="row mb-2">
     <div class="col-lg-12">
-        <a class="btn btn-cosecsa" href="{{ route('admin.trainees.create') }}">
+        <a class="btn btn-cosecsa" href="{{ route('admin.trainees.create', ['course' => $courseType]) }}">
             <i class="fas fa-user-plus mr-1"></i> {{ trans('global.add') }} {{ trans('cruds.trainee.title_singular') }}
         </a>
     </div>
@@ -13,7 +15,7 @@
 
 <div class="card">
     <div class="card-header cosecsa-card-header">
-        <i class="fas fa-users mr-2"></i> {{ trans('cruds.trainee.title') }} {{ trans('global.list') }}
+        <i class="fas fa-users mr-2"></i> {{ config("courses.types.$courseType.label") }} &mdash; {{ trans('cruds.trainee.title') }} {{ trans('global.list') }}
     </div>
     <div class="card-body">
         <div class="table-responsive">

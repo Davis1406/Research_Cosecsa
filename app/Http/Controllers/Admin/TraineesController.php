@@ -13,41 +13,58 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TraineesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('trainee_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $trainees = Trainee::orderBy('id','desc')->get();
+        $courseType = $this->resolveCourseType($request);
+        $trainees   = Trainee::course($courseType)->orderBy('id', 'desc')->get();
 
-        return view('admin.trainees.index', compact('trainees'));
+        return view('admin.trainees.index', compact('trainees', 'courseType'));
     }
 
-    public function create()
+    /**
+     * Resolve and validate the ?course= query param, falling back to the configured default.
+     */
+    private function resolveCourseType(Request $request)
+    {
+        $courseType = $request->query('course', config('courses.default'));
+
+        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
+    }
+
+    public function create(Request $request)
     {
         abort_if(Gate::denies('trainee_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.trainees.create');
+        $courseType = $this->resolveCourseType($request);
+
+        return view('admin.trainees.create', compact('courseType'));
     }
 
     public function store(StoreTraineeRequest $request)
     {
-        Trainee::create($request->all());
+        $trainee = Trainee::create($request->all());
 
-        return redirect()->route('admin.trainees.index')->with('message', 'Trainee registered successfully.');
+        return redirect()->route('admin.trainees.index', ['course' => $trainee->course_type])
+            ->with('message', 'Trainee registered successfully.');
     }
 
     public function edit(Trainee $trainee)
     {
         abort_if(Gate::denies('trainee_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.trainees.edit', compact('trainee'));
+        $courseType = $trainee->course_type;
+
+        return view('admin.trainees.edit', compact('trainee', 'courseType'));
     }
 
     public function update(UpdateTraineeRequest $request, Trainee $trainee)
     {
         $trainee->update($request->all());
 
-        return redirect()->route('admin.trainees.index')->with('message', 'Trainee updated successfully.');
+        return redirect()->route('admin.trainees.index', ['course' => $trainee->course_type])
+            ->with('message', 'Trainee updated successfully.');
     }
 
     public function show(Trainee $trainee)

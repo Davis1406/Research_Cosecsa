@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             RoleUserTableSeeder::class,
             SettingsTableSeeder::class,
             TraineesTableSeeder::class,
+            OnlineResearchMethodologyCourseSeeder::class,
         ]);
     }
 }

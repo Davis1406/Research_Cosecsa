@@ -78,14 +78,16 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
 
 @section('content')
 
+@include('admin.partials.course-tabs', ['courseRoute' => 'admin.schedules.index'])
+
 {{-- Page header --}}
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0" style="font-weight:700; color:#2d2d2d;">
         <i class="fas fa-calendar-alt mr-2" style="color:#a02626;"></i>
-        Research Methodology Workshop &mdash; Timetable
+        {{ config("courses.types.$courseType.subtitle") }} &mdash; Timetable
     </h5>
     @can('schedule_create')
-    <a class="btn btn-cosecsa btn-sm" href="{{ route('admin.schedules.create') }}">
+    <a class="btn btn-cosecsa btn-sm" href="{{ route('admin.schedules.create', ['course' => $courseType]) }}">
         <i class="fas fa-plus mr-1"></i> Add Session
     </a>
     @endcan
@@ -108,6 +110,18 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
     if ($activeDayNum === null) { $activeDayNum = $days->keys()->last(); }
 @endphp
 
+@if($days->isEmpty())
+<div class="text-center text-muted py-5">
+    <i class="fas fa-calendar-times fa-2x mb-2" style="opacity:.4;"></i>
+    <p class="mb-0">No sessions scheduled yet for {{ config("courses.types.$courseType.label") }}.</p>
+    @can('schedule_create')
+    <a class="btn btn-cosecsa btn-sm mt-2" href="{{ route('admin.schedules.create', ['course' => $courseType]) }}">
+        <i class="fas fa-plus mr-1"></i> Add the first session
+    </a>
+    @endcan
+</div>
+@endif
+
 @foreach($days as $dayNumber => $sessions)
 @php
     $firstSession    = $sessions->first();
@@ -128,10 +142,10 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
 <div class="day-card mb-3" style="{{ $isPast ? 'opacity:.72;' : '' }} {{ $isToday ? 'border-color:#C9A84C;' : '' }}">
 
     {{-- Day header --}}
-    <div class="day-header" data-toggle="collapse" data-target="#{{ $collapseId }}"
+    <div class="day-header" data-toggle="collapse" data-target="#{{ $collapseId }}" data-day="{{ $dayNumber }}"
          style="{{ $isPast ? 'background:#fafafa; border-bottom-color:#ddd;' : '' }} {{ $isToday ? 'border-bottom-color:#C9A84C;' : '' }}">
         <div style="display:flex; align-items:center; gap:14px;">
-            <span class="day-badge">Day {{ $dayNumber }}</span>
+            <span class="day-badge">{{ $courseType === 'online' ? 'Week' : 'Day' }} {{ $dayNumber }}</span>
             @if($isToday)
                 <span style="background:#fff8e1; border:1px solid #C9A84C; color:#856404; font-size:10px; font-weight:700; border-radius:10px; padding:1px 8px;">TODAY</span>
             @endif
@@ -280,7 +294,7 @@ $(function () {
 
     // Chevron rotation on collapse
     $('[data-toggle="collapse"]').on('click', function () {
-        var dayNum = $(this).find('.day-badge').text().replace('Day ','').trim();
+        var dayNum = $(this).data('day');
         var chev   = $('#chev-' + dayNum);
         var target = $(this).data('target');
         var isOpen = $(target).hasClass('show');

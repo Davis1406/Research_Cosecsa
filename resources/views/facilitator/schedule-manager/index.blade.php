@@ -2,23 +2,25 @@
 @section('page-title', 'Manage Timetable')
 
 @section('content')
+@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.schedule-manager.index'])
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
-        <i class="fas fa-calendar-edit mr-2" style="color:#C9A84C;"></i> Timetable Sessions
+        <i class="fas fa-calendar-edit mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.label") }} &mdash; Timetable Sessions
     </h5>
-    <a href="{{ route('facilitator.schedule-manager.create') }}"
+    <a href="{{ route('facilitator.schedule-manager.create', ['course' => $courseType]) }}"
        class="btn btn-sm" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px; border-radius:5px;">
         <i class="fas fa-plus mr-1"></i> Add Session
     </a>
 </div>
 
 @if($days->isEmpty())
-    <div class="alert alert-info">No sessions yet. <a href="{{ route('facilitator.schedule-manager.create') }}">Add the first session.</a></div>
+    <div class="alert alert-info">No sessions yet. <a href="{{ route('facilitator.schedule-manager.create', ['course' => $courseType]) }}">Add the first session.</a></div>
 @else
     @foreach($days as $dayNumber => $sessions)
     <div class="card shadow-sm mb-4" style="border-radius:10px; overflow:hidden; border:1px solid #e9ecef;">
         <div class="card-header d-flex align-items-center" style="background:#f8f9fa; border-bottom:2px solid #C9A84C; padding:12px 20px;">
-            <span style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px; border-radius:4px; padding:2px 12px; margin-right:12px;">Day {{ $dayNumber }}</span>
+            <span style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px; border-radius:4px; padding:2px 12px; margin-right:12px;">{{ $courseType === 'online' ? 'Week' : 'Day' }} {{ $dayNumber }}</span>
             @if($sessions->first()->date)
                 <span style="font-size:13px; color:#555;">{{ \Carbon\Carbon::parse($sessions->first()->date)->format('l, j F Y') }}</span>
             @endif

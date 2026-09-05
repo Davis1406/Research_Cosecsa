@@ -21,6 +21,7 @@ class Schedule extends Model
     protected $fillable = [
         'title',
         'subtitle',
+        'course_type',
         'day_number',
         'date',
         'start_time',
@@ -69,5 +70,10 @@ class Schedule extends Model
         }
 
         return $query;
+    }
+
+    public function scopeCourse($query, $courseType)
+    {
+        return $query->where('course_type', $courseType);
     }
 }

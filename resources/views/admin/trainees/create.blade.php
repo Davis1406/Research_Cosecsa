@@ -8,6 +8,14 @@
         <form method="POST" action="{{ route('admin.trainees.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
+                <label class="required" for="course_type">Course</label>
+                <select name="course_type" id="course_type" class="form-control">
+                    @foreach(config('courses.types') as $key => $meta)
+                        <option value="{{ $key }}" {{ old('course_type', $courseType) == $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="required" for="name">{{ trans('cruds.trainee.fields.name') }}</label>
                 <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" type="text" name="name" id="name" value="{{ old('name', '') }}" required>
                 @if($errors->has('name'))
@@ -74,7 +82,7 @@
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
                 </button>
-                <a class="btn btn-secondary ml-2" href="{{ route('admin.trainees.index') }}">{{ trans('global.cancel') }}</a>
+                <a class="btn btn-secondary ml-2" href="{{ route('admin.trainees.index', ['course' => $courseType]) }}">{{ trans('global.cancel') }}</a>
             </div>
         </form>
     </div>

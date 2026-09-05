@@ -19,11 +19,12 @@ class UpdateScheduleRequest extends FormRequest
     public function rules()
     {
         return [
-            'title'      => ['required'],
-            'day_number' => ['required', 'integer', 'min:1', 'max:365'],
-            'start_time' => ['required', 'date_format:' . config('panel.time_format')],
-            'end_time'   => ['nullable', 'date_format:' . config('panel.time_format')],
-            'date'       => ['nullable', 'date'],
+            'title'       => ['required'],
+            'course_type' => ['nullable', 'in:physical,online'],
+            'day_number'  => ['required', 'integer', 'min:1', 'max:365'],
+            'start_time'  => ['required', 'date_format:' . config('panel.time_format')],
+            'end_time'    => ['nullable', 'date_format:' . config('panel.time_format')],
+            'date'        => ['nullable', 'date'],
         ];
     }
 }

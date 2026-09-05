@@ -66,24 +66,37 @@ class MaterialManagerController extends Controller
         }
     }
 
-    // ── Controller actions ────────────────────────────────────────────────
-
-    public function index()
+    /**
+     * Resolve and validate the ?course= query param, falling back to the configured default.
+     */
+    private function resolveCourseType(Request $request)
     {
-        $materials   = TrainingMaterial::with(['facilitator', 'schedules'])->latest()->get();
-        $editableIds = $this->editableMaterialIds();
+        $courseType = $request->query('course', config('courses.default'));
 
-        return view('facilitator.material-manager.index', compact('materials', 'editableIds'));
+        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
     }
 
-    public function create()
+    // ── Controller actions ────────────────────────────────────────────────
+
+    public function index(Request $request)
     {
+        $courseType  = $this->resolveCourseType($request);
+        $materials   = TrainingMaterial::with(['facilitator', 'schedules'])->course($courseType)->latest()->get();
+        $editableIds = $this->editableMaterialIds();
+
+        return view('facilitator.material-manager.index', compact('materials', 'editableIds', 'courseType'));
+    }
+
+    public function create(Request $request)
+    {
+        $courseType = $this->resolveCourseType($request);
         $speakers   = Speaker::orderBy('name')->get();
         $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
         return view('facilitator.material-manager.form', [
             'material'   => null,
             'speakers'   => $speakers,
             'categories' => $categories,
+            'courseType' => $courseType,
         ]);
     }
 
@@ -92,6 +105,7 @@ class MaterialManagerController extends Controller
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
             'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube,stata',
+            'course_type'  => 'nullable|in:physical,online',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -128,16 +142,17 @@ class MaterialManagerController extends Controller
             }
         }
 
-        TrainingMaterial::create([
+        $material = TrainingMaterial::create([
             'title'        => $validated['title'],
             'type'         => $validated['type'],
+            'course_type'  => $validated['course_type'] ?? config('courses.default'),
             'category'     => $validated['category'] ?? null,
             'description'  => $validated['description'] ?? null,
             'speaker_id'   => $validated['speaker_id'] ?? null,
             'external_url' => $externalUrl,
         ]);
 
-        return redirect()->route('facilitator.material-manager.index')
+        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
                          ->with('message', 'Material added successfully.');
     }
 
@@ -145,9 +160,10 @@ class MaterialManagerController extends Controller
     {
         $this->authorizeEdit($material);
 
+        $courseType = $material->course_type;
         $speakers   = Speaker::orderBy('name')->get();
         $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
-        return view('facilitator.material-manager.form', compact('material', 'speakers', 'categories'));
+        return view('facilitator.material-manager.form', compact('material', 'speakers', 'categories', 'courseType'));
     }
 
     public function update(Request $request, TrainingMaterial $material)
@@ -156,6 +172,7 @@ class MaterialManagerController extends Controller
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
             'type'         => 'required|in:document,presentation,spreadsheet,video,audio,image,youtube,stata',
+            'course_type'  => 'nullable|in:physical,online',
             'category'     => 'nullable|string|max:255',
             'description'  => 'nullable|string|max:1000',
             'speaker_id'   => 'nullable|exists:speakers,id',
@@ -194,21 +211,23 @@ class MaterialManagerController extends Controller
         $material->update([
             'title'        => $validated['title'],
             'type'         => $validated['type'],
+            'course_type'  => $validated['course_type'] ?? $material->course_type,
             'category'     => $validated['category'] ?? null,
             'description'  => $validated['description'] ?? null,
             'speaker_id'   => $validated['speaker_id'] ?? null,
             'external_url' => $externalUrl,
         ]);
 
-        return redirect()->route('facilitator.material-manager.index')
+        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
                          ->with('message', 'Material updated successfully.');
     }
 
     public function destroy(TrainingMaterial $material)
     {
         $this->authorizeEdit($material);
+        $courseType = $material->course_type;
         $material->delete();
-        return redirect()->route('facilitator.material-manager.index')
+        return redirect()->route('facilitator.material-manager.index', ['course' => $courseType])
                          ->with('message', 'Material deleted.');
     }
 
@@ -284,7 +303,7 @@ class MaterialManagerController extends Controller
             $material->update($updates);
         }
 
-        return redirect()->route('facilitator.material-manager.index')
+        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
                          ->with('message', 'File for "' . $material->title . '" replaced successfully.');
     }
 

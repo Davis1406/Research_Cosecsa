@@ -3,15 +3,17 @@
 @section('page-title', 'Trainees')
 
 @section('content')
+@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.trainees'])
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
-        <i class="fas fa-user-graduate mr-2" style="color:#C9A84C;"></i> Enrolled Trainees
+        <i class="fas fa-user-graduate mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.label") }} &mdash; Enrolled Trainees
     </h5>
     <div class="d-flex align-items-center" style="gap:8px;">
         <span class="badge" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:12px; padding:5px 12px;">
             {{ $traineeList->count() }} trainees
         </span>
-        <a href="{{ route('facilitator.trainees.create') }}"
+        <a href="{{ route('facilitator.trainees.create', ['course' => $courseType]) }}"
            class="btn btn-sm" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px; border-radius:5px;">
             <i class="fas fa-plus mr-1"></i> Add Trainee
         </a>
@@ -20,8 +22,8 @@
 
 @if($traineeList->isEmpty())
     <div class="alert alert-info">
-        No trainees are enrolled yet.
-        <a href="{{ route('facilitator.trainees.create') }}" class="alert-link">Add the first trainee.</a>
+        No trainees are enrolled yet for {{ config("courses.types.$courseType.label") }}.
+        <a href="{{ route('facilitator.trainees.create', ['course' => $courseType]) }}" class="alert-link">Add the first trainee.</a>
     </div>
 @else
     <div class="card shadow-sm" style="border-radius:8px; overflow:hidden;">

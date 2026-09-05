@@ -29,6 +29,7 @@ class TrainingMaterial extends Model implements HasMedia
         'title',
         'category',
         'type',
+        'course_type',
         'description',
         'external_url',
         'speaker_id',
@@ -45,6 +46,11 @@ class TrainingMaterial extends Model implements HasMedia
     public function schedules()
     {
         return $this->belongsToMany(Schedule::class, 'schedule_training_material');
+    }
+
+    public function scopeCourse($query, $courseType)
+    {
+        return $query->where('course_type', $courseType);
     }
 
     public function getFileAttribute()

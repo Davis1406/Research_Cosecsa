@@ -2,6 +2,7 @@
 @section('page-title', 'Manage Materials')
 
 @section('content')
+@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.material-manager.index'])
 
 @if(session('message'))
 <div class="alert alert-success alert-dismissible fade show py-2" role="alert">
@@ -18,9 +19,9 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
-        <i class="fas fa-book-open mr-2" style="color:#C9A84C;"></i> Training Materials
+        <i class="fas fa-book-open mr-2" style="color:#C9A84C;"></i> {{ config("courses.types.$courseType.label") }} &mdash; Training Materials
     </h5>
-    <a href="{{ route('facilitator.material-manager.create') }}"
+    <a href="{{ route('facilitator.material-manager.create', ['course' => $courseType]) }}"
        class="btn btn-sm" style="background:#C9A84C; color:#fff; font-weight:700; font-size:13px; border-radius:5px;">
         <i class="fas fa-plus mr-1"></i> Add Material
     </a>
