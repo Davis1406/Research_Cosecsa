@@ -32,10 +32,16 @@
                             </p>
                         </div>
                     </div>
-                    <span class="badge d-none d-sm-inline-block" style="font-size:12px; padding:6px 14px; {{ $isLead ? 'background:#C9A84C; color:#252525;' : 'background:#2c7a4b; color:#fff;' }}">
-                        <i class="fas fa-{{ $isLead ? 'star' : 'chalkboard-teacher' }} mr-1"></i>
-                        {{ $isLead ? 'Lead Facilitator' : 'Facilitator' }}
-                    </span>
+                    <div class="d-none d-sm-flex align-items-center" style="gap:8px;">
+                        <span style="display:flex; align-items:center; gap:6px; background:#f4f4f4; border:1px solid #e0e0e0; border-radius:20px; padding:5px 12px; font-size:12px; font-weight:700; color:#555;">
+                            <i class="fas {{ config("courses.types.$courseType.icon", 'fa-graduation-cap') }}" style="color:#C9A84C;"></i>
+                            {{ config("courses.types.$courseType.short", ucfirst($courseType)) }}
+                        </span>
+                        <span class="badge" style="font-size:12px; padding:6px 14px; {{ $isLead ? 'background:#C9A84C; color:#252525;' : 'background:#2c7a4b; color:#fff;' }}">
+                            <i class="fas fa-{{ $isLead ? 'star' : 'chalkboard-teacher' }} mr-1"></i>
+                            {{ $isLead ? 'Lead Facilitator' : 'Facilitator' }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

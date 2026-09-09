@@ -9,10 +9,14 @@
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('img/cosecsa-logo.png') }}" alt="COSECSA"
                          style="width:52px; height:52px; border-radius:50%; object-fit:cover; margin-right:16px; flex-shrink:0; border:2px solid #C9A84C;">
-                    <div>
+                    <div class="flex-grow-1">
                         <h5 style="color:#2d2d2d; margin:0; font-weight:700;">COSECSA Research Training System</h5>
                         <small style="color:#777;">College of Surgeons of East, Central and Southern Africa &mdash; Training Management Platform</small>
                     </div>
+                    <span style="flex-shrink:0; display:flex; align-items:center; gap:6px; background:#f4f4f4; border:1px solid #e0e0e0; border-radius:20px; padding:5px 14px; font-size:12px; font-weight:700; color:#555;">
+                        <i class="fas {{ config("courses.types.$courseType.icon", 'fa-graduation-cap') }}" style="color:#a02626;"></i>
+                        Showing: {{ config("courses.types.$courseType.label", ucfirst($courseType)) }}
+                    </span>
                 </div>
             </div>
         </div>

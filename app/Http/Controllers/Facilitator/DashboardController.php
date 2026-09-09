@@ -20,8 +20,12 @@ class DashboardController extends Controller
                                               ->where('title', 'not like', '%tea%')
                                               ->count() : 0;
         $myMaterials    = $speaker ? TrainingMaterial::where('speaker_id', $speaker->id)->count() : 0;
-        $totalMaterials = TrainingMaterial::count();
-        $totalTrainees  = Trainee::count();
-        return view('facilitator.dashboard', compact('speaker', 'isLead', 'mySessions', 'myMaterials', 'totalMaterials', 'totalTrainees'));
+        // "Total" figures reflect the currently selected course (Physical/Online
+        // switcher) — mySessions/myMaterials stay unscoped since a facilitator
+        // can teach in either course.
+        $courseType     = course_type();
+        $totalMaterials = TrainingMaterial::course($courseType)->count();
+        $totalTrainees  = Trainee::course($courseType)->count();
+        return view('facilitator.dashboard', compact('speaker', 'isLead', 'mySessions', 'myMaterials', 'totalMaterials', 'totalTrainees', 'courseType'));
     }
 }
