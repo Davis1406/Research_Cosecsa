@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOnlineRegistrationRequest;
+use App\Mail\OnlineRegistrationConfirmation;
 use App\Role;
 use App\Trainee;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Public self-registration for the COSECSA Online Research Methodology
@@ -58,8 +61,16 @@ class OnlineRegistrationController extends Controller
             'user_id'             => $user->id,
         ]);
 
+        // Best-effort — a mail outage should never block someone from
+        // completing registration; they're already logged in regardless.
+        try {
+            Mail::to($user->email)->send(new OnlineRegistrationConfirmation($user));
+        } catch (\Throwable $e) {
+            Log::warning('Online registration confirmation email failed to send: ' . $e->getMessage(), ['user_id' => $user->id]);
+        }
+
         Auth::login($user);
 
-        return redirect('/trainee')->with('message', 'Welcome! Your registration for the Online Research Methodology Course is complete.');
+        return redirect('/trainee')->with('message', 'Welcome! Your registration for the Online Research Methodology Course is complete. A confirmation email has been sent to ' . $user->email . '.');
     }
 }
