@@ -10,19 +10,9 @@ use Illuminate\Http\Request;
 
 class ScheduleManagerController extends Controller
 {
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
-    }
-
     public function index(Request $request)
     {
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
 
         $days = Schedule::with(['speaker', 'materials'])
             ->course($courseType)
@@ -33,7 +23,7 @@ class ScheduleManagerController extends Controller
 
     public function create(Request $request)
     {
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
         $speakers   = Speaker::orderBy('name')->get();
         $materials  = TrainingMaterial::course($courseType)->orderBy('title')->get();
         $maxDay     = Schedule::course($courseType)->max('day_number') ?? 0;
@@ -76,7 +66,7 @@ class ScheduleManagerController extends Controller
 
         $session->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('facilitator.schedule-manager.index', ['course' => $session->course_type])
+        return redirect()->route('facilitator.schedule-manager.index')
                          ->with('message', 'Session created successfully.');
     }
 
@@ -119,7 +109,7 @@ class ScheduleManagerController extends Controller
 
         $session->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('facilitator.schedule-manager.index', ['course' => $session->course_type])
+        return redirect()->route('facilitator.schedule-manager.index')
                          ->with('message', 'Session updated successfully.');
     }
 

@@ -2,17 +2,6 @@
 
 @section('styles')
 <style>
-/* ── Font: Nunito on text elements, but NOT on FA icon pseudo-elements ── */
-body, p, span, div, td, th, li, a, button, input, select, textarea, label,
-h1, h2, h3, h4, h5, h6, small, strong, em {
-    font-family: 'Nunito', sans-serif;
-}
-/* Keep Font Awesome working */
-.fa, .fas, .far, .fab, .fal,
-[class^="fa-"], [class*=" fa-"] {
-    font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands', 'Font Awesome 5 Solid' !important;
-}
-
 /* ── Day card ── */
 .day-card { border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.05); }
 .day-header {
@@ -78,7 +67,6 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
 
 @section('content')
 
-@include('admin.partials.course-tabs', ['courseRoute' => 'admin.schedules.index'])
 
 {{-- Page header --}}
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -87,7 +75,7 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
         {{ config("courses.types.$courseType.subtitle") }} &mdash; Timetable
     </h5>
     @can('schedule_create')
-    <a class="btn btn-cosecsa btn-sm" href="{{ route('admin.schedules.create', ['course' => $courseType]) }}">
+    <a class="btn btn-cosecsa btn-sm" href="{{ route('admin.schedules.create') }}">
         <i class="fas fa-plus mr-1"></i> Add Session
     </a>
     @endcan
@@ -115,7 +103,7 @@ h1, h2, h3, h4, h5, h6, small, strong, em {
     <i class="fas fa-calendar-times fa-2x mb-2" style="opacity:.4;"></i>
     <p class="mb-0">No sessions scheduled yet for {{ config("courses.types.$courseType.label") }}.</p>
     @can('schedule_create')
-    <a class="btn btn-cosecsa btn-sm mt-2" href="{{ route('admin.schedules.create', ['course' => $courseType]) }}">
+    <a class="btn btn-cosecsa btn-sm mt-2" href="{{ route('admin.schedules.create') }}">
         <i class="fas fa-plus mr-1"></i> Add the first session
     </a>
     @endcan

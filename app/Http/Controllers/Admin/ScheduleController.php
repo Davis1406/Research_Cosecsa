@@ -19,7 +19,7 @@ class ScheduleController extends Controller
     {
         abort_if(Gate::denies('schedule_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
 
         $days = Schedule::with(['speaker', 'materials'])
             ->course($courseType)
@@ -29,16 +29,6 @@ class ScheduleController extends Controller
             ->groupBy('day_number');
 
         return view('admin.schedules.index', compact('days', 'courseType'));
-    }
-
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
     }
 
     public function toggleComplete(Request $request, Schedule $schedule)
@@ -59,7 +49,7 @@ class ScheduleController extends Controller
     {
         abort_if(Gate::denies('schedule_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
         $speakers   = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $materials  = TrainingMaterial::course($courseType)->orderBy('title')->get();
 
@@ -73,7 +63,7 @@ class ScheduleController extends Controller
         // Attach any selected training materials
         $schedule->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('admin.schedules.index', ['course' => $schedule->course_type]);
+        return redirect()->route('admin.schedules.index');
     }
 
     public function edit(Schedule $schedule)
@@ -96,7 +86,7 @@ class ScheduleController extends Controller
         // Sync attached training materials
         $schedule->materials()->sync($request->input('materials', []));
 
-        return redirect()->route('admin.schedules.index', ['course' => $schedule->course_type]);
+        return redirect()->route('admin.schedules.index');
     }
 
     public function show(Schedule $schedule)

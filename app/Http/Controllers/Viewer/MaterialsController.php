@@ -9,11 +9,13 @@ class MaterialsController extends Controller
 {
     public function index()
     {
-        $materials = TrainingMaterial::with('facilitator')
+        $courseType = course_type();
+        $materials  = TrainingMaterial::with('facilitator')
+            ->course($courseType)
             ->orderBy('category')
             ->orderBy('title')
             ->get();
 
-        return view('viewer.materials', compact('materials'));
+        return view('viewer.materials', compact('materials', 'courseType'));
     }
 }

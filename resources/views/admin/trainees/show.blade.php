@@ -124,7 +124,7 @@
 <div class="content-header">
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap:8px;">
-            <a href="{{ route('admin.trainees.index', ['course' => $trainee->course_type]) }}" style="font-size:13px; color:#718096; text-decoration:none; font-weight:600;">
+            <a href="{{ route('admin.trainees.index') }}" style="font-size:13px; color:#718096; text-decoration:none; font-weight:600;">
                 <i class="fas fa-arrow-left mr-1"></i> Back to Trainees
             </a>
             <div style="display:flex; gap:8px;">

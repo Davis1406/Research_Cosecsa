@@ -34,7 +34,7 @@
                     <td style="font-size:13px; font-weight:600; color:#2d3748;">{{ $cert->trainee?->name ?? '—' }}</td>
                     <td style="font-size:13px; color:#555;">{{ $cert->event_name }}</td>
                     <td style="font-size:13px; color:#555;">{{ $cert->event_date }}</td>
-                    <td style="font-size:13px; color:#555;">{{ $cert->issuedBy?->name ?? '—' }}</td>
+                    <td style="font-size:13px; color:#555;">{{ $cert->issuedBy?->name ?? ($cert->auto_generated ? 'Auto-issued (Online course)' : '—') }}</td>
                     <td style="font-size:12px; color:#888;">{{ $cert->generated_at ? $cert->generated_at->format('M j, Y') : '—' }}</td>
                     <td style="text-align:right; padding-right:16px;">
                         <a href="{{ route('facilitator.certificates.preview', $cert) }}" target="_blank"

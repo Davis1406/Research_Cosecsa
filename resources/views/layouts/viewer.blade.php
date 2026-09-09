@@ -9,7 +9,9 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('vendor/fontawesome/css/all.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     <style>
+        :root { --portal-accent: var(--cosecsa-gold); }
         * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
         body { background: #f0f2f5; margin: 0; font-size: 14.5px; color: #1a202c; }
 
@@ -139,8 +141,11 @@
 <div class="viewer-main">
     <div class="viewer-topbar">
         <div class="page-title">@yield('page-title', 'Dashboard')</div>
-        <div class="viewer-badge">
-            <i class="fas fa-eye"></i> View Only
+        <div style="display:flex;align-items:center;gap:10px;">
+            @include('partials.course-switcher', ['accent' => '#C9A84C'])
+            <div class="viewer-badge">
+                <i class="fas fa-eye"></i> View Only
+            </div>
         </div>
     </div>
 

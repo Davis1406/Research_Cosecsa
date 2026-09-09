@@ -21,28 +21,18 @@ class TrainingMaterialsController extends Controller
     {
         abort_if(Gate::denies('training_material_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
 
         $trainingMaterials = TrainingMaterial::with('facilitator')->course($courseType)->orderBy('id', 'desc')->get();
 
         return view('admin.training-materials.index', compact('trainingMaterials', 'courseType'));
     }
 
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
-    }
-
     public function create(Request $request)
     {
         abort_if(Gate::denies('training_material_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType   = $this->resolveCourseType($request);
+        $courseType   = course_type();
         $facilitators = Speaker::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         return view('admin.training-materials.create', compact('facilitators', 'courseType'));
@@ -62,7 +52,7 @@ class TrainingMaterialsController extends Controller
             }
         }
 
-        return redirect()->route('admin.training-materials.index', ['course' => $trainingMaterial->course_type])
+        return redirect()->route('admin.training-materials.index')
             ->with('message', 'Material uploaded successfully.');
     }
 
@@ -113,7 +103,7 @@ class TrainingMaterialsController extends Controller
                 ->with('message', 'File replaced successfully.');
         }
 
-        return redirect()->route('admin.training-materials.index', ['course' => $trainingMaterial->course_type])
+        return redirect()->route('admin.training-materials.index')
             ->with('message', 'Material updated successfully.');
     }
 

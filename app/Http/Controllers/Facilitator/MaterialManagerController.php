@@ -66,21 +66,11 @@ class MaterialManagerController extends Controller
         }
     }
 
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
-    }
-
     // ── Controller actions ────────────────────────────────────────────────
 
     public function index(Request $request)
     {
-        $courseType  = $this->resolveCourseType($request);
+        $courseType  = course_type();
         $materials   = TrainingMaterial::with(['facilitator', 'schedules'])->course($courseType)->latest()->get();
         $editableIds = $this->editableMaterialIds();
 
@@ -89,7 +79,7 @@ class MaterialManagerController extends Controller
 
     public function create(Request $request)
     {
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
         $speakers   = Speaker::orderBy('name')->get();
         $categories = TrainingMaterial::distinct()->orderBy('category')->pluck('category')->filter()->values();
         return view('facilitator.material-manager.form', [
@@ -152,7 +142,7 @@ class MaterialManagerController extends Controller
             'external_url' => $externalUrl,
         ]);
 
-        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
+        return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'Material added successfully.');
     }
 
@@ -218,16 +208,15 @@ class MaterialManagerController extends Controller
             'external_url' => $externalUrl,
         ]);
 
-        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
+        return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'Material updated successfully.');
     }
 
     public function destroy(TrainingMaterial $material)
     {
         $this->authorizeEdit($material);
-        $courseType = $material->course_type;
         $material->delete();
-        return redirect()->route('facilitator.material-manager.index', ['course' => $courseType])
+        return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'Material deleted.');
     }
 
@@ -303,7 +292,7 @@ class MaterialManagerController extends Controller
             $material->update($updates);
         }
 
-        return redirect()->route('facilitator.material-manager.index', ['course' => $material->course_type])
+        return redirect()->route('facilitator.material-manager.index')
                          ->with('message', 'File for "' . $material->title . '" replaced successfully.');
     }
 

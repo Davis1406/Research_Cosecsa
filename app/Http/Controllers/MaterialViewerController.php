@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\TrainingMaterial;
+use App\TrainingMaterialView;
 use App\TraineeDocument;
 use App\TraineeDocumentComment;
+use App\Services\CourseCompletionService;
 
 class MaterialViewerController extends Controller
 {
@@ -25,7 +27,29 @@ class MaterialViewerController extends Controller
             $fileUrl = $material->file->url;
         }
 
+        $this->recordView($material);
+
         return view('material-viewer', compact('material', 'fileUrl'));
+    }
+
+    /**
+     * Record that the current user viewed this material — the "materials
+     * viewed" half of the online-course completion check — and, for an
+     * online-course trainee, check whether they've just graduated.
+     */
+    private function recordView(TrainingMaterial $material): void
+    {
+        $user = auth()->user();
+
+        TrainingMaterialView::updateOrCreate(
+            ['user_id' => $user->id, 'training_material_id' => $material->id],
+            ['viewed_at' => now()]
+        );
+
+        $trainee = $user->trainee;
+        if ($trainee && $trainee->course_type === 'online') {
+            app(CourseCompletionService::class)->checkAndIssue($trainee);
+        }
     }
 
     /**

@@ -13,7 +13,10 @@
 </div>
 
 @if($materials->isEmpty())
-    <div class="alert alert-info">No materials are available yet.</div>
+    <div class="empty-state">
+        <i class="fas fa-book empty-state-icon"></i>
+        <p class="empty-state-text">No materials are available yet.</p>
+    </div>
 @else
     @php $grouped = $materials->groupBy('category'); @endphp
     @foreach($grouped as $category => $items)

@@ -16,8 +16,31 @@
             </div>
         </div>
 
+        {{-- Course selector — On-site Research Training vs Online Course.
+             Sets the session before login so staff land in the right course
+             context immediately (a trainee's own course is fixed by their
+             enrollment regardless of what's picked here). --}}
+        @php $loginCourseType = course_type(); @endphp
+        <div style="padding:20px 28px 4px;">
+            <p style="font-size:11px; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 8px;">
+                Which course?
+            </p>
+            <div style="display:flex; gap:8px;">
+                @foreach(config('courses.types') as $key => $meta)
+                <a href="{{ route('course.switch', $key) }}"
+                   style="flex:1; text-align:center; padding:10px 8px; border-radius:8px; text-decoration:none;
+                          border:1.5px solid {{ $loginCourseType === $key ? '#a02626' : '#e2e2e2' }};
+                          background:{{ $loginCourseType === $key ? '#fdf3f3' : '#fff' }};
+                          color:{{ $loginCourseType === $key ? '#a02626' : '#888' }};">
+                    <i class="fas {{ $meta['icon'] }}" style="display:block; font-size:16px; margin-bottom:4px;"></i>
+                    <span style="font-size:12.5px; font-weight:700;">{{ $meta['short'] }}</span>
+                </a>
+                @endforeach
+            </div>
+        </div>
+
         {{-- Form body --}}
-        <div style="padding:28px 28px 24px;">
+        <div style="padding:16px 28px 24px;">
             <h5 style="color:#333; margin:0 0 6px; font-weight:700;">Welcome back</h5>
             <p style="color:#888; font-size:13px; margin:0 0 22px;">Sign in to continue to your account</p>
 

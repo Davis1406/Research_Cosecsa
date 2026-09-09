@@ -12,12 +12,13 @@ class ViewerController extends Controller
 {
     public function dashboard()
     {
-        $speakerCount  = Speaker::count();
-        $traineeCount  = Trainee::count();
-        $sessionCount  = Schedule::count();
-        $completedCount = Schedule::where('is_completed', true)->count();
+        $courseType     = course_type();
+        $speakerCount   = Speaker::count();
+        $traineeCount   = Trainee::course($courseType)->count();
+        $sessionCount   = Schedule::course($courseType)->count();
+        $completedCount = Schedule::course($courseType)->where('is_completed', true)->count();
 
-        return view('viewer.dashboard', compact('speakerCount', 'traineeCount', 'sessionCount', 'completedCount'));
+        return view('viewer.dashboard', compact('speakerCount', 'traineeCount', 'sessionCount', 'completedCount', 'courseType'));
     }
 
     public function facilitators()
@@ -32,7 +33,8 @@ class ViewerController extends Controller
 
     public function trainees(Request $request)
     {
-        $trainees = Trainee::orderBy('name')->get();
+        $courseType = course_type();
+        $trainees   = Trainee::course($courseType)->orderBy('name')->get();
 
         // Export CSV
         if ($request->query('export') === 'csv') {
@@ -59,17 +61,19 @@ class ViewerController extends Controller
             return response()->stream($callback, 200, $headers);
         }
 
-        return view('viewer.trainees', compact('trainees'));
+        return view('viewer.trainees', compact('trainees', 'courseType'));
     }
 
     public function timetable()
     {
+        $courseType = course_type();
         $days = Schedule::with(['speaker', 'materials'])
+            ->course($courseType)
             ->orderBy('day_number')
             ->orderBy('start_time')
             ->get()
             ->groupBy('day_number');
 
-        return view('viewer.timetable', compact('days'));
+        return view('viewer.timetable', compact('days', 'courseType'));
     }
 }

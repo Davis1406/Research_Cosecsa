@@ -8,6 +8,7 @@ class Certificate extends Model
 {
     protected $fillable = [
         'trainee_id',
+        'course_type',
         'event_name',
         'venue',
         'event_date',
@@ -25,10 +26,12 @@ class Certificate extends Model
         'logo3_path',
         'stamp_path',
         'generated_at',
+        'auto_generated',
     ];
 
     protected $casts = [
-        'generated_at' => 'datetime',
+        'generated_at'   => 'datetime',
+        'auto_generated' => 'boolean',
     ];
 
     public function trainee()

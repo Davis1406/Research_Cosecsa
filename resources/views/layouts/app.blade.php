@@ -13,7 +13,7 @@
     <link href="{{ asset('css/adminltev3.css') }}" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/icheck-bootstrap@3.0.1/icheck-bootstrap.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     @yield('styles')
 </head>
 

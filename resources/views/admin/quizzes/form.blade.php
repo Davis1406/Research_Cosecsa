@@ -61,6 +61,16 @@
                     <textarea name="description" class="form-control" rows="2" placeholder="Optional description...">{{ old('description', $quiz->description ?? '') }}</textarea>
                 </div>
                 <div class="col-md-4 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">Course</label>
+                    <select name="course_type" class="form-control">
+                        @foreach(config('courses.types') as $key => $meta)
+                        <option value="{{ $key }}" {{ old('course_type', $quiz->course_type ?? course_type()) == $key ? 'selected' : '' }}>
+                            {{ $meta['label'] }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">Time Limit (minutes)</label>
                     <input type="number" name="time_limit" class="form-control" value="{{ old('time_limit', $quiz->time_limit ?? '') }}" placeholder="Leave blank = unlimited">
                 </div>

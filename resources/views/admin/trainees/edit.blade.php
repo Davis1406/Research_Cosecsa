@@ -62,7 +62,7 @@
                 <button class="btn btn-cosecsa" type="submit">
                     <i class="fas fa-save mr-1"></i> {{ trans('global.save') }}
                 </button>
-                <a class="btn btn-secondary ml-2" href="{{ route('admin.trainees.index', ['course' => $courseType]) }}">{{ trans('global.cancel') }}</a>
+                <a class="btn btn-secondary ml-2" href="{{ route('admin.trainees.index') }}">{{ trans('global.cancel') }}</a>
             </div>
         </form>
     </div>

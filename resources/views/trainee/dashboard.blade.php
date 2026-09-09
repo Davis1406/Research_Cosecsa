@@ -3,6 +3,28 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+@if($onlineCertificate)
+<div class="row">
+    <div class="col-12 mb-3">
+        <div class="card shadow-sm" style="border-radius:8px; border:1px solid #C9A84C; background:linear-gradient(135deg,#fffaf0,#fff);">
+            <div class="card-body py-3 d-flex align-items-center justify-content-between flex-wrap" style="gap:12px;">
+                <div class="d-flex align-items-center" style="gap:14px;">
+                    <div style="font-size:32px; color:#C9A84C;"><i class="fas fa-award"></i></div>
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:#252525;">🎓 Congratulations — your certificate is ready!</div>
+                        <div style="font-size:12.5px; color:#777;">You completed every material and quiz in the {{ config('courses.types.online.label') }}.</div>
+                    </div>
+                </div>
+                <a href="{{ route('certificate.view', $onlineCertificate) }}" target="_blank" class="btn"
+                   style="background:#252525; color:#C9A84C; font-weight:700; border:1px solid #C9A84C; padding:8px 20px;">
+                    <i class="fas fa-download mr-1"></i> View / Print Certificate
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <div class="row">
     <div class="col-12 mb-3">
         <div class="card shadow-sm" style="border-left: 4px solid #C9A84C; border-radius: 8px;">
@@ -39,35 +61,27 @@
 
 <div class="row">
     <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #252525;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#252525; font-weight:700;">{{ $totalSessions }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total Sessions</div>
-            </div>
+        <div class="stat-tile" style="--tile-accent:#252525;">
+            <div class="stat-tile-number">{{ $totalSessions }}</div>
+            <div class="stat-tile-label">Total Sessions</div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #28a745;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#28a745; font-weight:700;">{{ $completedSessions }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Completed Sessions</div>
-            </div>
+        <div class="stat-tile" style="--tile-accent:#28a745;">
+            <div class="stat-tile-number">{{ $completedSessions }}</div>
+            <div class="stat-tile-label">Completed Sessions</div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #C9A84C;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#C9A84C; font-weight:700;">{{ $totalMaterials }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Available Materials</div>
-            </div>
+        <div class="stat-tile" style="--tile-accent:#C9A84C;">
+            <div class="stat-tile-number">{{ $totalMaterials }}</div>
+            <div class="stat-tile-label">Available Materials</div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="card shadow-sm text-center h-100" style="border-radius:8px; border-top: 3px solid #a02626;">
-            <div class="card-body">
-                <div style="font-size:28px; color:#a02626; font-weight:700;">{{ $myDocuments }}</div>
-                <div style="font-size:12px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">My Documents</div>
-            </div>
+        <div class="stat-tile" style="--tile-accent:#a02626;">
+            <div class="stat-tile-number">{{ $myDocuments }}</div>
+            <div class="stat-tile-label">My Documents</div>
         </div>
     </div>
 </div>
@@ -84,6 +98,9 @@
                 </a>
                 <a href="{{ route('trainee.materials') }}" class="btn btn-block mb-2" style="background:#a02626; color:#fff; font-weight:600;">
                     <i class="fas fa-book mr-2"></i> Browse Materials
+                </a>
+                <a href="{{ route('trainee.quizzes.index') }}" class="btn btn-block mb-2" style="background:#2c7a4b; color:#fff; font-weight:600;">
+                    <i class="fas fa-question-circle mr-2"></i> Take Quizzes
                 </a>
                 <a href="{{ route('trainee.documents.index') }}" class="btn btn-block" style="background:#f4f6f9; color:#252525; font-weight:600; border:1px solid #ddd;">
                     <i class="fas fa-folder-open mr-2"></i> Upload Documents
@@ -117,7 +134,19 @@
                          aria-valuenow="{{ $qpct }}" aria-valuemin="0" aria-valuemax="100">
                     </div>
                 </div>
-                <p class="text-right mb-0" style="font-size:12px; color:#666;">{{ $quizPassed }} / {{ $quizCount }} ({{ $qpct }}%)</p>
+                <p class="text-right mb-{{ $onlineProgress ? 3 : 0 }}" style="font-size:12px; color:#666;">{{ $quizPassed }} / {{ $quizCount }} ({{ $qpct }}%)</p>
+
+                @if($onlineProgress)
+                @php $mpct = $onlineProgress['totalMaterials'] > 0 ? round(($onlineProgress['viewedMaterials'] / $onlineProgress['totalMaterials']) * 100) : 0; @endphp
+                <p class="mb-1" style="font-size:13px; font-weight:600;">Materials Viewed</p>
+                <div class="progress mb-1" style="height:8px; border-radius:4px;">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ $mpct }}%; background:#a02626;"
+                         aria-valuenow="{{ $mpct }}" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <p class="text-right mb-0" style="font-size:12px; color:#666;">{{ $onlineProgress['viewedMaterials'] }} / {{ $onlineProgress['totalMaterials'] }} ({{ $mpct }}%)</p>
+                @endif
             </div>
         </div>
     </div>

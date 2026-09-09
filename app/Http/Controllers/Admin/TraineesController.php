@@ -17,36 +17,26 @@ class TraineesController extends Controller
     {
         abort_if(Gate::denies('trainee_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
         $trainees   = Trainee::course($courseType)->orderBy('id', 'desc')->get();
 
         return view('admin.trainees.index', compact('trainees', 'courseType'));
-    }
-
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
     }
 
     public function create(Request $request)
     {
         abort_if(Gate::denies('trainee_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
 
         return view('admin.trainees.create', compact('courseType'));
     }
 
     public function store(StoreTraineeRequest $request)
     {
-        $trainee = Trainee::create($request->all());
+        Trainee::create($request->all());
 
-        return redirect()->route('admin.trainees.index', ['course' => $trainee->course_type])
+        return redirect()->route('admin.trainees.index')
             ->with('message', 'Trainee registered successfully.');
     }
 
@@ -63,7 +53,7 @@ class TraineesController extends Controller
     {
         $trainee->update($request->all());
 
-        return redirect()->route('admin.trainees.index', ['course' => $trainee->course_type])
+        return redirect()->route('admin.trainees.index')
             ->with('message', 'Trainee updated successfully.');
     }
 

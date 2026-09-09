@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\TrainingMaterial;
 use App\TraineeDocument;
 use App\TraineeDocumentComment;
+use App\Certificate;
 use App\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -76,7 +77,24 @@ class AppServiceProvider extends ServiceProvider
                                : route('facilitator.presentations.view', $doc->id),
             ]);
 
-            $notifItems = $materials->merge($comments)->merge($uploads)
+            $autoCertificates = Certificate::with('trainee')
+                ->where('auto_generated', true)
+                ->latest()
+                ->take(10)
+                ->get()
+                ->map(fn($c) => [
+                    'key'   => 'certificate_' . $c->id,
+                    'type'  => 'certificate',
+                    'title' => ($c->trainee?->name ?? 'A trainee') . ' earned their certificate',
+                    'sub'   => 'Auto-issued — ' . ($c->course_name ?? config('courses.types.online.label')),
+                    'time'  => $c->created_at,
+                    'icon'  => 'fa-award',
+                    'color' => '#C9A84C',
+                    'new'   => $isNew('certificate_' . $c->id, $c->created_at),
+                    'url'   => route('certificate.view', $c->id),
+                ]);
+
+            $notifItems = $materials->merge($comments)->merge($uploads)->merge($autoCertificates)
                 ->sortByDesc('time')
                 ->take(15)
                 ->values();

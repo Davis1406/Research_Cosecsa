@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     <style>
+        :root { --portal-accent: var(--cosecsa-gold); }
         * { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-sizing: border-box; }
         body { background: #f0f2f5; margin: 0; font-size: 14.5px; color: #1a202c; }
         h1,h2,h3,h4,h5,h6 { font-weight: 700; color: #1a202c; }
@@ -266,6 +267,9 @@
             <span class="page-title">@yield('page-title', 'Facilitator Portal')</span>
         </div>
         <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            {{-- Global course switcher --}}
+            @include('partials.course-switcher', ['accent' => '#C9A84C'])
+
             {{-- Notification bell (lead facilitator only) --}}
             @if($isLead)
             <div style="position:relative;" id="notif-wrapper">
@@ -351,7 +355,7 @@
 </form>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
 <script>
 function toggleNotif(e) {
     e.stopPropagation();

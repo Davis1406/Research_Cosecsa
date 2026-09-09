@@ -5,7 +5,7 @@
 @php $isEdit = !is_null($material); @endphp
 
 <div class="d-flex align-items-center mb-3" style="gap:12px;">
-    <a href="{{ route('facilitator.material-manager.index', ['course' => $courseType]) }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">
+    <a href="{{ route('facilitator.material-manager.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">
         <i class="fas fa-arrow-left mr-1"></i> Back
     </a>
     <h5 class="mb-0" style="font-weight:700; color:#2d3748;">
@@ -163,7 +163,7 @@
                 <button type="submit" class="btn" style="background:#C9A84C; color:#fff; font-weight:700; font-size:14px; padding:10px 28px; border-radius:6px; min-width:160px;">
                     <i class="fas fa-save mr-2"></i>{{ $isEdit ? 'Save Changes' : 'Add Material' }}
                 </button>
-                <a href="{{ route('facilitator.material-manager.index', ['course' => $courseType]) }}"
+                <a href="{{ route('facilitator.material-manager.index') }}"
                    class="btn" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6; font-size:13px; padding:10px 20px; border-radius:6px;">
                     Cancel
                 </a>

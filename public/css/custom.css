@@ -5,6 +5,8 @@
    Gold:     #C9A84C (secondary accent)
    =========================== */
 
+/* Inter is the platform-wide type family (matches most portals already);
+   Font Awesome icon glyphs are explicitly excluded so icons keep rendering. */
 body,
 .nav-sidebar .nav-link p,
 .brand-text,
@@ -13,7 +15,12 @@ body,
 .main-footer,
 .card,
 .btn {
-    font-family: 'Nunito', sans-serif !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+.fa, .fas, .far, .fab, .fal,
+[class^="fa-"], [class*=" fa-"] {
+    font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands', 'Font Awesome 5 Solid' !important;
 }
 
 :root {
@@ -32,6 +39,29 @@ body,
     /* Content area – clean neutral */
     --cosecsa-content-bg: #f4f4f4;
     --cosecsa-card-border: #e0e0e0;
+
+    /* Spacing scale — for new/updated components; existing inline styles
+       are untouched, this is the vocabulary to converge on going forward. */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+
+    /* Portal identity accent — each layout's own <style> block overrides
+       this once, so shared components (course switcher, empty states,
+       stat tiles) automatically pick up the right portal color. */
+    --portal-accent: var(--cosecsa-burgundy);
+
+    /* Status vocabulary, used by .badge-status-* below */
+    --status-success: #28a745;
+    --status-success-bg: #e8fdf0;
+    --status-danger: #a02626;
+    --status-danger-bg: #fde8e8;
+    --status-warning: #b8960a;
+    --status-warning-bg: #fff8e6;
+    --status-info: #2d6fa8;
+    --status-info-bg: #e8f4fd;
 }
 
 /* ===================== TOP NAVBAR ===================== */
@@ -153,6 +183,89 @@ body,
     background-color: var(--cosecsa-gold-dark);
     border-color: #9a7a08;
     color: #fff;
+}
+
+.btn-cosecsa-outline {
+    background: #fff;
+    border: 1px solid var(--cosecsa-burgundy);
+    color: var(--cosecsa-burgundy);
+}
+
+.btn-cosecsa-outline:hover,
+.btn-cosecsa-outline:focus {
+    background: var(--cosecsa-burgundy);
+    color: #fff;
+}
+
+/* ===================== STATUS BADGES ===================== */
+.badge-status-success { background: var(--status-success-bg); color: var(--status-success); }
+.badge-status-danger  { background: var(--status-danger-bg);  color: var(--status-danger); }
+.badge-status-warning { background: var(--status-warning-bg); color: var(--status-warning); }
+.badge-status-info    { background: var(--status-info-bg);    color: var(--status-info); }
+.badge-status-success,
+.badge-status-danger,
+.badge-status-warning,
+.badge-status-info {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ===================== EMPTY STATES ===================== */
+/* Standard "nothing here yet" block — icon + message + optional CTA.
+   Usage: <div class="empty-state"><i class="fas fa-inbox empty-state-icon"></i>
+          <p class="empty-state-text">No items yet.</p>
+          <a class="btn btn-cosecsa btn-sm" href="...">Add the first one</a></div> */
+.empty-state {
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    color: #999;
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    opacity: 0.4;
+    margin-bottom: var(--space-2);
+    display: block;
+}
+
+.empty-state-text {
+    margin-bottom: var(--space-2);
+    color: #888;
+}
+
+/* ===================== STAT TILES (compact dashboard cards) ===================== */
+/* A simpler alternative to .stat-card for a row of centered number+label
+   tiles (dashboards use this pattern a lot via one-off inline styles).
+   Usage: <div class="stat-tile" style="--tile-accent:#28a745;">
+            <div class="stat-tile-number">12</div>
+            <div class="stat-tile-label">Completed</div>
+          </div> */
+.stat-tile {
+    background: #fff;
+    border-radius: 8px;
+    border-top: 3px solid var(--tile-accent, var(--portal-accent));
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    text-align: center;
+    padding: var(--space-4) var(--space-3);
+    height: 100%;
+}
+
+.stat-tile-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--tile-accent, #2d2d2d);
+    line-height: 1.1;
+}
+
+.stat-tile-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 4px;
 }
 
 /* ===================== FOOTER ===================== */

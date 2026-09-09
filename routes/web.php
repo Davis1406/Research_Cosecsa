@@ -10,6 +10,21 @@ Route::post('/login', '\App\Http\Controllers\Auth\LoginController@login')->middl
 Route::get('/change-password',  'Auth\ChangePasswordController@show')->name('change-password.show')->middleware('auth');
 Route::post('/change-password', 'Auth\ChangePasswordController@update')->name('change-password.update')->middleware('auth');
 
+// Global course switcher — Admin/Facilitator/Viewer pick which course instance
+// (physical|online) they're browsing; remembered in session + on the user.
+// Deliberately NOT auth-gated — the login page also offers this choice so
+// staff land in the right course context immediately after signing in.
+Route::get('/switch-course/{type}', function (string $type) {
+    if (!array_key_exists($type, config('courses.types'))) {
+        abort(404);
+    }
+    session(['course_type' => $type]);
+    if (auth()->check()) {
+        auth()->user()->update(['preferred_course_type' => $type]);
+    }
+    return redirect()->back();
+})->name('course.switch');
+
 // /home — smart redirect to role dashboard
 Route::get('/home', function () {
     if (!auth()->check()) {
@@ -148,6 +163,12 @@ Route::get('/trainee-document/{document}/render-slides', 'MaterialViewerControll
      ->name('trainee-document.render-slides')
      ->middleware('auth');
 
+// Shared certificate viewer — Admin/Facilitator can view any certificate;
+// a Trainee can only view their own (including auto-issued online certs).
+Route::get('/certificate/{certificate}/view', 'CertificateViewController@show')
+     ->name('certificate.view')
+     ->middleware('auth');
+
 // Mark a single notification item as read (shared — admin & lead facilitator)
 Route::post('/notifications/mark-item-read', function (\Illuminate\Http\Request $request) {
     $key  = preg_replace('/[^a-z0-9_]/', '', $request->input('key', ''));
@@ -182,6 +203,12 @@ Route::prefix('trainee')->name('trainee.')->namespace('Trainee')->middleware(['a
     Route::post('/documents', 'DocumentsController@store')->name('documents.store');
     Route::post('/documents/media', 'DocumentsController@storeMedia')->name('documents.storeMedia');
     Route::delete('/documents/{document}', 'DocumentsController@destroy')->name('documents.destroy');
+
+    // Quizzes — take a quiz, grade it, and view your own result
+    Route::get('/quizzes', 'QuizController@index')->name('quizzes.index');
+    Route::get('/quizzes/{quiz}', 'QuizController@show')->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/submit', 'QuizController@submit')->name('quizzes.submit');
+    Route::get('/quizzes/{quiz}/result', 'QuizController@result')->name('quizzes.result');
 });
 
 // ── Facilitator Portal ────────────────────────────────────────────

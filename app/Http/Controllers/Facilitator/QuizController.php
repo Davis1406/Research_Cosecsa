@@ -34,6 +34,7 @@ class QuizController extends Controller
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
+            'course_type' => 'nullable|in:physical,online',
             'schedule_id' => 'nullable|exists:schedules,id',
             'time_limit'  => 'nullable|integer|min:1',
             'pass_score'  => 'nullable|integer|min:0|max:100',
@@ -42,6 +43,7 @@ class QuizController extends Controller
         $quiz = Quiz::create([
             'title'        => $request->title,
             'description'  => $request->description,
+            'course_type'  => $request->course_type ?? config('courses.default'),
             'schedule_id'  => $request->schedule_id ?: null,
             'created_by'   => auth()->id(),
             'time_limit'   => $request->time_limit,
@@ -72,6 +74,7 @@ class QuizController extends Controller
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
+            'course_type' => 'nullable|in:physical,online',
             'schedule_id' => 'nullable|exists:schedules,id',
             'time_limit'  => 'nullable|integer|min:1',
             'pass_score'  => 'nullable|integer|min:0|max:100',
@@ -80,6 +83,7 @@ class QuizController extends Controller
         $quiz->update([
             'title'        => $request->title,
             'description'  => $request->description,
+            'course_type'  => $request->course_type ?? $quiz->course_type,
             'schedule_id'  => $request->schedule_id ?: null,
             'time_limit'   => $request->time_limit,
             'pass_score'   => $request->pass_score ?? 60,

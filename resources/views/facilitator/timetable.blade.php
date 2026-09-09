@@ -3,7 +3,6 @@
 @section('page-title', 'Programme')
 
 @section('content')
-@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.timetable'])
 
 <div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap:wrap; gap:10px;">
     <h5 class="mb-0" style="font-weight:700; color:#2d3748; font-size:1.1rem;">

@@ -9,10 +9,11 @@
     <link rel="icon" type="image/png" href="{{ asset('img/cosecsa-favicon.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     <style>
-        * { font-family: 'Nunito', sans-serif; }
+        :root { --portal-accent: var(--cosecsa-gold); }
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         body { background: #f4f6f9; margin: 0; }
 
         /* Sidebar */
@@ -193,6 +194,9 @@
         <a href="{{ route('trainee.materials') }}" class="{{ request()->routeIs('trainee.materials') ? 'active' : '' }}">
             <i class="fas fa-book"></i> Materials
         </a>
+        <a href="{{ route('trainee.quizzes.index') }}" class="{{ request()->routeIs('trainee.quizzes.*') ? 'active' : '' }}">
+            <i class="fas fa-question-circle"></i> Quizzes
+        </a>
         <a href="{{ route('trainee.profile.edit') }}" class="{{ request()->routeIs('trainee.profile.*') ? 'active' : '' }}">
             <i class="fas fa-user-edit"></i> My Profile
         </a>
@@ -210,7 +214,13 @@
 <div class="portal-main">
     <div class="portal-topbar">
         <span class="page-title">@yield('page-title', 'Trainee Portal')</span>
-        <span class="user-info" style="display:flex;align-items:center;gap:8px;">
+        <span class="user-info" style="display:flex;align-items:center;gap:12px;">
+            @php $myCourseType = auth()->user()->trainee->course_type ?? config('courses.default'); @endphp
+            {{-- Read-only: a trainee's course is fixed by their own enrollment, not switchable --}}
+            <span style="display:flex;align-items:center;gap:6px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);border-radius:20px;padding:4px 12px;font-size:0.75rem;font-weight:700;color:#C9A84C;">
+                <i class="fas {{ config("courses.types.$myCourseType.icon", 'fa-graduation-cap') }}"></i>
+                {{ config("courses.types.$myCourseType.short", ucfirst($myCourseType)) }}
+            </span>
             <div style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(201,168,76,0.7);overflow:hidden;flex-shrink:0;background:#a02626;">
                 <div style="width:100%;height:100%;background:#C9A84C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">{{ $traineeInit }}</div>
             </div>
@@ -247,7 +257,7 @@
 </form>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script>
 // ── Shared Dropzone helpers (trainee pages) ───────────────────────────────

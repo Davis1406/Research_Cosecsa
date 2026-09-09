@@ -39,6 +39,7 @@ class User extends Authenticatable
         'notifications_seen_at',
         'notifications_read_ids',
         'must_change_password',
+        'preferred_course_type',
     ];
 
     public function getEmailVerifiedAtAttribute($value)

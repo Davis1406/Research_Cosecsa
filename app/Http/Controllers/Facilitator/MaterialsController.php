@@ -15,12 +15,9 @@ class MaterialsController extends Controller
         $isLead  = $user->roles->pluck('title')->contains('Lead Facilitator');
         $speaker = $user->speaker;
 
-        $courseType = $request->query('course', config('courses.default'));
-        if (!array_key_exists($courseType, config('courses.types'))) {
-            $courseType = config('courses.default');
-        }
+        $courseType = course_type();
 
-        // Facilitators can teach in either course — switch via the tabs
+        // Facilitators can teach in either course — switched globally via the topbar
         $materials = TrainingMaterial::with('facilitator')
             ->course($courseType)
             ->orderBy('category')

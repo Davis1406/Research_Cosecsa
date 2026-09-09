@@ -14,19 +14,9 @@ use Illuminate\Support\Facades\Hash;
 
 class TraineesController extends Controller
 {
-    /**
-     * Resolve and validate the ?course= query param, falling back to the configured default.
-     */
-    private function resolveCourseType(Request $request)
-    {
-        $courseType = $request->query('course', config('courses.default'));
-
-        return array_key_exists($courseType, config('courses.types')) ? $courseType : config('courses.default');
-    }
-
     public function index(Request $request)
     {
-        $courseType  = $this->resolveCourseType($request);
+        $courseType  = course_type();
         $traineeList = Trainee::with([
             'documents' => fn($q) => $q->with('reviewers'),
             'user',
@@ -34,14 +24,14 @@ class TraineesController extends Controller
 
         $totalSessions = Schedule::course($courseType)->count();
         $completedSessions = Schedule::course($courseType)->where('is_completed', true)->count();
-        $quizCount = Quiz::where('is_published', true)->count();
+        $quizCount = Quiz::course($courseType)->where('is_published', true)->count();
 
         return view('facilitator.trainees', compact('traineeList', 'totalSessions', 'completedSessions', 'quizCount', 'courseType'));
     }
 
     public function create(Request $request)
     {
-        $courseType = $this->resolveCourseType($request);
+        $courseType = course_type();
         return view('facilitator.trainees-form', ['trainee' => null, 'traineeUser' => null, 'courseType' => $courseType]);
     }
 
@@ -86,7 +76,7 @@ class TraineesController extends Controller
             'user_id'             => $user->id,
         ]);
 
-        return redirect()->route('facilitator.trainees', ['course' => $trainee->course_type])
+        return redirect()->route('facilitator.trainees')
             ->with('message', 'Trainee account created successfully.');
     }
 
@@ -140,7 +130,7 @@ class TraineesController extends Controller
             'notes'               => $validated['notes'] ?? null,
         ]);
 
-        return redirect()->route('facilitator.trainees', ['course' => $trainee->course_type])
+        return redirect()->route('facilitator.trainees')
             ->with('message', 'Trainee updated successfully.');
     }
 

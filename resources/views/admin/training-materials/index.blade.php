@@ -1,12 +1,11 @@
 @extends('layouts.admin')
 
 @section('content')
-@include('admin.partials.course-tabs', ['courseRoute' => 'admin.training-materials.index'])
 
 @can('training_material_create')
 <div class="row mb-2">
     <div class="col-lg-12">
-        <a class="btn btn-cosecsa" href="{{ route('admin.training-materials.create', ['course' => $courseType]) }}">
+        <a class="btn btn-cosecsa" href="{{ route('admin.training-materials.create') }}">
             <i class="fas fa-upload mr-1"></i> {{ trans('global.add') }} {{ trans('cruds.trainingMaterial.title_singular') }}
         </a>
     </div>

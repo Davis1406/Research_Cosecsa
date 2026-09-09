@@ -14,12 +14,9 @@ class TimetableController extends Controller
         $isLead  = $user->roles->pluck('title')->contains('Lead Facilitator');
         $speaker = $user->speaker;
 
-        $courseType = $request->query('course', config('courses.default'));
-        if (!array_key_exists($courseType, config('courses.types'))) {
-            $courseType = config('courses.default');
-        }
+        $courseType = course_type();
 
-        // Facilitators can teach in either course — switch via the tabs
+        // Facilitators can teach in either course — switched globally via the topbar
         $days = Schedule::with(['speaker', 'materials'])
             ->course($courseType)
             ->orderBy('day_number')

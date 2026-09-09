@@ -12,6 +12,7 @@ class Quiz extends Model
     protected $fillable = [
         'title',
         'description',
+        'course_type',
         'schedule_id',
         'created_by',
         'time_limit',
@@ -41,5 +42,10 @@ class Quiz extends Model
     public function attempts()
     {
         return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function scopeCourse($query, $courseType)
+    {
+        return $query->where('course_type', $courseType);
     }
 }

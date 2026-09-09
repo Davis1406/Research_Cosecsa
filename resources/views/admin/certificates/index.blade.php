@@ -34,7 +34,7 @@
                         <td>{{ $cert->trainee?->name ?? '—' }}</td>
                         <td>{{ $cert->event_name ?? '—' }}</td>
                         <td>{{ $cert->event_date ?? '—' }}</td>
-                        <td>{{ $cert->issuedBy?->name ?? '—' }}</td>
+                        <td>{{ $cert->issuedBy?->name ?? ($cert->auto_generated ? 'Auto-issued (Online course)' : '—') }}</td>
                         <td>{{ $cert->created_at->format('M j, Y') }}</td>
                         <td class="actions-cell">
                             <button type="button" class="btn btn-xs btn-secondary action-menu-btn">

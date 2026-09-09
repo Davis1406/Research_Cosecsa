@@ -3,7 +3,6 @@
 @section('page-title', 'Materials')
 
 @section('content')
-@include('facilitator.partials.course-tabs', ['courseRoute' => 'facilitator.materials'])
 
 <div class="d-flex justify-content-between align-items-center mb-4" style="flex-wrap:wrap; gap:10px;">
     <h5 class="mb-0" style="font-weight:700; color:#252525; font-size:1.1rem;">
@@ -30,7 +29,10 @@
 </div>
 
 @if($materials->isEmpty())
-    <div class="alert alert-info">No materials have been added yet.</div>
+    <div class="empty-state">
+        <i class="fas fa-book empty-state-icon"></i>
+        <p class="empty-state-text">No materials have been added yet.</p>
+    </div>
 @else
     @php $grouped = $materials->groupBy('category'); @endphp
     @foreach($grouped as $category => $items)
