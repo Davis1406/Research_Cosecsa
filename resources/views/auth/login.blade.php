@@ -96,6 +96,11 @@
                     Sign In
                 </button>
             </form>
+
+            <p style="text-align:center; font-size:13px; color:#888; margin:16px 0 0;">
+                Joining the Online Research Methodology Course?
+                <a href="{{ route('register.online.show') }}" style="color:#a02626; font-weight:600;">Register here</a>
+            </p>
         </div>
 
         {{-- Footer: Intuitive Foundation logo --}}

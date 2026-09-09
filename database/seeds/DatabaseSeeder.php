@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SettingsTableSeeder::class,
             TraineesTableSeeder::class,
             OnlineResearchMethodologyCourseSeeder::class,
+            PhysicalWorkshopScheduleSeeder::class,
         ]);
     }
 }

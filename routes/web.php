@@ -10,6 +10,13 @@ Route::post('/login', '\App\Http\Controllers\Auth\LoginController@login')->middl
 Route::get('/change-password',  'Auth\ChangePasswordController@show')->name('change-password.show')->middleware('auth');
 Route::post('/change-password', 'Auth\ChangePasswordController@update')->name('change-password.update')->middleware('auth');
 
+// Public self-registration for the Online Research Methodology Course —
+// the link is shared with trainees on the Zoom call. General registration
+// stays disabled (Auth::routes(['register' => false]) above); this is a
+// dedicated, online-course-only signup that creates a Trainee record.
+Route::get('/register/online',  'Auth\OnlineRegistrationController@show')->name('register.online.show');
+Route::post('/register/online', 'Auth\OnlineRegistrationController@store')->name('register.online.store')->middleware('throttle:10,1');
+
 // Global course switcher — Admin/Facilitator/Viewer pick which course instance
 // (physical|online) they're browsing; remembered in session + on the user.
 // Deliberately NOT auth-gated — the login page also offers this choice so
