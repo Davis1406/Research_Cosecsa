@@ -13,6 +13,9 @@
                     {{-- Header band --}}
                     <tr>
                         <td style="background:#a02626; padding:24px; text-align:center;">
+                            <img src="{{ $message->embed(public_path('img/cosecsa-logo.png')) }}" alt="COSECSA"
+                                 width="64" height="64"
+                                 style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:3px solid #C9A84C; box-shadow:0 2px 10px rgba(0,0,0,0.3); margin-bottom:10px;">
                             <div style="color:#fff; font-size:17px; font-weight:700;">COSECSA</div>
                             <div style="color:rgba(255,255,255,0.75); font-size:11px; margin-top:3px; text-transform:uppercase; letter-spacing:0.5px;">
                                 Online Research Methodology Course

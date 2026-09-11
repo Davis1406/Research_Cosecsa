@@ -30,4 +30,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Server-to-server reference data (programmes, hospitals) — see
+    // App\Services\CosecsaApiClient. Same env var names as the sibling
+    // Cosecsa MIS app so a shared .env/token works across both.
+    'cosecsa_api' => [
+        'url'   => env('COSECSA_API_URL', 'http://cosecsa-api'),
+        'token' => env('COSECSA_API_TOKEN'),
+    ],
+
 ];

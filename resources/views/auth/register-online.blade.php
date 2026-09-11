@@ -55,19 +55,34 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label style="font-size:13px; color:#555; font-weight:600;">Country</label>
-                        <input type="text" class="form-control" name="country" value="{{ old('country') }}" placeholder="Optional">
+                        <select class="form-control" name="country">
+                            <option value="">-- Select country (optional) --</option>
+                            @foreach($countries as $country)
+                                <option value="{{ $country }}" @selected(old('country') === $country)>{{ $country }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="font-size:13px; color:#555; font-weight:600;">Institution</label>
-                    <input type="text" class="form-control" name="institution" value="{{ old('institution') }}" placeholder="Hospital / institution (optional)">
-                </div>
+                @include('auth._pick-or-add', [
+                    'field'       => 'institution',
+                    'label'       => 'Institution',
+                    'options'     => $hospitals,
+                    'placeholder' => '-- Select hospital / institution (optional) --',
+                    'addLabel'    => 'Hospital not listed — add it',
+                    'otherPlaceholder' => 'Enter hospital / institution name',
+                ])
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label style="font-size:13px; color:#555; font-weight:600;">Specialty</label>
-                        <input type="text" class="form-control" name="specialty" value="{{ old('specialty') }}" placeholder="Optional">
+                        @include('auth._pick-or-add', [
+                            'field'       => 'specialty',
+                            'label'       => 'Programme',
+                            'options'     => $programmes,
+                            'placeholder' => '-- Select programme (optional) --',
+                            'addLabel'    => 'Programme not listed — add it',
+                            'otherPlaceholder' => 'Enter programme name',
+                        ])
                     </div>
                     <div class="form-group col-md-6">
                         <label style="font-size:13px; color:#555; font-weight:600;">Registration No.</label>

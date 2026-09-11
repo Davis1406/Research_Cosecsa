@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOnlineRegistrationRequest;
 use App\Mail\OnlineRegistrationConfirmation;
 use App\Role;
+use App\Services\CosecsaApiClient;
 use App\Trainee;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -29,7 +31,46 @@ class OnlineRegistrationController extends Controller
 
     public function show()
     {
-        return view('auth.register-online');
+        return view('auth.register-online', [
+            'programmes' => $this->fetchReferenceList('reference/programmes', 'programmes', 'name'),
+            // cosecsa-api's ReferenceController::hospitals() has a bug where
+            // per_page=all 500s (Request::string() returns a Stringable,
+            // which the controller's `=== 'all'` check then fails, falling
+            // through to `(int) $perPage`) — request a page bigger than the
+            // hospital count instead of relying on that "all" mode.
+            'hospitals'  => $this->fetchReferenceList('reference/hospitals', 'data', 'name', ['per_page' => 1000]),
+            'countries'  => config('countries'),
+        ]);
+    }
+
+    // Pulls a lookup list from cosecsa-api for the form's dropdowns, cached
+    // for 30 minutes. This is a public, unauthenticated registration page —
+    // it must never fail to load because cosecsa-api is slow or down, so
+    // any error just falls back to an empty list (the "Other" / add-new
+    // option in the dropdown still lets someone type their own).
+    private function fetchReferenceList(string $path, string $dataKey, string $nameKey, array $query = []): array
+    {
+        return Cache::remember("register-online.$path", 1800, function () use ($path, $dataKey, $nameKey, $query) {
+            try {
+                $response = (new CosecsaApiClient())->get($path, $query);
+
+                if (! $response->successful()) {
+                    Log::warning("cosecsa-api $path returned {$response->status()} while loading the online registration form");
+                    return [];
+                }
+
+                return collect($response->json($dataKey, []))
+                    ->pluck($nameKey)
+                    ->filter()
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all();
+            } catch (\Throwable $e) {
+                Log::warning("cosecsa-api $path unreachable while loading the online registration form: " . $e->getMessage());
+                return [];
+            }
+        });
     }
 
     public function store(StoreOnlineRegistrationRequest $request)

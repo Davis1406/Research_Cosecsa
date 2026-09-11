@@ -12,6 +12,19 @@ class StoreOnlineRegistrationRequest extends FormRequest
         return true;
     }
 
+    // The institution/specialty "pick or add" selects submit the literal
+    // value "__other__" only if a client has JavaScript disabled (normally
+    // JS swaps it out for the typed-in text before submit) — treat that as
+    // "left blank" rather than storing the sentinel.
+    protected function prepareForValidation()
+    {
+        foreach (['institution', 'specialty'] as $field) {
+            if ($this->input($field) === '__other__') {
+                $this->merge([$field => null]);
+            }
+        }
+    }
+
     public function rules()
     {
         return [
