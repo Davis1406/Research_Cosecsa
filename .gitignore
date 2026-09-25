@@ -17,3 +17,10 @@ yarn-error.log
 /storage/python-packages
 /storage/python-packages-x86
 /scripts/pptx_cache
+
+# Local-only: AI tool folders and XAMPP root shim
+/.claire
+/.claude
+/.qoder
+/.htaccess
+/index.php
