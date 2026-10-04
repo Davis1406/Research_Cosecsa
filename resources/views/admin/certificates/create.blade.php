@@ -1,5 +1,21 @@
 @extends('layouts.admin')
 
+@section('styles')
+<link href="{{ asset('css/certificate.css') }}" rel="stylesheet">
+<style>
+    #certPreviewModal .cert-heading,
+    #certPreviewModal .cert-name {
+        font-family: 'Playfair Display', serif !important;
+    }
+    #certPreviewModal .certificate {
+        margin: 0 auto;
+    }
+    #certPreviewModal .modal-body {
+        background: #f4f4f4;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="row mb-2">
     <div class="col-lg-12 d-flex justify-content-between align-items-center">
@@ -12,7 +28,7 @@
     </div>
 </div>
 
-<form action="{{ route('admin.certificates.store') }}" method="POST" enctype="multipart/form-data">
+<form id="certForm" action="{{ route('admin.certificates.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="card shadow-sm mb-3" style="border-radius:8px;">
@@ -130,7 +146,7 @@
                 @foreach($trainees as $trainee)
                 <div class="col-md-6 col-lg-4 mb-2">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input trainee-check" id="t{{ $trainee->id }}" name="trainee_ids[]" value="{{ $trainee->id }}"
+                        <input type="checkbox" class="custom-control-input trainee-check" id="t{{ $trainee->id }}" name="trainee_ids[]" value="{{ $trainee->id }}" data-name="{{ $trainee->name }}"
                                {{ in_array($trainee->id, old('trainee_ids', [])) ? 'checked' : '' }}>
                         <label class="custom-control-label" for="t{{ $trainee->id }}" style="font-size:13px;">
                             {{ $trainee->name }}
@@ -148,11 +164,97 @@
 
     <div class="d-flex justify-content-end" style="gap:8px;">
         <a href="{{ route('admin.certificates.index') }}" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;">Cancel</a>
+        <button type="button" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;" onclick="openCertPreview(false)">
+            <i class="fas fa-eye mr-1"></i> Preview
+        </button>
         <button type="submit" class="btn btn-cosecsa btn-sm" style="padding:8px 20px;">
             <i class="fas fa-certificate mr-1"></i> Generate Certificate(s)
         </button>
     </div>
 </form>
+
+{{-- Live certificate preview modal — opened by "Preview" or before confirming "Generate Certificate(s)" --}}
+<div class="modal fade" id="certPreviewModal" tabindex="-1" role="dialog" aria-labelledby="certPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="certPreviewModalLabel" style="font-weight:700; color:#2d3748;">
+                    <i class="fas fa-certificate mr-2" style="color:#C9A84C;"></i> Certificate Preview
+                </h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="pv-note" class="small text-muted mb-2"></div>
+                <div style="overflow-x:auto; padding: 8px 0;">
+                    <div class="certificate">
+                        <div class="cert-top-bar"></div>
+                        <div class="cert-inner">
+                            <div class="cert-logos">
+                                <div class="logo-left">
+                                    <img id="pv-logo-left" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
+                                </div>
+                                <div class="logo-center" id="pv-logo-center" style="display:none;">
+                                    <img id="pv-logo-center-img" src="" alt="Logo 3">
+                                </div>
+                                <div class="logo-right">
+                                    <img id="pv-logo-right" src="" alt="Logo 2" style="display:none;">
+                                    <div id="pv-logo-right-ph" style="width:130px;"></div>
+                                </div>
+                            </div>
+
+                            <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
+                            <div class="cert-divider"></div>
+
+                            <div class="cert-heading">Certificate of Completion</div>
+                            <div class="cert-subtitle">This is to certify that</div>
+
+                            <div class="cert-name" id="pv-name">Trainee Name</div>
+
+                            <div class="cert-body-text">has successfully completed the</div>
+
+                            <div class="cert-course" id="pv-course">Fundamentals of Surgical Research Course</div>
+
+                            <div class="cert-body-text" style="margin-top:10px;">Held at the</div>
+
+                            <div class="cert-event" id="pv-event" style="font-weight:700;">Event Name</div>
+
+                            <div class="cert-venue-date" id="pv-venue-date">Venue &bull; Date</div>
+
+                            <div class="cert-divider"></div>
+
+                            <div class="cert-sigs">
+                                <div class="sig-block" id="pv-sig1" style="display:none;">
+                                    <img id="pv-sig1-img" src="" alt="Signature 1" style="display:none;">
+                                    <div class="sig-line"></div>
+                                    <div class="sig-name" id="pv-sig1-name">Signature</div>
+                                    <div class="sig-title" id="pv-sig1-title"></div>
+                                </div>
+                                <div class="sig-block" id="pv-sig2" style="display:none;">
+                                    <img id="pv-sig2-img" src="" alt="Signature 2" style="display:none;">
+                                    <div class="sig-line"></div>
+                                    <div class="sig-name" id="pv-sig2-name">Signature</div>
+                                    <div class="sig-title" id="pv-sig2-title"></div>
+                                </div>
+                            </div>
+
+                            <div id="pv-stamp" style="display:none; margin-top:18px;">
+                                <img id="pv-stamp-img" src="" alt="Official Stamp" style="max-height:80px; max-width:80px; opacity:0.85;">
+                            </div>
+
+                            <div class="cert-footer">COSECSA &copy; {{ date('Y') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-cosecsa btn-sm" id="pv-confirm-btn" style="display:none; padding:8px 20px;">
+                    <i class="fas fa-check mr-1"></i> Confirm &amp; Generate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -178,5 +280,129 @@ function previewImg(input, targetId) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// ── Live certificate preview ──────────────────────────────────────────────
+function certField(name) {
+    var el = document.querySelector('#certForm [name="' + name + '"]');
+    return el ? String(el.value || '').trim() : '';
+}
+function certHasFile(name) {
+    var el = document.querySelector('#certForm [name="' + name + '"]');
+    return !!(el && el.files && el.files[0]);
+}
+function certReadImage(inputName, imgId) {
+    var input = document.querySelector('#certForm [name="' + inputName + '"]');
+    var img = document.getElementById(imgId);
+    if (input && input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) { img.src = e.target.result; img.style.display = ''; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function certFillSignature(n, prefix) {
+    var name   = certField(prefix + '_name');
+    var hasImg = certHasFile(prefix + '_image');
+    var block  = document.getElementById('pv-sig' + n);
+    if (name || hasImg) {
+        block.style.display = '';
+        document.getElementById('pv-sig' + n + '-name').textContent  = name || 'Signature';
+        document.getElementById('pv-sig' + n + '-title').textContent = certField(prefix + '_title');
+        var img = document.getElementById('pv-sig' + n + '-img');
+        if (hasImg) {
+            certReadImage(prefix + '_image', 'pv-sig' + n + '-img');
+        } else {
+            img.style.display = 'none';
+            img.removeAttribute('src');
+        }
+    } else {
+        block.style.display = 'none';
+    }
+}
+function fillCertificatePreview() {
+    document.getElementById('pv-org').textContent =
+        certField('org_name') || 'College of Surgeons of East, Central & Southern Africa';
+    document.getElementById('pv-course').textContent =
+        certField('course_name') || 'Fundamentals of Surgical Research Course';
+    document.getElementById('pv-event').textContent = certField('event_name') || 'Event Name';
+
+    var venue = certField('venue');
+    var date  = certField('event_date');
+    document.getElementById('pv-venue-date').textContent =
+        (venue && date) ? venue + ' • ' + date : (venue || date || 'Venue • Date');
+
+    var checks    = document.querySelectorAll('.trainee-check:checked');
+    var firstName = checks.length ? (checks[0].getAttribute('data-name') || 'Trainee') : '';
+    document.getElementById('pv-name').textContent = firstName || 'Trainee Name';
+
+    // Logos
+    if (certHasFile('logo_image')) {
+        certReadImage('logo_image', 'pv-logo-left');
+    } else {
+        var logoLeft = document.getElementById('pv-logo-left');
+        logoLeft.src = '{{ asset('img/cosecsa-logo.png') }}';
+        logoLeft.style.display = '';
+    }
+    var lc = document.getElementById('pv-logo-center');
+    if (certHasFile('logo3_image')) { lc.style.display = 'flex'; certReadImage('logo3_image', 'pv-logo-center-img'); }
+    else { lc.style.display = 'none'; }
+
+    var lr   = document.getElementById('pv-logo-right');
+    var lrPh = document.getElementById('pv-logo-right-ph');
+    if (certHasFile('logo2_image')) { lr.style.display = ''; lrPh.style.display = 'none'; certReadImage('logo2_image', 'pv-logo-right'); }
+    else { lr.style.display = 'none'; lrPh.style.display = ''; }
+
+    // Stamp / seal
+    var st = document.getElementById('pv-stamp');
+    if (certHasFile('stamp_image')) { st.style.display = 'block'; certReadImage('stamp_image', 'pv-stamp-img'); }
+    else { st.style.display = 'none'; }
+
+    // Signatures
+    certFillSignature(1, 'sig1');
+    certFillSignature(2, 'sig2');
+}
+function openCertPreview(fromGenerate) {
+    var form = document.getElementById('certForm');
+    if (fromGenerate) {
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        var selected = document.querySelectorAll('.trainee-check:checked').length;
+        if (selected === 0) { alert('Please select at least one trainee.'); return; }
+    }
+
+    fillCertificatePreview();
+
+    var note  = document.getElementById('pv-note');
+    var btn   = document.getElementById('pv-confirm-btn');
+    var count = document.querySelectorAll('.trainee-check:checked').length;
+    if (fromGenerate) {
+        btn.style.display = '';
+        note.textContent = count === 1
+            ? 'This certificate will be issued to 1 trainee. Review it, then click "Confirm & Generate" to finalise.'
+            : 'These certificates will be issued to ' + count + ' trainees. Review the first trainee shown, then click "Confirm & Generate" to finalise.';
+    } else {
+        btn.style.display = 'none';
+        note.textContent = count > 0
+            ? 'Live preview (first selected trainee shown). Fill in or change details, then reopen to update.'
+            : 'Live preview of the certificate template — no details filled in yet.';
+    }
+
+    $('#certPreviewModal').modal('show');
+}
+
+// Intercept submit → show confirm preview instead of saving immediately
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('certForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        openCertPreview(true);
+    });
+    document.getElementById('pv-confirm-btn').addEventListener('click', function () {
+        var form = document.getElementById('certForm');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (document.querySelectorAll('.trainee-check:checked').length === 0) {
+            alert('Please select at least one trainee.');
+            return;
+        }
+        form.submit();
+    });
+});
 </script>
 @endsection
