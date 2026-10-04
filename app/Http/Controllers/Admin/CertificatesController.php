@@ -21,7 +21,9 @@ class CertificatesController extends Controller
     public function create()
     {
         $trainees = Trainee::orderBy('name')->get();
-        return view('admin.certificates.create', compact('trainees'));
+        return response()
+            ->view('admin.certificates.create', compact('trainees'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     public function store(Request $request)
@@ -95,7 +97,9 @@ class CertificatesController extends Controller
     public function preview(Certificate $certificate)
     {
         $certificate->load(['trainee', 'issuedBy']);
-        return view('facilitator.certificates.preview', compact('certificate'));
+        return response()
+            ->view('facilitator.certificates.preview', compact('certificate'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     public function destroy(Certificate $certificate)

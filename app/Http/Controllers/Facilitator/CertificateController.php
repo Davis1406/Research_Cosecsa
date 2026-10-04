@@ -99,7 +99,9 @@ class CertificateController extends Controller
     public function preview(Certificate $certificate)
     {
         $certificate->load(['trainee', 'issuedBy']);
-        return view('facilitator.certificates.preview', compact('certificate'));
+        return response()
+            ->view('facilitator.certificates.preview', compact('certificate'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     public function destroy(Certificate $certificate)
