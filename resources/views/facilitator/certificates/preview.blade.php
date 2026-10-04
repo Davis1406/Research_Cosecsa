@@ -56,7 +56,7 @@
 <div class="certificate">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        {{-- Logos: left logo + org title on the same line | optional centre logo | right logo --}}
+        {{-- Logos: left logo | optional centre logo | right logo --}}
         <div class="cert-logos">
             <div class="logo-left">
                 @if($certificate->logo_path)
@@ -64,7 +64,6 @@
                 @else
                     <img src="{{ asset('img/cosecsa-logo.png') }}" alt="COSECSA">
                 @endif
-                <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
             </div>
             @if($certificate->logo3_path)
             <div class="logo-center">
@@ -81,6 +80,7 @@
             </div>
         </div>
 
+        <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
         <div class="cert-divider"></div>
 
         <div class="cert-heading">Certificate of Completion</div>
