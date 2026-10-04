@@ -71,9 +71,9 @@
 /* Organisation heading — full-width heading starting right after the logo */
 .cert-org {
     flex: 1;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 800;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     color: #2d3748;
     text-align: left;
     text-transform: uppercase;
