@@ -68,17 +68,20 @@
     object-fit: contain;
 }
 
-/* Organisation heading — full-width heading starting right after the logo */
+/* Organisation heading — single line, extending from after the logo to the end */
 .cert-org {
     flex: 1;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     color: #2d3748;
     text-align: left;
     text-transform: uppercase;
     line-height: 1.3;
+    white-space: nowrap;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cert-divider {

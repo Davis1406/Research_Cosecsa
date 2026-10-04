@@ -204,7 +204,7 @@
                                 </div>
                                 <div class="logo-right">
                                     <img id="pv-logo-right" src="" alt="Logo 2" style="display:none;">
-                                    <div id="pv-logo-right-ph" style="width:130px;"></div>
+                                    <div id="pv-logo-right-ph" style="width:24px;"></div>
                                 </div>
                             </div>
 

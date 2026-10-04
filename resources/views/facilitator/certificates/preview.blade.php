@@ -75,8 +75,8 @@
                 @if($certificate->logo2_path)
                     <img src="{{ asset('storage/' . $certificate->logo2_path) }}" alt="Logo 2">
                 @else
-                    {{-- Placeholder space to keep layout balanced when no second logo --}}
-                    <div style="width:130px;"></div>
+                    {{-- Small spacer so the heading extends almost to the right edge --}}
+                    <div style="width:24px;"></div>
                 @endif
             </div>
         </div>
