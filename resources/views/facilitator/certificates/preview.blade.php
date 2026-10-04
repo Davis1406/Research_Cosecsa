@@ -171,26 +171,51 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+// Pre-render the certificate in the background (after fonts/images load) so
+// the Download PNG button responds instantly.
+var previewCanvasCache = null;
+window.addEventListener('load', function () {
+    Promise.resolve((typeof document.fonts !== 'undefined') ? document.fonts.ready : true).then(function () {
+        setTimeout(function () {
+            html2canvas(document.querySelector('.certificate'), {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(function (canvas) {
+                previewCanvasCache = canvas;
+            });
+        }, 200);
+    });
+});
+
 function downloadPng() {
     var btn = document.getElementById('png-btn');
     var original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Rendering…';
-    html2canvas(document.querySelector('.certificate'), {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false
-    }).then(function (canvas) {
+    var finish = function (canvas) {
         var a = document.createElement('a');
         a.download = 'COSECSA-Certificate-{{ $pngName }}.png';
         a.href = canvas.toDataURL('image/png');
         document.body.appendChild(a);
         a.click();
         a.remove();
-    }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = original;
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Rendering…';
+    if (previewCanvasCache) {
+        finish(previewCanvasCache);
+        return;
+    }
+    html2canvas(document.querySelector('.certificate'), {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+    }).then(finish).catch(function () {
         alert('Sorry, the PNG could not be generated.');
-    }).finally(function () {
         btn.disabled = false;
         btn.textContent = original;
     });

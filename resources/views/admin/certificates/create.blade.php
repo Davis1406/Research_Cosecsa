@@ -412,27 +412,57 @@ function openCertPreview(fromGenerate) {
     $('#certPreviewModal').modal('show');
 }
 
-// Download the live certificate preview as a PNG image
-function downloadPreviewPng() {
-    var btn = document.getElementById('pv-png-btn');
-    var original = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Rendering…';
+// Pre-render the certificate to a canvas in the background (while the user
+// reviews the preview) so the Download PNG button responds instantly.
+var previewCanvasCache = null;
+var previewRenderPending = false;
+function renderPreviewCanvas() {
+    if (previewRenderPending) return;
+    previewRenderPending = true;
     html2canvas(document.querySelector('#certPreviewModal .certificate'), {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false
     }).then(function (canvas) {
+        previewCanvasCache = canvas;
+    }).finally(function () {
+        previewRenderPending = false;
+    });
+}
+$('#certPreviewModal').on('shown.bs.modal', function () {
+    previewCanvasCache = null;
+    renderPreviewCanvas();
+});
+
+// Download the live certificate preview as a PNG image
+function downloadPreviewPng() {
+    var btn = document.getElementById('pv-png-btn');
+    var original = btn.innerHTML;
+    var finish = function (canvas) {
         var a = document.createElement('a');
         a.download = 'COSECSA-Certificate-Preview.png';
         a.href = canvas.toDataURL('image/png');
         document.body.appendChild(a);
         a.click();
         a.remove();
-    }).catch(function () {
+        btn.disabled = false;
+        btn.innerHTML = original;
+    };
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Rendering…';
+    if (previewCanvasCache) {
+        finish(previewCanvasCache);
+        return;
+    }
+    html2canvas(document.querySelector('#certPreviewModal .certificate'), {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+    }).then(finish).catch(function () {
         alert('Sorry, the PNG could not be generated.');
-    }).finally(function () {
         btn.disabled = false;
         btn.innerHTML = original;
     });
