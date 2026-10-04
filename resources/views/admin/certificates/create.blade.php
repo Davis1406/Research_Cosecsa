@@ -266,6 +266,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-sm" id="pv-png-btn" style="background:#f8f9fa; color:#555; border:1px solid #dee2e6;" onclick="downloadPreviewPng()">
+                    <i class="fas fa-download mr-1"></i> Download PNG
+                </button>
                 <button type="button" class="btn btn-cosecsa btn-sm" id="pv-confirm-btn" style="display:none; padding:8px 20px;">
                     <i class="fas fa-check mr-1"></i> Confirm &amp; Generate
                 </button>
@@ -277,6 +280,7 @@
 
 @section('scripts')
 @parent
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function selectAll() {
     document.querySelectorAll('.trainee-check').forEach(function(c) { c.checked = true; });
@@ -406,6 +410,32 @@ function openCertPreview(fromGenerate) {
     }
 
     $('#certPreviewModal').modal('show');
+}
+
+// Download the live certificate preview as a PNG image
+function downloadPreviewPng() {
+    var btn = document.getElementById('pv-png-btn');
+    var original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Rendering…';
+    html2canvas(document.querySelector('#certPreviewModal .certificate'), {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+    }).then(function (canvas) {
+        var a = document.createElement('a');
+        a.download = 'COSECSA-Certificate-Preview.png';
+        a.href = canvas.toDataURL('image/png');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }).catch(function () {
+        alert('Sorry, the PNG could not be generated.');
+    }).finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = original;
+    });
 }
 
 // Intercept submit → show confirm preview instead of saving immediately
