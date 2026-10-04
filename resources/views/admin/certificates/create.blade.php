@@ -41,14 +41,12 @@
                     <label style="font-size:12px; font-weight:700; color:#555;">Course Name *</label>
                     <input type="text" name="course_name" class="form-control" value="{{ old('course_name', 'Fundamentals of Surgical Research Course') }}" required>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Event Name *</label>
-                    <input type="text" name="event_name" class="form-control" value="{{ old('event_name') }}" required placeholder="e.g. COSECSA Annual Workshop 2026">
-                </div>
+                @if(course_type() === 'physical')
                 <div class="col-md-6 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">City</label>
                     <input type="text" name="venue" class="form-control" value="{{ old('venue') }}" placeholder="e.g. Nairobi, Kenya">
                 </div>
+                @endif
                 <div class="col-md-6 mb-3">
                     <label style="font-size:12px; font-weight:700; color:#555;">Event Date *</label>
                     <input type="text" name="event_date" class="form-control" value="{{ old('event_date') }}" required placeholder="e.g. 20–25 May 2026">
@@ -219,7 +217,9 @@
 
                             <div class="cert-course" id="pv-course">Fundamentals of Surgical Research Course</div>
 
+                            @if(course_type() === 'physical')
                             <div class="cert-body-text" style="margin-top:10px;">Held in</div>
+                            @endif
 
                             <div class="cert-venue-date" id="pv-venue-date">City &bull; Date</div>
 
@@ -344,8 +344,9 @@ function fillCertificatePreview() {
 
     var venue = certField('venue');
     var date  = certField('event_date');
+    var venueFallback = {{ course_type() === 'physical' ? "'City • Date'" : "'Date'" }};
     document.getElementById('pv-venue-date').textContent =
-        (venue && date) ? venue + ' • ' + date : (venue || date || 'Venue • Date');
+        (venue && date) ? venue + ' • ' + date : (venue || date || venueFallback);
 
     document.getElementById('pv-cpd').textContent = certField('cpd_points') || 'CPD';
 

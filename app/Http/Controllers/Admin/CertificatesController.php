@@ -29,7 +29,7 @@ class CertificatesController extends Controller
         $request->validate([
             'trainee_ids'   => 'required|array|min:1',
             'trainee_ids.*' => 'exists:trainees,id',
-            'event_name'    => 'required|string|max:255',
+            'event_name'    => 'nullable|string|max:255',
             'venue'         => 'nullable|string|max:255',
             'event_date'    => 'required|string|max:100',
             'cpd_points'    => 'nullable|string|max:20',
@@ -66,7 +66,8 @@ class CertificatesController extends Controller
         foreach ($request->trainee_ids as $traineeId) {
             Certificate::create([
                 'trainee_id'   => $traineeId,
-                'event_name'   => $request->event_name,
+                'course_type'  => course_type(),
+                'event_name'   => $request->event_name ?: ($request->course_name ?: 'COSECSA Research Training'),
                 'venue'        => $request->venue,
                 'event_date'   => $request->event_date,
                 'cpd_points'   => $request->cpd_points,
