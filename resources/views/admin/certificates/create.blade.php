@@ -344,7 +344,7 @@ function fillCertificatePreview() {
 
     var venue = certField('venue');
     var date  = certField('event_date');
-    var venueFallback = {{ course_type() === 'physical' ? "'City • Date'" : "'Date'" }};
+    var venueFallback = @json(course_type() === 'physical' ? 'City • Date' : 'Date');
     document.getElementById('pv-venue-date').textContent =
         (venue && date) ? venue + ' • ' + date : (venue || date || venueFallback);
 
