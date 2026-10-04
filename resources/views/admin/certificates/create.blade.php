@@ -197,6 +197,7 @@
                             <div class="cert-logos">
                                 <div class="logo-left">
                                     <img id="pv-logo-left" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
+                                    <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
                                 </div>
                                 <div class="logo-center" id="pv-logo-center" style="display:none;">
                                     <img id="pv-logo-center-img" src="" alt="Logo 3">
@@ -207,7 +208,6 @@
                                 </div>
                             </div>
 
-                            <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
                             <div class="cert-divider"></div>
 
                             <div class="cert-heading">Certificate of Completion</div>
@@ -246,21 +246,21 @@
                                 <img id="pv-stamp-img" src="" alt="Official Stamp" style="max-height:80px; max-width:80px; opacity:0.85;">
                             </div>
 
-                            {{-- COSECSA gold CPD points badge (bottom-left) — live from the CPD Points field --}}
-                            <div class="cert-cpd">
-                                <div class="cert-cpd-badge">
-                                    <div class="cert-cpd-top">COSECSA</div>
-                                    <div class="cert-cpd-value" id="pv-cpd">CPD</div>
-                                    <div class="cert-cpd-bottom">CPD Points</div>
+                            {{-- Bottom row below the signatures: COSECSA gold CPD points badge (left) + verification QR (right) --}}
+                            <div class="cert-bottom-row">
+                                <div class="cert-cpd">
+                                    <div class="cert-cpd-badge">
+                                        <div class="cert-cpd-value" id="pv-cpd">CPD</div>
+                                        <div class="cert-cpd-bottom">CPD Points</div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {{-- Verification QR placeholder (bottom-right) — the real, scannable QR is printed on the issued certificate --}}
-                            <div class="cert-verify">
-                                <div class="cert-verify-placeholder">
-                                    <i class="fas fa-qrcode"></i>
+                                <div class="cert-verify">
+                                    <div class="cert-verify-placeholder">
+                                        <i class="fas fa-qrcode"></i>
+                                    </div>
+                                    <div class="cert-verify-label">Scan to verify</div>
                                 </div>
-                                <div class="cert-verify-label">Scan to verify</div>
                             </div>
                         </div>
                     </div>

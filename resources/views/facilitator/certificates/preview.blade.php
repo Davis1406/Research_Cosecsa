@@ -56,7 +56,7 @@
 <div class="certificate">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        {{-- Logos: left logo | optional centre logo | right logo --}}
+        {{-- Logos: left logo + org title on the same line | optional centre logo | right logo --}}
         <div class="cert-logos">
             <div class="logo-left">
                 @if($certificate->logo_path)
@@ -64,6 +64,7 @@
                 @else
                     <img src="{{ asset('img/cosecsa-logo.png') }}" alt="COSECSA">
                 @endif
+                <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
             </div>
             @if($certificate->logo3_path)
             <div class="logo-center">
@@ -80,7 +81,6 @@
             </div>
         </div>
 
-        <div class="cert-org">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
         <div class="cert-divider"></div>
 
         <div class="cert-heading">Certificate of Completion</div>
@@ -140,24 +140,24 @@
         </div>
         @endif
 
-        {{-- COSECSA gold CPD points badge (bottom-left) --}}
-        @if($certificate->cpd_points)
-        <div class="cert-cpd">
-            <div class="cert-cpd-badge">
-                <div class="cert-cpd-top">COSECSA</div>
-                <div class="cert-cpd-value">{{ $certificate->cpd_points }}</div>
-                <div class="cert-cpd-bottom">CPD Points</div>
+        {{-- Bottom row below the signatures: COSECSA gold CPD points badge (left) + verification QR (right) --}}
+        <div class="cert-bottom-row">
+            @if($certificate->cpd_points)
+            <div class="cert-cpd">
+                <div class="cert-cpd-badge">
+                    <div class="cert-cpd-value">{{ $certificate->cpd_points }}</div>
+                    <div class="cert-cpd-bottom">CPD Points</div>
+                </div>
             </div>
-        </div>
-        @endif
+            @endif
 
-        {{-- Verification QR (bottom-right) — points at the public "COSECSA Verified" page --}}
-        @if($qr = certificate_verification_qr($certificate))
-        <div class="cert-verify">
-            <img src="{{ $qr }}" alt="Scan to verify">
-            <div class="cert-verify-label">Scan to verify</div>
+            @if($qr = certificate_verification_qr($certificate))
+            <div class="cert-verify">
+                <img src="{{ $qr }}" alt="Scan to verify">
+                <div class="cert-verify-label">Scan to verify</div>
+            </div>
+            @endif
         </div>
-        @endif
     </div>
 </div>
 
