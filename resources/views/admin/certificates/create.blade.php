@@ -197,6 +197,7 @@
                             <div class="cert-logos">
                                 <div class="logo-left">
                                     <img id="pv-logo-left" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
+                                    <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
                                 </div>
                                 <div class="logo-center" id="pv-logo-center" style="display:none;">
                                     <img id="pv-logo-center-img" src="" alt="Logo 3">
@@ -207,7 +208,6 @@
                                 </div>
                             </div>
 
-                            <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
                             <div class="cert-divider"></div>
 
                             <div class="cert-heading">Certificate of Completion</div>
