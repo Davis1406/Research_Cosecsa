@@ -242,6 +242,14 @@
                             </div>
 
                             <div class="cert-footer">COSECSA &copy; {{ date('Y') }}</div>
+
+                            {{-- Verification QR placeholder — the real, scannable QR is printed on the issued certificate --}}
+                            <div class="cert-verify">
+                                <div class="cert-verify-placeholder">
+                                    <i class="fas fa-qrcode"></i>
+                                </div>
+                                <div class="cert-verify-label">Scan to verify<br>COSECSA Verified</div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Certificate;
 use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('course_type')) {
@@ -43,5 +44,25 @@ if (!function_exists('course_type')) {
         }
 
         return $resolved = config('courses.default', 'physical');
+    }
+}
+
+if (!function_exists('certificate_verification_qr')) {
+    /**
+     * Generate the small PNG QR code (as a base64 data URI) that points at the
+     * public "COSECSA Verified" page for a certificate. Returns null when the
+     * certificate has no verification token yet.
+     */
+    function certificate_verification_qr(?Certificate $certificate, int $size = 110): ?string
+    {
+        if (!$certificate || empty($certificate->verification_token)) {
+            return null;
+        }
+
+        $qr = \Endroid\QrCode\QrCode::create($certificate->verificationUrl())
+            ->setSize($size)
+            ->setMargin(2);
+
+        return (new \Endroid\QrCode\Writer\PngWriter())->write($qr)->getDataUri();
     }
 }

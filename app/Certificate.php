@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Certificate extends Model
 {
@@ -27,12 +28,30 @@ class Certificate extends Model
         'stamp_path',
         'generated_at',
         'auto_generated',
+        'verification_token',
     ];
 
     protected $casts = [
         'generated_at'   => 'datetime',
         'auto_generated' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        // Every certificate gets a unique, unguessable verification token so
+        // its QR code can be pointed at a public "COSECSA Verified" page.
+        static::creating(function ($certificate) {
+            if (empty($certificate->verification_token)) {
+                $certificate->verification_token = Str::random(32);
+            }
+        });
+    }
+
+    /** Public URL scanned from the certificate QR code. */
+    public function verificationUrl(): string
+    {
+        return route('certificate.verify', $this->verification_token);
+    }
 
     public function trainee()
     {

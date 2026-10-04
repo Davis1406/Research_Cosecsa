@@ -176,6 +176,12 @@ Route::get('/certificate/{certificate}/view', 'CertificateViewController@show')
      ->name('certificate.view')
      ->middleware('auth');
 
+// Public certificate verification — reached by scanning the QR code on a
+// certificate. Deliberately NOT auth-gated so anyone scanning can confirm
+// the certificate is genuine and COSECSA-verified.
+Route::get('/verify/{token}', 'CertificateVerificationController@show')
+     ->name('certificate.verify');
+
 // Mark a single notification item as read (shared — admin & lead facilitator)
 Route::post('/notifications/mark-item-read', function (\Illuminate\Http\Request $request) {
     $key  = preg_replace('/[^a-z0-9_]/', '', $request->input('key', ''));

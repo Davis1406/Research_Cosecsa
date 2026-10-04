@@ -170,3 +170,38 @@
     color: #bbb;
     letter-spacing: 0.5px;
 }
+
+/* Verification QR code (bottom-right corner of the certificate) */
+.cert-verify {
+    position: absolute;
+    right: 28px;
+    bottom: 26px;
+    text-align: center;
+}
+.cert-verify img {
+    width: 74px;
+    height: 74px;
+    display: block;
+    margin: 0 auto;
+}
+.cert-verify-label {
+    font-size: 9px;
+    color: #888;
+    letter-spacing: 0.4px;
+    margin-top: 4px;
+    line-height: 1.3;
+    font-weight: 600;
+}
+.cert-verify-placeholder {
+    width: 74px;
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px dashed #c8c8c8;
+    border-radius: 6px;
+    background: #fafafa;
+    color: #bbb;
+    font-size: 28px;
+    margin: 0 auto;
+}
