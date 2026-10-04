@@ -213,6 +213,8 @@
 
                             <div class="cert-name" id="pv-name">Trainee Name</div>
 
+                            <div class="cert-name-rule"></div>
+
                             <div class="cert-body-text">has successfully completed the</div>
 
                             <div class="cert-course" id="pv-course">Fundamentals of Surgical Research Course</div>

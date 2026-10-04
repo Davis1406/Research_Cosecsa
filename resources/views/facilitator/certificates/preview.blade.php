@@ -96,6 +96,8 @@
 
         <div class="cert-name">{{ $certificate->trainee?->name ?? '&mdash;' }}</div>
 
+        <div class="cert-name-rule"></div>
+
         <div class="cert-body-text">has successfully completed the</div>
 
         <div class="cert-course">{{ $certificate->course_name }}</div>

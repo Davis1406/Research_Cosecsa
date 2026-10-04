@@ -120,11 +120,18 @@
     font-size: 36px;
     font-weight: 700;
     color: #6B1724;
-    margin: 8px 0 6px;
+    margin: 8px 0 2px;
     letter-spacing: 1px;
-    text-decoration: underline;
-    text-decoration-color: rgba(201,152,52,0.6);
-    text-underline-offset: 4px;
+}
+
+/* Gold rule under the recipient name — a real element (not text-decoration),
+   so html2canvas renders it identically in the PNG download. */
+.cert-name-rule {
+    height: 2px;
+    width: 300px;
+    max-width: 70%;
+    margin: 0 auto 8px;
+    background: linear-gradient(90deg, transparent, rgba(201,152,52,0.8), transparent);
 }
 
 .cert-course {
