@@ -241,9 +241,7 @@
                                 <img id="pv-stamp-img" src="" alt="Official Stamp" style="max-height:80px; max-width:80px; opacity:0.85;">
                             </div>
 
-                            <div class="cert-footer">COSECSA &copy; {{ date('Y') }}</div>
-
-                            {{-- Verification QR placeholder — the real, scannable QR is printed on the issued certificate --}}
+                            {{-- Verification QR placeholder — the real, scannable QR is printed on the issued certificate (replaces the old footer) --}}
                             <div class="cert-verify">
                                 <div class="cert-verify-placeholder">
                                     <i class="fas fa-qrcode"></i>

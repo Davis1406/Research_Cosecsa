@@ -164,18 +164,9 @@
     color: #888;
 }
 
-.cert-footer {
-    margin-top: 24px;
-    font-size: 11px;
-    color: #bbb;
-    letter-spacing: 0.5px;
-}
-
-/* Verification QR code (bottom-right corner of the certificate) */
+/* Verification QR code — replaces the footer, centered at the bottom */
 .cert-verify {
-    position: absolute;
-    right: 28px;
-    bottom: 26px;
+    margin-top: 18px;
     text-align: center;
 }
 .cert-verify img {

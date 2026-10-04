@@ -138,9 +138,7 @@
         </div>
         @endif
 
-        <div class="cert-footer">COSECSA &copy; {{ date('Y') }}</div>
-
-        {{-- Verification QR — points at the public "COSECSA Verified" page --}}
+        {{-- Verification QR — points at the public "COSECSA Verified" page (replaces the old footer) --}}
         @if($qr = certificate_verification_qr($certificate))
         <div class="cert-verify">
             <img src="{{ $qr }}" alt="Scan to verify">
