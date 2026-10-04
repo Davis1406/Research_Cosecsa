@@ -30,7 +30,7 @@
                     <input type="text" name="event_name" class="form-control" value="{{ old('event_name') }}" required placeholder="e.g. COSECSA Annual Workshop 2026">
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label style="font-size:12px; font-weight:700; color:#555;">Venue</label>
+                    <label style="font-size:12px; font-weight:700; color:#555;">City</label>
                     <input type="text" name="venue" class="form-control" value="{{ old('venue') }}" placeholder="e.g. Nairobi, Kenya">
                 </div>
                 <div class="col-md-6 mb-3">

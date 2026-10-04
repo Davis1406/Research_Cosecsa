@@ -48,10 +48,18 @@
 </head>
 <body>
 
-<button class="print-btn" onclick="window.print()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-    Print / Download as PDF
-</button>
+@php $pngName = $certificate->trainee?->name ? preg_replace('/[^A-Za-z0-9]+/', '-', $certificate->trainee->name) : 'Certificate'; @endphp
+
+<div style="display:flex; gap:12px; margin-bottom:20px;">
+    <button class="print-btn" style="margin-bottom:0;" onclick="window.print()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print / Download as PDF
+    </button>
+    <button class="print-btn" id="png-btn" style="margin-bottom:0;" onclick="downloadPng()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Download as PNG
+    </button>
+</div>
 
 <div class="certificate">
     <div class="cert-top-bar"></div>
@@ -92,10 +100,9 @@
 
         <div class="cert-course">{{ $certificate->course_name }}</div>
 
-        {{-- "Held at the [event]" only makes sense for the physical workshop --}}
+        {{-- "Held in [city]" — only for the physical workshop (online has no venue line) --}}
         @if(($certificate->course_type ?? 'physical') === 'physical')
-        <div class="cert-body-text" style="margin-top:10px;">Held at the</div>
-        <div class="cert-event" style="font-weight:700;">{{ $certificate->event_name }}</div>
+        <div class="cert-body-text" style="margin-top:10px;">Held in</div>
         @endif
 
         <div class="cert-venue-date">
@@ -162,4 +169,31 @@
 </div>
 
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function downloadPng() {
+    var btn = document.getElementById('png-btn');
+    var original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Rendering…';
+    html2canvas(document.querySelector('.certificate'), {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+    }).then(function (canvas) {
+        var a = document.createElement('a');
+        a.download = 'COSECSA-Certificate-{{ $pngName }}.png';
+        a.href = canvas.toDataURL('image/png');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }).catch(function () {
+        alert('Sorry, the PNG could not be generated.');
+    }).finally(function () {
+        btn.disabled = false;
+        btn.textContent = original;
+    });
+}
+</script>
 </html>
