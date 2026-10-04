@@ -53,6 +53,11 @@
                     <label style="font-size:12px; font-weight:700; color:#555;">Event Date *</label>
                     <input type="text" name="event_date" class="form-control" value="{{ old('event_date') }}" required placeholder="e.g. 20–25 May 2026">
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">CPD Points</label>
+                    <input type="text" name="cpd_points" class="form-control" value="{{ old('cpd_points') }}" placeholder="e.g. 12">
+                    <small class="text-muted">Shown on the golden CPD badge (optional).</small>
+                </div>
             </div>
         </div>
     </div>
@@ -241,12 +246,21 @@
                                 <img id="pv-stamp-img" src="" alt="Official Stamp" style="max-height:80px; max-width:80px; opacity:0.85;">
                             </div>
 
-                            {{-- Verification QR placeholder — the real, scannable QR is printed on the issued certificate (replaces the old footer) --}}
+                            {{-- COSECSA gold CPD points badge (bottom-left) — live from the CPD Points field --}}
+                            <div class="cert-cpd">
+                                <div class="cert-cpd-badge">
+                                    <div class="cert-cpd-top">COSECSA</div>
+                                    <div class="cert-cpd-value" id="pv-cpd">CPD</div>
+                                    <div class="cert-cpd-bottom">CPD Points</div>
+                                </div>
+                            </div>
+
+                            {{-- Verification QR placeholder (bottom-right) — the real, scannable QR is printed on the issued certificate --}}
                             <div class="cert-verify">
                                 <div class="cert-verify-placeholder">
                                     <i class="fas fa-qrcode"></i>
                                 </div>
-                                <div class="cert-verify-label">Scan to verify<br>COSECSA Verified</div>
+                                <div class="cert-verify-label">Scan to verify</div>
                             </div>
                         </div>
                     </div>
@@ -335,6 +349,8 @@ function fillCertificatePreview() {
     var date  = certField('event_date');
     document.getElementById('pv-venue-date').textContent =
         (venue && date) ? venue + ' • ' + date : (venue || date || 'Venue • Date');
+
+    document.getElementById('pv-cpd').textContent = certField('cpd_points') || 'CPD';
 
     var checks    = document.querySelectorAll('.trainee-check:checked');
     var firstName = checks.length ? (checks[0].getAttribute('data-name') || 'Trainee') : '';

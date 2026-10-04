@@ -13,6 +13,7 @@ class Certificate extends Model
         'event_name',
         'venue',
         'event_date',
+        'cpd_points',
         'issued_by',
         'course_name',
         'org_name',

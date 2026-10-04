@@ -37,6 +37,11 @@
                     <label style="font-size:12px; font-weight:700; color:#555;">Event Date *</label>
                     <input type="text" name="event_date" class="form-control" value="{{ old('event_date') }}" required placeholder="e.g. 20–25 May 2026">
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label style="font-size:12px; font-weight:700; color:#555;">CPD Points</label>
+                    <input type="text" name="cpd_points" class="form-control" value="{{ old('cpd_points') }}" placeholder="e.g. 12">
+                    <small class="text-muted">Shown on the golden CPD badge (optional).</small>
+                </div>
             </div>
         </div>
     </div>

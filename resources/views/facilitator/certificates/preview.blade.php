@@ -92,9 +92,11 @@
 
         <div class="cert-course">{{ $certificate->course_name }}</div>
 
+        {{-- "Held at the [event]" only makes sense for the physical workshop --}}
+        @if(($certificate->course_type ?? 'physical') === 'physical')
         <div class="cert-body-text" style="margin-top:10px;">Held at the</div>
-
         <div class="cert-event" style="font-weight:700;">{{ $certificate->event_name }}</div>
+        @endif
 
         <div class="cert-venue-date">
             {{ $certificate->venue ? $certificate->venue . ' • ' : '' }}{{ $certificate->event_date }}
@@ -138,11 +140,22 @@
         </div>
         @endif
 
-        {{-- Verification QR — points at the public "COSECSA Verified" page (replaces the old footer) --}}
+        {{-- COSECSA gold CPD points badge (bottom-left) --}}
+        @if($certificate->cpd_points)
+        <div class="cert-cpd">
+            <div class="cert-cpd-badge">
+                <div class="cert-cpd-top">COSECSA</div>
+                <div class="cert-cpd-value">{{ $certificate->cpd_points }}</div>
+                <div class="cert-cpd-bottom">CPD Points</div>
+            </div>
+        </div>
+        @endif
+
+        {{-- Verification QR (bottom-right) — points at the public "COSECSA Verified" page --}}
         @if($qr = certificate_verification_qr($certificate))
         <div class="cert-verify">
             <img src="{{ $qr }}" alt="Scan to verify">
-            <div class="cert-verify-label">Scan to verify<br>COSECSA Verified</div>
+            <div class="cert-verify-label">Scan to verify</div>
         </div>
         @endif
     </div>
