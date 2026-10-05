@@ -30,7 +30,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 14px 70px 56px;
+    padding: 14px 70px 24px;
 }
 
 /* Scale the content up so it fills the wide 16:9 slide */
