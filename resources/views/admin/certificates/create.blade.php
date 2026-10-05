@@ -2,6 +2,7 @@
 
 @section('styles')
 <link href="{{ asset('css/certificate.css') }}" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <style>
     #certPreviewModal .cert-heading,
     #certPreviewModal .cert-name {

@@ -125,6 +125,7 @@
 
 .cert-heading {
     font-family: 'Playfair Display', serif;
+    font-style: italic;
     font-size: 38px;
     font-weight: 700;
     color: #2d3748;
