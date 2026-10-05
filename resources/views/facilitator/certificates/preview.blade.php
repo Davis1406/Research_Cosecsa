@@ -35,6 +35,7 @@
         @media print {
             body { background: #fff; padding: 0; }
             .print-btn { display: none; }
+            .no-print { display: none !important; }
             .certificate {
                 width: 100%;
                 box-shadow: none;
@@ -48,23 +49,51 @@
 </head>
 <body>
 
-@php $pngName = $certificate->trainee?->name ? preg_replace('/[^A-Za-z0-9]+/', '-', $certificate->trainee->name) : 'Certificate'; @endphp
+@php
+    $pngName = $certificate->trainee?->name ? preg_replace('/[^A-Za-z0-9]+/', '-', $certificate->trainee->name) : 'Certificate';
+    $design  = in_array(request('design'), ['classic', 'centered'], true) ? request('design') : 'classic';
+@endphp
 
-<div style="display:flex; gap:12px; margin-bottom:20px;">
-    <button class="print-btn" style="margin-bottom:0;" onclick="window.print()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-        Print / Download as PDF
-    </button>
-    <button class="print-btn" id="png-btn" style="margin-bottom:0;" onclick="downloadPng()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Download as PNG
-    </button>
+<div style="display:flex; gap:12px; margin-bottom:20px; align-items:center; flex-wrap:wrap; justify-content:space-between; width:100%; max-width:900px;">
+    <div style="display:flex; gap:12px;">
+        <button class="print-btn" style="margin-bottom:0;" onclick="window.print()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / Download as PDF
+        </button>
+        <button class="print-btn" id="png-btn" style="margin-bottom:0;" onclick="downloadPng()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download as PNG
+        </button>
+    </div>
+    <div class="no-print" style="font-size:13px; color:#888;">
+        Design:
+        <a href="?design=classic" style="text-decoration:none; font-weight:700; color:{{ $design === 'classic' ? '#a02626' : '#999' }};">Classic</a>
+        <span style="color:#ccc;">|</span>
+        <a href="?design=centered" style="text-decoration:none; font-weight:700; color:{{ $design === 'centered' ? '#a02626' : '#999' }};">Centered</a>
+    </div>
 </div>
 
 <div class="certificate">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        {{-- Logos row — heading sits right after the logo --}}
+        @if($design === 'centered')
+        {{-- Centered design: logo on top, then the COSECSA heading --}}
+        <div class="cert-header-center">
+            @if($certificate->logo_path)
+                <img src="{{ asset('storage/' . $certificate->logo_path) }}" alt="Logo">
+            @else
+                <img src="{{ asset('img/cosecsa-logo.png') }}" alt="COSECSA">
+            @endif
+            <div class="cert-org-center">{{ $certificate->org_name ?? 'College of Surgeons of East, Central & Southern Africa' }}</div>
+            @if($certificate->logo2_path || $certificate->logo3_path)
+            <div class="cert-header-partners">
+                @if($certificate->logo3_path)<img src="{{ asset('storage/' . $certificate->logo3_path) }}" alt="Logo 3">@endif
+                @if($certificate->logo2_path)<img src="{{ asset('storage/' . $certificate->logo2_path) }}" alt="Logo 2">@endif
+            </div>
+            @endif
+        </div>
+        @else
+        {{-- Classic design: logo on the left, heading beside it --}}
         <div class="cert-logos">
             <div class="logo-left">
                 @if($certificate->logo_path)
@@ -88,6 +117,7 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="cert-divider"></div>
 
