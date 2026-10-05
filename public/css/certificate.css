@@ -30,26 +30,30 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 14px 120px 56px;
+    padding: 14px 70px 56px;
 }
 
 /* Scale the content up so it fills the wide 16:9 slide */
 .certificate--slide .cert-header-center { margin-bottom: 0; }
 .certificate--slide .cert-header-center > img { height: 96px; max-width: 190px; }
-.certificate--slide .cert-org-center { font-size: 24px; margin-top: 6px; }
-.certificate--slide .cert-divider { width: 120px; margin: 18px auto 14px; }
-.certificate--slide .cert-heading { font-size: 50px; margin: 2px 0; line-height: 1.2; }
-.certificate--slide .cert-subtitle { font-size: 19px; margin-bottom: 6px; }
-.certificate--slide .cert-name { font-size: 50px; margin: 4px 0 2px; line-height: 1.2; }
-.certificate--slide .cert-name-rule { width: 460px; margin: 0 auto 8px; }
-.certificate--slide .cert-body-text { font-size: 21px; margin: 4px 0; }
-.certificate--slide .cert-course { font-size: 24px; margin: 4px 0; }
-.certificate--slide .cert-venue-date { font-size: 19px; margin-top: 2px; margin-bottom: 8px; }
-.certificate--slide .cert-sigs { margin-top: 28px; padding: 0 200px; gap: 120px; }
+.certificate--slide .cert-org-center { font-size: 33px; margin-top: 6px; letter-spacing: 0.8px; white-space: nowrap; }
+.certificate--slide .cert-inner > * { flex-shrink: 0; }
+.certificate--slide .cert-divider { width: 680px; margin: 14px auto 10px; background: linear-gradient(90deg, transparent, #C99834 15%, #C99834 85%, transparent); }
+.certificate--slide .cert-heading { font-size: 58px; margin: 2px 0; line-height: 1.2; display: flex; align-items: center; justify-content: center; gap: 36px; }
+.certificate--slide .cert-heading::before,
+.certificate--slide .cert-heading::after { content: ''; width: 170px; height: 2px; background: linear-gradient(90deg, transparent, #C99834); }
+.certificate--slide .cert-heading::after { background: linear-gradient(270deg, transparent, #C99834); }
+.certificate--slide .cert-subtitle { font-size: 22px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.certificate--slide .cert-name { font-size: 56px; margin: 4px 0 2px; line-height: 1.2; }
+.certificate--slide .cert-name-rule { width: 640px; margin: 0 auto 8px; }
+.certificate--slide .cert-body-text { font-size: 24px; margin: 4px 0; }
+.certificate--slide .cert-course { font-size: 29px; margin: 4px 0; }
+.certificate--slide .cert-venue-date { font-size: 22px; margin-top: 2px; margin-bottom: 8px; }
+.certificate--slide .cert-sigs { margin-top: 28px; padding: 0 230px; gap: 200px; }
 .certificate--slide .sig-block img { max-height: 64px; max-width: 200px; }
 .certificate--slide .sig-line { margin: 4px auto 4px; }
-.certificate--slide .sig-name { font-size: 20px; }
-.certificate--slide .sig-title { font-size: 16px; }
+.certificate--slide .sig-name { font-size: 22px; }
+.certificate--slide .sig-title { font-size: 17px; }
 /* CPD badge + QR sit in the bottom corners, level with the signatures */
 .certificate--slide .cert-bottom-row {
     position: absolute;
