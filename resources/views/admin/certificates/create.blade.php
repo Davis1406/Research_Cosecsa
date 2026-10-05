@@ -284,9 +284,7 @@
                                 </div>
 
                                 <div class="cert-verify">
-                                    <div class="cert-verify-placeholder">
-                                        <i class="fas fa-qrcode"></i>
-                                    </div>
+                                    <img src="{{ certificate_sample_qr() }}" alt="Scan to verify">
                                     <div class="cert-verify-label">Scan to verify</div>
                                 </div>
                             </div>

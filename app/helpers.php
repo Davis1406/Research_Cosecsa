@@ -53,13 +53,29 @@ if (!function_exists('certificate_verification_qr')) {
      * public "COSECSA Verified" page for a certificate. Returns null when the
      * certificate has no verification token yet.
      */
-    function certificate_verification_qr(?Certificate $certificate, int $size = 110): ?string
+    function certificate_verification_qr(?Certificate $certificate, int $size = 240): ?string
     {
         if (!$certificate || empty($certificate->verification_token)) {
             return null;
         }
 
         $qr = \Endroid\QrCode\QrCode::create($certificate->verificationUrl())
+            ->setSize($size)
+            ->setMargin(2);
+
+        return (new \Endroid\QrCode\Writer\PngWriter())->write($qr)->getDataUri();
+    }
+}
+
+if (!function_exists('certificate_sample_qr')) {
+    /**
+     * A real, scannable QR code (base64 PNG data URI) for the certificate
+     * preview modal, where the certificate has no verification token yet.
+     * It points at the public verification page URL format.
+     */
+    function certificate_sample_qr(int $size = 240): string
+    {
+        $qr = \Endroid\QrCode\QrCode::create(route('certificate.verify', 'preview-sample'))
             ->setSize($size)
             ->setMargin(2);
 

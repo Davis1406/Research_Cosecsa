@@ -55,16 +55,16 @@
     position: absolute;
     left: 100px;
     right: 100px;
-    bottom: 56px;
+    bottom: 42px;
     margin-top: 0;
     pointer-events: none;
 }
-.certificate--slide .cert-cpd-badge { width: 96px; height: 96px; }
-.certificate--slide .cert-cpd-value { font-size: 36px; }
-.certificate--slide .cert-cpd-bottom { font-size: 10px; }
+.certificate--slide .cert-cpd-badge { width: 80px; height: 80px; }
+.certificate--slide .cert-cpd-value { font-size: 30px; }
+.certificate--slide .cert-cpd-bottom { font-size: 8.5px; }
 .certificate--slide .cert-verify img,
-.certificate--slide .cert-verify-placeholder { width: 88px; height: 88px; }
-.certificate--slide .cert-verify-label { font-size: 12px; }
+.certificate--slide .cert-verify-placeholder { width: 74px; height: 74px; }
+.certificate--slide .cert-verify-label { font-size: 11px; }
 
 /* Top maroon bar */
 .cert-top-bar {
