@@ -26,8 +26,35 @@
 }
 .certificate--slide .cert-inner {
     flex: 1;
-    padding: 40px 130px 34px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px 120px;
 }
+
+/* Scale the content up so it fills the wide 16:9 slide */
+.certificate--slide .cert-header-center > img { height: 104px; max-width: 200px; }
+.certificate--slide .cert-org-center { font-size: 21px; margin-top: 10px; }
+.certificate--slide .cert-divider { margin: 12px auto; }
+.certificate--slide .cert-heading { font-size: 45px; margin: 6px 0; }
+.certificate--slide .cert-subtitle { font-size: 15px; margin-bottom: 12px; }
+.certificate--slide .cert-name { font-size: 44px; margin: 8px 0 4px; }
+.certificate--slide .cert-name-rule { width: 380px; margin: 0 auto 12px; }
+.certificate--slide .cert-body-text { font-size: 18px; margin: 10px 0; }
+.certificate--slide .cert-course { font-size: 19px; margin: 8px 0; }
+.certificate--slide .cert-venue-date { font-size: 15px; margin-bottom: 14px; }
+.certificate--slide .cert-sigs { margin-top: 26px; }
+.certificate--slide .sig-block img { max-height: 70px; max-width: 180px; }
+.certificate--slide .sig-name { font-size: 17px; }
+.certificate--slide .sig-title { font-size: 14px; }
+.certificate--slide .cert-bottom-row { margin-top: 22px; }
+.certificate--slide .cert-cpd-badge { width: 96px; height: 96px; }
+.certificate--slide .cert-cpd-value { font-size: 32px; }
+.certificate--slide .cert-cpd-bottom { font-size: 9px; }
+.certificate--slide .cert-verify img,
+.certificate--slide .cert-verify-placeholder { width: 88px; height: 88px; }
+.certificate--slide .cert-verify-label { font-size: 11px; }
 
 /* Top maroon bar */
 .cert-top-bar {
