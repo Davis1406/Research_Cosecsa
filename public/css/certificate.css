@@ -16,6 +16,19 @@
     overflow: hidden;
 }
 
+/* Slide variant — matches the ECSACONM certificate page size (1440 x 810 pt, 16:9) */
+.certificate--slide {
+    width: 1440px;
+    max-width: none;
+    height: 810px;
+    display: flex;
+    flex-direction: column;
+}
+.certificate--slide .cert-inner {
+    flex: 1;
+    padding: 40px 130px 34px;
+}
+
 /* Top maroon bar */
 .cert-top-bar {
     height: 10px;

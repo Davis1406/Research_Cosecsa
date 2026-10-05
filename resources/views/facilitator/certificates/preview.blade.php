@@ -51,7 +51,9 @@
 
 @php
     $pngName = $certificate->trainee?->name ? preg_replace('/[^A-Za-z0-9]+/', '-', $certificate->trainee->name) : 'Certificate';
-    $design  = in_array(request('design'), ['classic', 'centered'], true) ? request('design') : 'classic';
+    $design  = in_array(request('design'), ['classic', 'centered', 'slide'], true) ? request('design') : 'classic';
+    $isCentered = in_array($design, ['centered', 'slide'], true);
+    $isSlide    = $design === 'slide';
 @endphp
 
 <div style="display:flex; gap:12px; margin-bottom:20px; align-items:center; flex-wrap:wrap; justify-content:space-between; width:100%; max-width:900px;">
@@ -70,13 +72,16 @@
         <a href="?design=classic" style="text-decoration:none; font-weight:700; color:{{ $design === 'classic' ? '#a02626' : '#999' }};">Classic</a>
         <span style="color:#ccc;">|</span>
         <a href="?design=centered" style="text-decoration:none; font-weight:700; color:{{ $design === 'centered' ? '#a02626' : '#999' }};">Centered</a>
+        <span style="color:#ccc;">|</span>
+        <a href="?design=slide" style="text-decoration:none; font-weight:700; color:{{ $design === 'slide' ? '#a02626' : '#999' }};">Slide 16:9</a>
     </div>
 </div>
 
-<div class="certificate">
+<div style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+<div class="certificate {{ $isSlide ? 'certificate--slide' : '' }}" style="margin:0 auto;">
     <div class="cert-top-bar"></div>
     <div class="cert-inner">
-        @if($design === 'centered')
+        @if($isCentered)
         {{-- Centered design: logo on top, then the COSECSA heading --}}
         <div class="cert-header-center">
             @if($certificate->logo_path)
@@ -198,6 +203,7 @@
             @endif
         </div>
     </div>
+</div>
 </div>
 
 </body>

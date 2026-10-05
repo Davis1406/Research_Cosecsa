@@ -205,6 +205,7 @@
                     Design:
                     <button type="button" id="pv-design-classic" class="btn btn-sm pv-design-btn active" onclick="setPreviewDesign('classic')">Classic</button>
                     <button type="button" id="pv-design-centered" class="btn btn-sm pv-design-btn" onclick="setPreviewDesign('centered')">Centered</button>
+                    <button type="button" id="pv-design-slide" class="btn btn-sm pv-design-btn" onclick="setPreviewDesign('slide')">Slide 16:9</button>
                 </div>
                 <div style="overflow-x:auto; padding: 8px 0;">
                     <div class="certificate">
@@ -420,10 +421,14 @@ function fillCertificatePreview() {
 var previewDesign = 'classic';
 function setPreviewDesign(design) {
     previewDesign = design;
-    document.getElementById('pv-header-classic').style.display  = design === 'classic'  ? '' : 'none';
-    document.getElementById('pv-header-centered').style.display = design === 'centered' ? '' : 'none';
+    var centered = (design === 'centered' || design === 'slide');
+    document.getElementById('pv-header-classic').style.display  = centered ? 'none' : '';
+    document.getElementById('pv-header-centered').style.display = centered ? '' : 'none';
+    document.querySelector('#certPreviewModal .certificate')
+        .classList.toggle('certificate--slide', design === 'slide');
     document.getElementById('pv-design-classic').classList.toggle('active', design === 'classic');
     document.getElementById('pv-design-centered').classList.toggle('active', design === 'centered');
+    document.getElementById('pv-design-slide').classList.toggle('active', design === 'slide');
     previewCanvasCache = null;
     if (document.getElementById('certPreviewModal').classList.contains('show')) {
         renderPreviewCanvas();
