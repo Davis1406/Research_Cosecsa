@@ -13,6 +13,18 @@
     #certPreviewModal .modal-body {
         background: #f4f4f4;
     }
+    #certPreviewModal .pv-design-btn {
+        background: #fff;
+        border: 1.5px solid #d1d5db;
+        color: #666;
+        font-weight: 600;
+        padding: 3px 14px;
+    }
+    #certPreviewModal .pv-design-btn.active {
+        background: #a02626;
+        border-color: #a02626;
+        color: #fff;
+    }
 </style>
 @endsection
 
@@ -188,21 +200,35 @@
             </div>
             <div class="modal-body text-center">
                 <div id="pv-note" class="small text-muted mb-2"></div>
+                <div class="mb-2" style="font-size:13px; color:#888;">
+                    Design:
+                    <button type="button" id="pv-design-classic" class="btn btn-sm pv-design-btn active" onclick="setPreviewDesign('classic')">Classic</button>
+                    <button type="button" id="pv-design-centered" class="btn btn-sm pv-design-btn" onclick="setPreviewDesign('centered')">Centered</button>
+                </div>
                 <div style="overflow-x:auto; padding: 8px 0;">
                     <div class="certificate">
                         <div class="cert-top-bar"></div>
                         <div class="cert-inner">
-                            <div class="cert-logos">
-                                <div class="logo-left">
-                                    <img id="pv-logo-left" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
-                                    <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
+                            <div id="pv-header-classic">
+                                <div class="cert-logos">
+                                    <div class="logo-left">
+                                        <img id="pv-logo-left" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
+                                        <div class="cert-org" id="pv-org">College of Surgeons of East, Central &amp; Southern Africa</div>
+                                    </div>
+                                    <div class="logo-center" id="pv-logo-center" style="display:none;">
+                                        <img id="pv-logo-center-img" src="" alt="Logo 3">
+                                    </div>
+                                    <div class="logo-right">
+                                        <img id="pv-logo-right" src="" alt="Logo 2" style="display:none;">
+                                        <div id="pv-logo-right-ph" style="width:24px;"></div>
+                                    </div>
                                 </div>
-                                <div class="logo-center" id="pv-logo-center" style="display:none;">
-                                    <img id="pv-logo-center-img" src="" alt="Logo 3">
-                                </div>
-                                <div class="logo-right">
-                                    <img id="pv-logo-right" src="" alt="Logo 2" style="display:none;">
-                                    <div id="pv-logo-right-ph" style="width:24px;"></div>
+                            </div>
+
+                            <div id="pv-header-centered" style="display:none;">
+                                <div class="cert-header-center">
+                                    <img id="pv-logo-top" src="{{ asset('img/cosecsa-logo.png') }}" alt="Logo">
+                                    <div class="cert-org-center" id="pv-org-center">College of Surgeons of East, Central &amp; Southern Africa</div>
                                 </div>
                             </div>
 
@@ -343,8 +369,9 @@ function certFillSignature(n, prefix) {
     }
 }
 function fillCertificatePreview() {
-    document.getElementById('pv-org').textContent =
-        certField('org_name') || 'College of Surgeons of East, Central & Southern Africa';
+    var orgText = certField('org_name') || 'College of Surgeons of East, Central & Southern Africa';
+    document.getElementById('pv-org').textContent = orgText;
+    document.getElementById('pv-org-center').textContent = orgText;
     document.getElementById('pv-course').textContent =
         certField('course_name') || 'Fundamentals of Surgical Research Course';
 
@@ -363,10 +390,13 @@ function fillCertificatePreview() {
     // Logos
     if (certHasFile('logo_image')) {
         certReadImage('logo_image', 'pv-logo-left');
+        certReadImage('logo_image', 'pv-logo-top');
     } else {
+        var defaultLogo = '{{ asset('img/cosecsa-logo.png') }}';
         var logoLeft = document.getElementById('pv-logo-left');
-        logoLeft.src = '{{ asset('img/cosecsa-logo.png') }}';
+        logoLeft.src = defaultLogo;
         logoLeft.style.display = '';
+        document.getElementById('pv-logo-top').src = defaultLogo;
     }
     var lc = document.getElementById('pv-logo-center');
     if (certHasFile('logo3_image')) { lc.style.display = 'flex'; certReadImage('logo3_image', 'pv-logo-center-img'); }
@@ -386,6 +416,19 @@ function fillCertificatePreview() {
     certFillSignature(1, 'sig1');
     certFillSignature(2, 'sig2');
 }
+var previewDesign = 'classic';
+function setPreviewDesign(design) {
+    previewDesign = design;
+    document.getElementById('pv-header-classic').style.display  = design === 'classic'  ? '' : 'none';
+    document.getElementById('pv-header-centered').style.display = design === 'centered' ? '' : 'none';
+    document.getElementById('pv-design-classic').classList.toggle('active', design === 'classic');
+    document.getElementById('pv-design-centered').classList.toggle('active', design === 'centered');
+    previewCanvasCache = null;
+    if (document.getElementById('certPreviewModal').classList.contains('show')) {
+        renderPreviewCanvas();
+    }
+}
+
 function openCertPreview(fromGenerate) {
     var form = document.getElementById('certForm');
     if (fromGenerate) {
